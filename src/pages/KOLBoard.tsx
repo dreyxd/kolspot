@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { live } from '../services/realtime'
+import { tradeStore } from '../services/tradeStore'
 import { LeaderboardEntry, Trade } from '../types'
 import { formatCurrency, formatDate, shortAddress } from '../utils/format'
 import { loadKols } from '../services/kols'
@@ -105,13 +106,19 @@ export default function KOLBoard() {
 
   useEffect(() => {
     loadKols().then(setKols).catch(console.error)
-    const offL = live.on('leaderboard', (lb) => setLeaderboard(lb))
-    const offT = live.on('trade', (t) => {
-      if (t.side === 'BUY') {
-        setBuyTrades((prev) => [t, ...prev].slice(0, 3000))
-      }
+    
+    // Subscribe to persistent trade store (gets existing trades immediately)
+    const unsubscribe = tradeStore.subscribe((trades) => {
+      const buyOnly = trades.filter(t => t.side === 'BUY')
+      setBuyTrades(buyOnly)
     })
-    return () => { offL(); offT() }
+    
+    const offL = live.on('leaderboard', (lb) => setLeaderboard(lb))
+    
+    return () => { 
+      offL()
+      unsubscribe()
+    }
   }, [])
 
   // Build per-coin data structure with unique buyers and capped trades

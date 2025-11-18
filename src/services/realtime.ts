@@ -1,6 +1,7 @@
 import { LeaderboardEntry, Kol, PnlPoint, Trade } from '../types'
 import { loadKols } from './kols'
 import { startHeliusPolling } from './helius'
+import { tradeStore } from './tradeStore'
 
 type Listener<T> = (data: T) => void
 
@@ -8,7 +9,13 @@ class Emitter<T> {
   private listeners = new Set<Listener<T>>()
   on(fn: Listener<T>) { this.listeners.add(fn); return () => this.off(fn) }
   off(fn: Listener<T>) { this.listeners.delete(fn) }
-  emit(data: T) { this.listeners.forEach(l => l(data)) }
+  emit(data: T) { 
+    this.listeners.forEach(l => l(data))
+    // Also store trades in persistent store
+    if ((data as any).side) {
+      tradeStore.addTrade(data as Trade)
+    }
+  }
 }
 
 export type LiveEvents = {

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import kolRoutes from './routes/kol.js';
 import coinsRoutes from './routes/coins.js';
+import webhookRoutes from './routes/webhook.js';
 import { initWebSocket } from './websocket/index.js';
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/kol', kolRoutes);
 app.use('/api/coins', coinsRoutes);
+app.use('/api/webhook', webhookRoutes);
 
 // Initialize WebSocket
 initWebSocket(server);

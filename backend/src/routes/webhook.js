@@ -1,8 +1,7 @@
 import express from 'express';
 import {
-  parseTransactionForBuys,
-  fetchTokenMetadata,
-  isPumpFunToken
+  parseTransactions,
+  fetchTokenMetadata
 } from '../services/helius.js';
 import { saveTransaction } from '../db/queries.js';
 import { broadcastTransaction } from '../websocket/index.js';
@@ -28,39 +27,31 @@ router.post('/helius', async (req, res) => {
 
     for (const txData of transactions) {
       try {
-        // Extract transaction details
         const signature = txData.signature;
-        const accountData = txData.accountData || [];
-        const nativeTransfers = txData.nativeTransfers || [];
-        const tokenTransfers = txData.tokenTransfers || [];
 
-        // Parse for buy transactions
-        const buyTxs = parseTransactionForBuys(null, [txData]);
+        // Parse for buy AND sell transactions
+        const trades = parseTransactions(null, [txData]);
 
-        if (buyTxs.length === 0) {
-          console.log(`[Webhook] No buy transactions found in ${signature}`);
+        if (trades.length === 0) {
+          console.log(`[Webhook] No trades found in ${signature}`);
           continue;
         }
 
-        // Fetch token metadata
-        const uniqueMints = [...new Set(buyTxs.map(tx => tx.tokenMint))];
-        const metadata = await fetchTokenMetadata(uniqueMints);
-        const metadataMap = new Map(
-          metadata.map(m => [m.mint || m.account, m])
-        );
+        console.log(`[Webhook] Found ${trades.length} trade(s) in ${signature}`);
 
-        // Filter for pump.fun tokens and broadcast
-        for (const tx of buyTxs) {
-          const tokenMeta = metadataMap.get(tx.tokenMint);
-          
-          if (isPumpFunToken(tokenMeta)) {
-            console.log(`[Webhook] 🚀 Pump.fun buy detected: ${tx.tokenSymbol} by ${tx.walletAddress.slice(0, 4)}...`);
+        // Process all trades (BUY and SELL)
+        for (const tx of trades) {
+          try {
+            const emoji = tx.side === 'BUY' ? '💰' : '💸';
+            console.log(`[Webhook] ${emoji} ${tx.side}: ${tx.tokenSymbol} by ${tx.walletAddress.slice(0, 4)}... (${tx.solAmount.toFixed(2)} SOL)`);
 
             const transaction = {
               walletAddress: tx.walletAddress,
               tokenMint: tx.tokenMint,
               tokenSymbol: tx.tokenSymbol,
               amount: tx.tokenAmount,
+              solAmount: tx.solAmount,
+              side: tx.side,
               timestamp: tx.timestamp,
               signature: tx.transactionSignature
             };
@@ -74,8 +65,8 @@ router.post('/helius', async (req, res) => {
             // Invalidate cache
             cache.del('kols-count');
             cache.del('recent-trades');
-          } else {
-            console.log(`[Webhook] Skipping non-pump.fun token: ${tx.tokenSymbol}`);
+          } catch (err) {
+            console.error(`[Webhook] Error processing ${tx.side} trade:`, err);
           }
         }
       } catch (err) {

@@ -71,10 +71,12 @@ export const getRecentTrades = async (limit: number = 100): Promise<BackendTrans
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const trades = await response.json();
+    console.log(`✅ Loaded ${trades.length} recent trades from backend`);
+    return trades;
   } catch (error) {
     console.error('Error fetching recent trades:', error);
-    throw error;
+    return []; // Return empty array on error
   }
 };
 

@@ -12,14 +12,18 @@ const createTables = async () => {
         token_mint VARCHAR(44) NOT NULL,
         token_symbol VARCHAR(20),
         amount DECIMAL(24, 8) NOT NULL,
+        sol_amount DECIMAL(18, 8),
+        side VARCHAR(4) NOT NULL DEFAULT 'BUY',
         timestamp TIMESTAMPTZ NOT NULL,
         signature VARCHAR(88) UNIQUE NOT NULL,
-        created_at TIMESTAMPTZ DEFAULT NOW(),
-        INDEX idx_wallet_address (wallet_address),
-        INDEX idx_token_mint (token_mint),
-        INDEX idx_timestamp (timestamp),
-        INDEX idx_signature (signature)
+        created_at TIMESTAMPTZ DEFAULT NOW()
       );
+      
+      CREATE INDEX IF NOT EXISTS idx_wallet_address ON kol_transactions(wallet_address);
+      CREATE INDEX IF NOT EXISTS idx_token_mint ON kol_transactions(token_mint);
+      CREATE INDEX IF NOT EXISTS idx_timestamp ON kol_transactions(timestamp DESC);
+      CREATE INDEX IF NOT EXISTS idx_signature ON kol_transactions(signature);
+      CREATE INDEX IF NOT EXISTS idx_side ON kol_transactions(side);
     `);
 
     console.log('✓ kol_transactions table created');

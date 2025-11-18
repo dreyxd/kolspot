@@ -6,6 +6,8 @@ export const saveTransaction = async (transaction) => {
     tokenMint,
     tokenSymbol,
     amount,
+    solAmount,
+    side = 'BUY',
     timestamp,
     signature
   } = transaction;
@@ -13,11 +15,11 @@ export const saveTransaction = async (transaction) => {
   try {
     const result = await query(
       `INSERT INTO kol_transactions 
-       (wallet_address, token_mint, token_symbol, amount, timestamp, signature)
-       VALUES ($1, $2, $3, $4, $5, $6)
+       (wallet_address, token_mint, token_symbol, amount, sol_amount, side, timestamp, signature)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (signature) DO NOTHING
        RETURNING *`,
-      [walletAddress, tokenMint, tokenSymbol, amount, timestamp, signature]
+      [walletAddress, tokenMint, tokenSymbol, amount, solAmount, side, timestamp, signature]
     );
 
     return result.rows[0];
@@ -57,6 +59,8 @@ export const getRecentTransactions = async (limit = 100) => {
          token_mint as "tokenMint",
          token_symbol as "tokenSymbol",
          amount,
+         sol_amount as "solAmount",
+         side,
          timestamp,
          signature
        FROM kol_transactions

@@ -40,37 +40,67 @@ export const fetchTokenMetadata = async (mintAddresses) => {
   }
 };
 
-export const parseTransactionForBuys = (walletAddress, transactions) => {
+export const parseTransactions = (walletAddress, transactions) => {
   const SOL_MINT = 'So11111111111111111111111111111111111111112';
-  const buys = [];
+  const trades = [];
 
   for (const tx of transactions) {
-    // Check for outgoing SOL (payment for token)
     const nativeTransfers = tx.nativeTransfers || [];
+    const tokenTransfers = tx.tokenTransfers || [];
+
+    // Check for outgoing SOL (BUY - paying for tokens)
     const outgoingSol = nativeTransfers
       .filter(nt => nt.fromUserAccount === walletAddress)
       .reduce((sum, nt) => sum + (nt.amount || 0), 0);
 
-    if (outgoingSol < 1_000_000_000) continue; // Skip < 1 SOL transactions
+    // Check for incoming SOL (SELL - receiving payment)
+    const incomingSol = nativeTransfers
+      .filter(nt => nt.toUserAccount === walletAddress)
+      .reduce((sum, nt) => sum + (nt.amount || 0), 0);
 
-    // Check for incoming token transfers (received tokens)
-    const tokenTransfers = tx.tokenTransfers || [];
-    for (const tf of tokenTransfers) {
-      if (tf.toUserAccount === walletAddress && tf.mint !== SOL_MINT) {
-        buys.push({
-          walletAddress,
-          tokenMint: tf.mint,
-          tokenSymbol: tf.symbol || 'UNKNOWN',
-          tokenAmount: tf.tokenAmount,
-          timestamp: new Date(tx.timestamp * 1000),
-          transactionSignature: tx.signature,
-          solSpent: outgoingSol / 1e9
-        });
+    // BUY: Outgoing SOL + Incoming token
+    if (outgoingSol >= 100_000_000) { // Min 0.1 SOL
+      for (const tf of tokenTransfers) {
+        if (tf.toUserAccount === walletAddress && tf.mint !== SOL_MINT) {
+          trades.push({
+            walletAddress,
+            tokenMint: tf.mint,
+            tokenSymbol: tf.symbol || 'UNKNOWN',
+            tokenAmount: tf.tokenAmount,
+            solAmount: outgoingSol / 1e9,
+            side: 'BUY',
+            timestamp: new Date(tx.timestamp * 1000),
+            transactionSignature: tx.signature
+          });
+        }
+      }
+    }
+
+    // SELL: Outgoing token + Incoming SOL
+    if (incomingSol >= 100_000_000) { // Min 0.1 SOL received
+      for (const tf of tokenTransfers) {
+        if (tf.fromUserAccount === walletAddress && tf.mint !== SOL_MINT) {
+          trades.push({
+            walletAddress,
+            tokenMint: tf.mint,
+            tokenSymbol: tf.symbol || 'UNKNOWN',
+            tokenAmount: tf.tokenAmount,
+            solAmount: incomingSol / 1e9,
+            side: 'SELL',
+            timestamp: new Date(tx.timestamp * 1000),
+            transactionSignature: tx.signature
+          });
+        }
       }
     }
   }
 
-  return buys;
+  return trades;
+};
+
+// Legacy function for backwards compatibility
+export const parseTransactionForBuys = (walletAddress, transactions) => {
+  return parseTransactions(walletAddress, transactions).filter(t => t.side === 'BUY');
 };
 
 export const isPumpFunToken = (metadata) => {

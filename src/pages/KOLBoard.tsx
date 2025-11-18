@@ -4,6 +4,8 @@ import { tradeStore } from '../services/tradeStore'
 import { LeaderboardEntry, Trade } from '../types'
 import { formatCurrency, formatDate, shortAddress } from '../utils/format'
 import { loadKols } from '../services/kols'
+import { getRecentTrades } from '../services/backendApi'
+import { subscribeToTrades } from '../services/backendWs'
 
 // Categorization: Left (1-2 unique KOL buyers), Middle (3-4), Right (5+)
 
@@ -103,21 +105,88 @@ export default function KOLBoard() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [buyTrades, setBuyTrades] = useState<BuyTrade[]>([])
   const [kols, setKols] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadKols().then(setKols).catch(console.error)
+    const init = async () => {
+      // Load KOLs
+      const kolsList = await loadKols()
+      setKols(kolsList)
+      
+      // Check if using backend mode
+      const useBackend = import.meta.env.VITE_USE_BACKEND === 'true'
+      
+      if (useBackend) {
+        console.log('🔄 Loading recent trades from backend...')
+        
+        // Load recent trades from backend API
+        const recentTrades = await getRecentTrades(200)
+        
+        // Convert backend trades to frontend format and add to store
+        if (recentTrades.length > 0) {
+          console.log(`✅ Loaded ${recentTrades.length} trades from backend`)
+          
+          recentTrades.forEach((tx: any) => {
+            const kol = kolsList.find(k => k.wallet === tx.walletAddress)
+            if (kol) {
+              const trade: Trade = {
+                id: tx.signature,
+                kolId: kol.id,
+                coin: tx.tokenSymbol,
+                coinMint: tx.tokenMint,
+                coinName: tx.tokenSymbol,
+                price: tx.solAmount || 0,
+                volume: tx.amount || 0,
+                side: tx.side || 'BUY',
+                time: new Date(tx.timestamp).getTime()
+              }
+              tradeStore.addTrade(trade)
+            }
+          })
+        }
+        
+        // Subscribe to WebSocket for new trades
+        const unsubscribeWs = subscribeToTrades((tradeData: any) => {
+          console.log('📥 New trade from WebSocket:', tradeData)
+          
+          const kol = kolsList.find(k => k.wallet === tradeData.walletAddress)
+          if (kol) {
+            const trade: Trade = {
+              id: tradeData.signature,
+              kolId: kol.id,
+              coin: tradeData.tokenSymbol,
+              coinMint: tradeData.tokenMint,
+              coinName: tradeData.tokenSymbol,
+              price: tradeData.solAmount || 0,
+              volume: tradeData.amount || 0,
+              side: tradeData.side || 'BUY',
+              time: new Date(tradeData.timestamp).getTime()
+            }
+            tradeStore.addTrade(trade)
+          }
+        })
+        
+        setLoading(false)
+        return unsubscribeWs
+      } else {
+        // Use live service for non-backend mode
+        const offL = live.on('leaderboard', (lb) => setLeaderboard(lb))
+        setLoading(false)
+        return offL
+      }
+    }
     
-    // Subscribe to persistent trade store (gets existing trades immediately)
+    const cleanupPromise = init()
+    
+    // Subscribe to trade store updates
     const unsubscribe = tradeStore.subscribe((trades) => {
       const buyOnly = trades.filter(t => t.side === 'BUY')
       setBuyTrades(buyOnly)
     })
     
-    const offL = live.on('leaderboard', (lb) => setLeaderboard(lb))
-    
     return () => { 
-      offL()
       unsubscribe()
+      cleanupPromise.then(cleanup => cleanup && cleanup())
     }
   }, [])
 
@@ -160,9 +229,25 @@ export default function KOLBoard() {
 
   const allBuyTrades = buyTrades
 
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-2xl font-semibold mb-6">KOLBoard</h1>
+        <div className="text-center py-12 text-neutral-400">
+          <div className="animate-pulse">Loading trades...</div>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-semibold mb-6">KOLBoard</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold">KOLBoard</h1>
+        <div className="text-sm text-neutral-400">
+          {allBuyTrades.length > 0 ? `${allBuyTrades.length} trades tracked` : 'Waiting for trades...'}
+        </div>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="card p-4 flex flex-col">
           <h2 className="text-sm font-semibold tracking-wide text-accent mb-4">Coins (1–2 KOL Buyers)</h2>

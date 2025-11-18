@@ -37,6 +37,8 @@ export const broadcastTransaction = async (transaction) => {
       tokenSymbol: transaction.tokenSymbol,
       tokenMint: transaction.tokenMint,
       amount: transaction.amount,
+      solAmount: transaction.solAmount,
+      side: transaction.side || 'BUY',
       timestamp: transaction.timestamp,
       signature: transaction.signature
     }

@@ -65,17 +65,25 @@ export const getTokensByKolCount = async (hours: number = 24): Promise<TokenKolC
  */
 export const getRecentTrades = async (limit: number = 100): Promise<BackendTransaction[]> => {
   try {
+    console.log(`🔄 Fetching recent trades from: ${API_URL}/api/coins/recent-trades?limit=${limit}`);
     const response = await fetch(`${API_URL}/api/coins/recent-trades?limit=${limit}`);
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error(`❌ Backend returned ${response.status}: ${response.statusText}`);
+      return [];
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('❌ Backend returned non-JSON response (likely HTML error page)');
+      return [];
     }
 
     const trades = await response.json();
     console.log(`✅ Loaded ${trades.length} recent trades from backend`);
     return trades;
   } catch (error) {
-    console.error('Error fetching recent trades:', error);
+    console.error('❌ Error fetching recent trades:', error);
     return []; // Return empty array on error
   }
 };

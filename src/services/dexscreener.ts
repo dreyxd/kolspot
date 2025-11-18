@@ -78,10 +78,10 @@ export async function verifyPumpFunToken(mintAddress: string): Promise<boolean> 
   
   // Check if it's a pump.fun token by URL or if it's a new Raydium pair (common for pump.fun graduates)
   const isPump = tokenInfo.url.includes('pump.fun') || 
-                 (tokenInfo.dexId === 'raydium' && tokenInfo.pairCreatedAt && 
+                 (tokenInfo.dexId === 'raydium' && tokenInfo.pairCreatedAt !== undefined && 
                   Date.now() - tokenInfo.pairCreatedAt < 7 * 24 * 60 * 60 * 1000) // Created within last 7 days
   
-  return isPump
+  return !!isPump
 }
 
 export function clearCache() {

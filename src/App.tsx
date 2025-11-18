@@ -5,10 +5,11 @@ import KolProfile from './pages/KolProfile'
 import KOLBoard from './pages/KOLBoard'
 import HowItWorks from './pages/HowItWorks'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 
 function App() {
   return (
-    <div className="min-h-full">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -18,6 +19,7 @@ function App() {
         <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Footer />
     </div>
   )
 }

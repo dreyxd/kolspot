@@ -28,14 +28,28 @@ router.post('/helius', async (req, res) => {
     for (const txData of transactions) {
       try {
         const signature = txData.signature;
+        
+        // Extract wallet addresses involved in the transaction
+        const accountKeys = txData.accountData?.map(a => a.account) || [];
+        const nativeTransfers = txData.nativeTransfers || [];
+        const walletAddresses = new Set([
+          ...nativeTransfers.map(nt => nt.fromUserAccount),
+          ...nativeTransfers.map(nt => nt.toUserAccount)
+        ].filter(Boolean));
 
-        // Parse for buy AND sell transactions
-        const trades = parseTransactions(null, [txData]);
+        // Parse trades for each wallet address
+        let allTrades = [];
+        for (const wallet of walletAddresses) {
+          const trades = parseTransactions(wallet, [txData]);
+          allTrades.push(...trades);
+        }
 
-        if (trades.length === 0) {
+        if (allTrades.length === 0) {
           console.log(`[Webhook] No trades found in ${signature}`);
           continue;
         }
+
+        const trades = allTrades;
 
         console.log(`[Webhook] Found ${trades.length} trade(s) in ${signature}`);
 

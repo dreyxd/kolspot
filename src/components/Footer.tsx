@@ -16,7 +16,7 @@ export default function Footer() {
               Track top Solana KOLs and their pump.fun trades in real-time.
             </p>
             <a 
-              href="https://x.com/kolspot" 
+              href="https://x.com/kolspotonsol" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-xs text-neutral-300 hover:text-accent transition-colors"

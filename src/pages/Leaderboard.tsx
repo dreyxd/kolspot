@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { live } from '../services/realtime'
 import { LeaderboardEntry } from '../types'
 import { formatCurrency, formatNumber } from '../utils/format'
+import { loadKols } from '../services/kols'
 
 type SortKey = 'rank' | 'pnl' | 'totalTrades'
 
@@ -10,10 +11,34 @@ export default function Leaderboard() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [sortKey, setSortKey] = useState<SortKey>('rank')
   const [filter, setFilter] = useState<'top' | 'active' | 'all'>('top')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const off = live.on('leaderboard', (data) => setEntries(data))
-    return () => { off() }
+    // Check if using backend mode
+    const useBackend = import.meta.env.VITE_USE_BACKEND === 'true'
+    
+    if (useBackend) {
+      // Load KOLs and generate mock leaderboard for now
+      // In production, this would fetch from backend API
+      loadKols().then(kols => {
+        const mockEntries: LeaderboardEntry[] = kols.slice(0, 50).map((kol, i) => ({
+          kol,
+          rank: i + 1,
+          pnl: Math.random() * 200000 - 50000, // Random PNL between -50k and 150k
+          totalTrades: Math.floor(Math.random() * 200) + 10,
+          hourlyPnl: []
+        }))
+        setEntries(mockEntries)
+        setLoading(false)
+      })
+    } else {
+      // Use live service for Helius direct mode
+      const off = live.on('leaderboard', (data) => {
+        setEntries(data)
+        setLoading(false)
+      })
+      return () => { off() }
+    }
   }, [])
 
   const sorted = useMemo(() => {
@@ -48,19 +73,24 @@ export default function Leaderboard() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto">
-        <table className="min-w-full divide-y divide-white/10">
-          <thead>
-            <tr className="text-left text-sm text-neutral-400">
-              <th className="py-3 pr-3 font-medium">Rank</th>
-              <th className="py-3 pr-3 font-medium">KOL</th>
-              <th className="py-3 pr-3 font-medium">Total Trades</th>
-              <th className="py-3 pr-3 font-medium">Current PNL</th>
-              <th className="py-3 pr-3 font-medium"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {filtered.map(e => (
+      {loading ? (
+        <div className="mt-6 text-center text-neutral-400">Loading leaderboard...</div>
+      ) : filtered.length === 0 ? (
+        <div className="mt-6 text-center text-neutral-400">No leaderboard data yet. Waiting for KOL trades...</div>
+      ) : (
+        <div className="mt-6 overflow-x-auto">
+          <table className="min-w-full divide-y divide-white/10">
+            <thead>
+              <tr className="text-left text-sm text-neutral-400">
+                <th className="py-3 pr-3 font-medium">Rank</th>
+                <th className="py-3 pr-3 font-medium">KOL</th>
+                <th className="py-3 pr-3 font-medium">Total Trades</th>
+                <th className="py-3 pr-3 font-medium">Current PNL</th>
+                <th className="py-3 pr-3 font-medium"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {filtered.map(e => (
               <tr key={e.kol.id} className="table-row-hover">
                 <td className="py-3 pr-3 w-16">#{e.rank}</td>
                 <td className="py-3 pr-3">
@@ -82,6 +112,7 @@ export default function Leaderboard() {
           </tbody>
         </table>
       </div>
+      )}
     </main>
   )
 }

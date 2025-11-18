@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-background text-neutral-200 antialiased;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors;
+}
+.btn-primary {
+  @apply bg-accent hover:bg-accent-soft text-black;
+}
+.btn-outline {
+  @apply border-accent text-accent hover:bg-accent/10;
+}
+
+.card {
+  @apply bg-surface/70 backdrop-blur rounded-xl shadow-soft border border-white/5;
+}
+
+.table-row-hover:hover {
+  @apply bg-white/5;
+}

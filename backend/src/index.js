@@ -15,7 +15,11 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'https://kolspot.live',
+    'https://www.kolspot.live'
+  ],
   credentials: true
 }));
 app.use(express.json());

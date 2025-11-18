@@ -31,9 +31,11 @@ export class LiveService {
     const wsUrl = import.meta.env.VITE_WS_URL as string | undefined
     const sseUrl = import.meta.env.VITE_SSE_URL as string | undefined
     const heliusKey = import.meta.env.VITE_HELIUS_API_KEY as string | undefined
+    const useHelius = import.meta.env.VITE_USE_HELIUS === 'true'
+    
     if (wsUrl) this.connectWS(wsUrl)
     else if (sseUrl) this.connectSSE(sseUrl)
-    else if (heliusKey) this.startHelius()
+    else if (useHelius && heliusKey) this.startHelius()
     else this.startMock()
   }
 

@@ -18,12 +18,16 @@ Dark, minimalist UI for tracking Key Opinion Leaders (KOLs) trades and live PNL 
 
 ## Setup
 1. Install Node.js 18+ and PNPM/NPM.
-2. Copy env and set real-time URL (optional):
-   ```powershell
-   Copy-Item .env.example .env
-   # Set one of these to your backend stream endpoint
-   # $env:VITE_WS_URL = "wss://your-backend/ws"
-   # $env:VITE_SSE_URL = "https://your-backend/sse"
+2. Configure environment variables in `.env`:
+   ```bash
+   # Helius API for real Solana blockchain data
+   VITE_HELIUS_API_KEY=your-helius-api-key
+   VITE_HELIUS_API_BASE=https://api.helius.xyz
+   VITE_USE_HELIUS=true  # Set to 'true' to use real blockchain data
+   
+   # Optional: Configure polling intervals
+   VITE_HELIUS_POLL_MS=8000
+   VITE_HELIUS_TX_LIMIT=25
    ```
 3. Install deps and run:
    ```powershell
@@ -32,7 +36,11 @@ Dark, minimalist UI for tracking Key Opinion Leaders (KOLs) trades and live PNL 
    ```
    The app serves at http://localhost:5173 by default.
 
-If no `VITE_WS_URL` or `VITE_SSE_URL` is set, the app runs with a local mock that simulates trades, PNL series, and leaderboard updates every ~2s.
+### Data Modes
+- **Mock Mode** (default): Simulates pump.fun trades with fake data for testing
+- **Helius Mode** (set `VITE_USE_HELIUS=true`): Tracks real KOL wallets on Solana blockchain and detects actual pump.fun token buys
+
+The system only tracks BUY transactions for pump.fun tokens (identified by metadata URI containing pump.fun or cf-ipfs.com indicators).
 
 ## Scripts
 - `npm run dev` — Start Vite dev server

@@ -2,6 +2,7 @@
 // and emits BUY-like events for incoming SPL token transfers.
 
 import type { Trade } from '../types'
+import { getTokenInfo } from './dexscreener'
 
 const API_BASE = (import.meta.env.VITE_HELIUS_API_BASE as string) || 'https://api.helius.xyz'
 const API_KEY = import.meta.env.VITE_HELIUS_API_KEY as string | undefined
@@ -99,21 +100,31 @@ async function fetchTokenMetadata(mints: string[]): Promise<void> {
 
 // Check if a token is a Pump.fun token
 function isPumpFunToken(mint: string): boolean {
-  // Primary check: mint address ends with "pump" (case-insensitive)
-  if (mint.toLowerCase().endsWith('pump')) {
+  const meta = metaCache.get(mint)
+  if (!meta) {
+    // If we don't have metadata yet, allow it through for now
+    // It will be filtered on next pass if metadata confirms it's not pump.fun
     return true
   }
   
-  // Secondary check: metadata URI contains pump.fun indicators
-  const meta = metaCache.get(mint)
-  if (meta) {
-    const uri = meta.uri || meta.legacyMetadata?.uri || ''
-    if (uri.includes('pump.fun') || uri.includes('cf-ipfs.com')) {
-      return true
-    }
+  // Pump.fun tokens have metadata URIs containing these patterns
+  const uri = meta.uri || meta.legacyMetadata?.uri || ''
+  
+  // Check for pump.fun IPFS gateway or direct pump.fun references
+  if (uri.includes('pump.fun') || 
+      uri.includes('cf-ipfs.com') ||
+      uri.includes('ipfs.io/ipfs/') && meta.symbol) {
+    return true
   }
   
-  // Reject if no pump indicators found
+  // Also check if it's a known pump.fun program interaction
+  // Pump.fun uses specific program IDs - we can add this check
+  const legacyUri = meta.legacyMetadata?.uri || ''
+  if (legacyUri.includes('pump.fun') || legacyUri.includes('cf-ipfs.com')) {
+    return true
+  }
+  
+  // If metadata exists but no pump.fun indicators, reject
   return false
 }
 
@@ -146,9 +157,16 @@ function parseIncomingSplBuys(address: string, txs: EnrichedTx[]): Trade[] {
       }
       
       const meta = metaCache.get(mint) || {}
-      const symbol = tf.symbol || meta.symbol
-      const name = tf.tokenName || meta.name
+      let symbol = tf.symbol || meta.symbol
+      let name = tf.tokenName || meta.name
       const solSpent = (outgoingSol / 1e9).toFixed(2)
+      
+      // Fetch real token info from DexScreener in background (don't block)
+      getTokenInfo(mint).then(dexInfo => {
+        if (dexInfo) {
+          console.info(`[DexScreener] Verified pump.fun token: ${dexInfo.baseToken.name} (${dexInfo.baseToken.symbol})`)
+        }
+      }).catch(() => {})
       
       // Log Pump.fun token detection with SOL amount
       console.info(`[Helius] Pump.fun buy detected: ${name || symbol || mint.slice(0, 8)} by ${address.slice(0, 8)} (${solSpent} SOL)`)

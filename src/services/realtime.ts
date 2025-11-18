@@ -35,12 +35,19 @@ export class LiveService {
   private interval?: number
 
   constructor() {
+    const useBackend = import.meta.env.VITE_USE_BACKEND === 'true'
+    const backendWsUrl = import.meta.env.VITE_BACKEND_WS_URL as string | undefined
     const wsUrl = import.meta.env.VITE_WS_URL as string | undefined
     const sseUrl = import.meta.env.VITE_SSE_URL as string | undefined
     const heliusKey = import.meta.env.VITE_HELIUS_API_KEY as string | undefined
     const useHelius = import.meta.env.VITE_USE_HELIUS === 'true'
     
-    if (wsUrl) this.connectWS(wsUrl)
+    // Clear store when using backend mode to avoid showing mock data
+    if (useBackend && backendWsUrl) {
+      tradeStore.clear()
+      this.connectWS(backendWsUrl)
+    }
+    else if (wsUrl) this.connectWS(wsUrl)
     else if (sseUrl) this.connectSSE(sseUrl)
     else if (useHelius && heliusKey) this.startHelius()
     else this.startMock()

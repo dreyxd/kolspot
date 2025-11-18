@@ -80,19 +80,19 @@ export class LiveService {
       avatarUrl: undefined,
     }))
 
-    // Sample memecoins (mocked pump.fun tokens)
+    // Sample pump.fun tokens (all mints ending with 'pump')
     const tokens = [
-      { mint: 'So11111111111111111111111111111111111111112', symbol: 'SOL', name: 'Solana' },
-      { mint: '7HkZy8Aq7uN7zQadpMf8k9mvxXYXpumpfun00000001', symbol: 'DOGS', name: 'Dogs of Sol' },
-      { mint: '9JfGk3tAn2wUqkQkZ8P9g7pQmYXpumpfun000000002', symbol: 'PEPE', name: 'Pepe Sol' },
-      { mint: '3kPwZ9oLm1rR9vKz2Uu88YxKkMnpumpfun000000003', symbol: 'WIF', name: 'Wif On Sol' },
-      { mint: '5xRt9qLp0aAa2bCc3dDd4eEe5Ffpumpfun000000004', symbol: 'BONKX', name: 'BonkX' },
-      { mint: 'FfEeDdCcBbAa0099887766554433pumpfun00000005', symbol: 'FROG', name: 'Froggo' },
-      { mint: 'AaBbCcDdEeFf1122334455667788pumpfun00000006', symbol: 'CAT', name: 'SolCat' },
-      { mint: 'BbCcDdEeFfGg8899001122334455pumpfun00000007', symbol: 'DOGE', name: 'Doge Coin' },
-      { mint: 'CcDdEeFfGgHh9900112233445566pumpfun00000008', symbol: 'SHIB', name: 'Shiba Sol' },
-      { mint: 'DdEeFfGgHhIi0011223344556677pumpfun00000009', symbol: 'MOON', name: 'Moon Coin' },
-      { mint: 'EeFfGgHhIiJj1122334455667788pumpfun00000010', symbol: 'WOJAK', name: 'Wojak' },
+      { mint: '7HkZy8Aq7uN7zQadpMf8k9mvxXYXpump', symbol: 'DOGS', name: 'Dogs of Sol' },
+      { mint: '9JfGk3tAn2wUqkQkZ8P9g7pQmYXpump', symbol: 'PEPE', name: 'Pepe Sol' },
+      { mint: '3kPwZ9oLm1rR9vKz2Uu88YxKkMnpump', symbol: 'WIF', name: 'Wif On Sol' },
+      { mint: '5xRt9qLp0aAa2bCc3dDd4eEe5Ffpump', symbol: 'BONK', name: 'Bonk Inu' },
+      { mint: 'FfEeDdCcBbAa0099887766554433pump', symbol: 'FROG', name: 'Froggo' },
+      { mint: 'AaBbCcDdEeFf1122334455667788pump', symbol: 'MYRO', name: 'Myro' },
+      { mint: 'BbCcDdEeFfGg8899001122334455pump', symbol: 'POPCAT', name: 'Popcat' },
+      { mint: 'CcDdEeFfGgHh9900112233445566pump', symbol: 'MEW', name: 'Cat In A Dogs World' },
+      { mint: 'DdEeFfGgHhIi0011223344556677pump', symbol: 'PONKE', name: 'Ponke' },
+      { mint: 'EeFfGgHhIiJj1122334455667788pump', symbol: 'RETARDIO', name: 'Retardio' },
+      { mint: 'FfGgHhIiJjKk2233445566778899pump', symbol: 'PNUT', name: 'Peanut the Squirrel' },
     ]
     let pnlMap = new Map<string, number>()
     let tradesCount = new Map<string, number>()

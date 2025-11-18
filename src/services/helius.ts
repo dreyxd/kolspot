@@ -99,18 +99,22 @@ async function fetchTokenMetadata(mints: string[]): Promise<void> {
 
 // Check if a token is a Pump.fun token
 function isPumpFunToken(mint: string): boolean {
-  const meta = metaCache.get(mint)
-  if (!meta) return false
-  
-  // Pump.fun tokens typically have metadata URIs containing 'pump.fun' or 'cf-ipfs.com'
-  const uri = meta.uri || meta.legacyMetadata?.uri || ''
-  if (uri.includes('pump.fun') || uri.includes('cf-ipfs.com')) {
+  // Primary check: mint address ends with "pump" (case-insensitive)
+  if (mint.toLowerCase().endsWith('pump')) {
     return true
   }
   
-  // Additional check: Pump.fun tokens often have specific patterns
-  // If no URI available, we'll allow it through (to avoid false negatives)
-  return true // Default to true to catch all meme coins
+  // Secondary check: metadata URI contains pump.fun indicators
+  const meta = metaCache.get(mint)
+  if (meta) {
+    const uri = meta.uri || meta.legacyMetadata?.uri || ''
+    if (uri.includes('pump.fun') || uri.includes('cf-ipfs.com')) {
+      return true
+    }
+  }
+  
+  // Reject if no pump indicators found
+  return false
 }
 
 function parseIncomingSplBuys(address: string, txs: EnrichedTx[]): Trade[] {

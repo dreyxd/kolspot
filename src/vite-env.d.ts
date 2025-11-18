@@ -8,6 +8,9 @@ interface ImportMetaEnv {
   readonly VITE_HELIUS_POLL_MS?: string
   readonly VITE_HELIUS_TX_LIMIT?: string
   readonly VITE_USE_HELIUS?: string
+  readonly VITE_BACKEND_API_URL?: string
+  readonly VITE_BACKEND_WS_URL?: string
+  readonly VITE_USE_BACKEND?: string
 }
 
 interface ImportMeta {

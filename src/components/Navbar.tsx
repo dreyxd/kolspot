@@ -22,12 +22,9 @@ export default function Navbar() {
           <NavLink to="/kolboard" className={navLinkClass}>
             KOLBoard
           </NavLink>
-          <NavLink to="/kol/sample" className={navLinkClass}>
-            KOL Profiles
+          <NavLink to="/how-it-works" className={navLinkClass}>
+            How It Works
           </NavLink>
-          <a href="#how-it-works" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${pathname === '/' ? 'text-neutral-300 hover:text-white hover:bg-white/5' : 'text-neutral-300 hover:text-white hover:bg-white/5'}`}>
-            How it works
-          </a>
         </nav>
         <div className="flex md:hidden">
           <a href="#leaderboard" className="btn btn-primary h-9">View Leaderboard</a>

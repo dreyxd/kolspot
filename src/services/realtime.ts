@@ -87,15 +87,43 @@ export class LiveService {
       { mint: '5xRt9qLp0aAa2bCc3dDd4eEe5Ffpumpfun000000004', symbol: 'BONKX', name: 'BonkX' },
       { mint: 'FfEeDdCcBbAa0099887766554433pumpfun00000005', symbol: 'FROG', name: 'Froggo' },
       { mint: 'AaBbCcDdEeFf1122334455667788pumpfun00000006', symbol: 'CAT', name: 'SolCat' },
+      { mint: 'BbCcDdEeFfGg8899001122334455pumpfun00000007', symbol: 'DOGE', name: 'Doge Coin' },
+      { mint: 'CcDdEeFfGgHh9900112233445566pumpfun00000008', symbol: 'SHIB', name: 'Shiba Sol' },
+      { mint: 'DdEeFfGgHhIi0011223344556677pumpfun00000009', symbol: 'MOON', name: 'Moon Coin' },
+      { mint: 'EeFfGgHhIiJj1122334455667788pumpfun00000010', symbol: 'WOJAK', name: 'Wojak' },
     ]
     let pnlMap = new Map<string, number>()
     let tradesCount = new Map<string, number>()
     const seriesMap = new Map<string, PnlPoint[]>()
     const now = Date.now()
-    kols.forEach(k => {
-      pnlMap.set(k.id, Math.round((Math.random() - 0.5) * 2000) / 1)
-      tradesCount.set(k.id, Math.floor(Math.random() * 200))
-      seriesMap.set(k.id, Array.from({ length: 30 }).map((__, idx) => ({ t: now - (29 - idx) * 3600_000, v: pnlMap.get(k.id)! + (Math.random() - 0.5) * 200 })))
+    
+    // Generate more realistic initial data
+    kols.forEach((k, idx) => {
+      // Top performers have higher PNL, others are mixed
+      const basePnl = idx < 3 ? 5000 + Math.random() * 15000 : 
+                      idx < 8 ? -2000 + Math.random() * 8000 :
+                      -5000 + Math.random() * 6000
+      pnlMap.set(k.id, Math.round(basePnl))
+      
+      // More active traders have more trades
+      const baseTrades = idx < 5 ? 150 + Math.floor(Math.random() * 250) :
+                         idx < 12 ? 50 + Math.floor(Math.random() * 150) :
+                         10 + Math.floor(Math.random() * 100)
+      tradesCount.set(k.id, baseTrades)
+      
+      // Generate historical PNL series with some volatility
+      const initialPnl = basePnl * 0.5 // Start at 50% of current PNL
+      const series: PnlPoint[] = []
+      for (let i = 0; i < 60; i++) {
+        const progress = i / 60
+        const currentPnl = initialPnl + (basePnl - initialPnl) * progress
+        const noise = (Math.random() - 0.5) * Math.abs(basePnl) * 0.15 // 15% volatility
+        series.push({ 
+          t: now - (59 - i) * 3600_000, // Hourly data points
+          v: Math.round(currentPnl + noise) 
+        })
+      }
+      seriesMap.set(k.id, series)
     })
 
     const emitLeaderboard = () => {

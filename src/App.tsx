@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import Leaderboard from './pages/Leaderboard'
 import KolProfile from './pages/KolProfile'
 import KOLBoard from './pages/KOLBoard'
+import HowItWorks from './pages/HowItWorks'
 import Navbar from './components/Navbar'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/kolboard" element={<KOLBoard />} />
         <Route path="/kol/:id" element={<KolProfile />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>

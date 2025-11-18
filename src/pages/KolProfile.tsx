@@ -13,15 +13,21 @@ import {
   CategoryScale,
 } from 'chart.js'
 import { live } from '../services/realtime'
-import { PnlPoint, Trade } from '../types'
+import { getKolById } from '../services/kols'
+import { Kol, PnlPoint, Trade } from '../types'
 import { formatCurrency, formatDate } from '../utils/format'
 
 ChartJS.register(LineElement, PointElement, LinearScale, TimeSeriesScale, Tooltip, Legend, Filler, CategoryScale)
 
 export default function KolProfile() {
   const { id = '' } = useParams()
+  const [kol, setKol] = useState<Kol | null>(null)
   const [series, setSeries] = useState<PnlPoint[]>([])
   const [trades, setTrades] = useState<Trade[]>([])
+
+  useEffect(() => {
+    getKolById(id).then(k => setKol(k || null))
+  }, [id])
 
   useEffect(() => {
     const offP = live.on('pnl', (p) => { if (p.kolId === id) setSeries(p.series) })
@@ -62,10 +68,27 @@ export default function KolProfile() {
       <div className="flex flex-col gap-6">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-full bg-white/10" />
+            <div className="h-14 w-14 rounded-full bg-white/10 flex items-center justify-center text-2xl font-bold">
+              {kol?.name?.[0]?.toUpperCase() || id?.[0]?.toUpperCase()}
+            </div>
             <div>
-              <h1 className="text-xl font-semibold">{id}</h1>
-              <p className="text-sm text-neutral-400">Wallet: ************</p>
+              <h1 className="text-xl font-semibold">{kol?.name || id}</h1>
+              <div className="flex items-center gap-2 text-sm text-neutral-400">
+                <span>Wallet: {kol?.wallet.slice(0, 4)}...{kol?.wallet.slice(-4)}</span>
+                {kol?.twitter && (
+                  <>
+                    <span>•</span>
+                    <a 
+                      href={kol.twitter} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      Twitter ↗
+                    </a>
+                  </>
+                )}
+              </div>
             </div>
           </div>
           <div className={`text-lg font-semibold ${latestPnl>=0?'text-emerald-400':'text-rose-400'}`}>{formatCurrency(latestPnl)}</div>

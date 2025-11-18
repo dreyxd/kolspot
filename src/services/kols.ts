@@ -64,7 +64,13 @@ export async function loadKols(): Promise<Kol[]> {
     const mods = import.meta.glob('/data/kols.json', { eager: true, import: 'default' }) as any
     if (mods['/data/kols.json']) {
       const arr = mods['/data/kols.json'] as Kol[]
-      return arr.map((k) => ({ id: k.id, name: k.name, wallet: k.wallet, avatarUrl: (k as any).avatarUrl }))
+      return arr.map((k) => ({ 
+        id: k.id, 
+        name: k.name, 
+        wallet: k.wallet, 
+        avatarUrl: (k as any).avatarUrl,
+        twitter: (k as any).twitter 
+      }))
     }
   } catch {}
 
@@ -78,4 +84,10 @@ export async function loadKols(): Promise<Kol[]> {
   } catch {}
 
   return []
+}
+
+// Get a single KOL by ID
+export async function getKolById(id: string): Promise<Kol | undefined> {
+  const kols = await loadKols()
+  return kols.find(k => k.id === id)
 }

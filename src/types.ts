@@ -17,6 +17,7 @@ export interface Kol {
   name: string
   avatarUrl?: string
   wallet: string
+  twitter?: string
 }
 
 export interface LeaderboardEntry {

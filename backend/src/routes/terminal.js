@@ -2,6 +2,8 @@ import express from 'express';
 import { getRecentTransactions, getRecentBuysByMint, getRecentBuysByMints } from '../db/queries.js';
 import { enrichTokenMetadata as enrichWithMoralis, fetchExchangeTokens, fetchTokenAnalytics } from '../services/moralis.js';
 import { enrichMarketCap } from '../services/marketcap.js';
+import { getPumpTokenInfo } from '../services/pumpfun.js';
+import { getTokenInfo as getDexScreenerInfo } from '../services/dexscreener.js';
 import * as cache from '../utils/cache.js';
 import { normalizeTradesMints } from '../utils/mint.js';
 
@@ -259,15 +261,53 @@ router.get('/token/:mint', async (req, res) => {
       const tokens = groupByToken(enriched);
       tokenData = tokens[0];
     } else {
-      // No transactions - fetch metadata directly from Moralis
+      // No transactions - fetch metadata with fallback chain: Moralis -> Pump.fun -> DexScreener
+      let enrichedToken = null;
+      
+      // Try Moralis first
       const metadata = await enrichWithMoralis([{ tokenMint: mint }]);
       const withMarketCap = await enrichMarketCap(metadata);
       
-      if (withMarketCap.length === 0) {
-        return res.status(404).json({ error: 'Token not found' });
+      if (withMarketCap.length > 0 && withMarketCap[0].tokenSymbol && withMarketCap[0].tokenSymbol !== 'UNKNOWN') {
+        enrichedToken = withMarketCap[0];
+      } else {
+        // Moralis failed, try Pump.fun
+        console.log(`[Terminal] Moralis failed for ${mint}, trying Pump.fun...`);
+        const pumpInfo = await getPumpTokenInfo(mint);
+        
+        if (pumpInfo) {
+          enrichedToken = {
+            tokenMint: mint,
+            tokenSymbol: pumpInfo.symbol,
+            tokenName: pumpInfo.name,
+            tokenLogoURI: pumpInfo.image,
+            tokenPrice: pumpInfo.price,
+            tokenMarketCap: pumpInfo.marketCap,
+            tokenLiquidity: pumpInfo.liquidity
+          };
+        } else {
+          // Pump.fun failed, try DexScreener
+          console.log(`[Terminal] Pump.fun failed for ${mint}, trying DexScreener...`);
+          const dexInfo = await getDexScreenerInfo(mint);
+          
+          if (dexInfo) {
+            enrichedToken = {
+              tokenMint: mint,
+              tokenSymbol: dexInfo.symbol,
+              tokenName: dexInfo.name,
+              tokenLogoURI: null,
+              tokenPrice: dexInfo.priceUsd ? parseFloat(dexInfo.priceUsd) : null,
+              tokenMarketCap: null,
+              tokenLiquidity: dexInfo.liquidity
+            };
+          }
+        }
       }
       
-      const enrichedToken = withMarketCap[0];
+      if (!enrichedToken) {
+        return res.status(404).json({ error: 'Token not found in any data source' });
+      }
+      
       tokenData = {
         tokenMint: mint,
         tokenSymbol: enrichedToken.tokenSymbol || 'UNKNOWN',

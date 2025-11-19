@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { loadKols } from '../services/kols';
 import { useNavigate } from 'react-router-dom';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
@@ -32,6 +33,7 @@ const KOLTerminal = () => {
   const [bonding, setBonding] = useState<TerminalToken[]>([]);
   const [graduated, setGraduated] = useState<TerminalToken[]>([]);
   const [loading, setLoading] = useState(true);
+  const [kolNameByWallet, setKolNameByWallet] = useState<Record<string, string>>({});
 
   const fetchTerminalData = async () => {
     try {
@@ -57,6 +59,15 @@ const KOLTerminal = () => {
 
   useEffect(() => {
     fetchTerminalData();
+    // Load KOL names mapping
+    (async () => {
+      try {
+        const kols = await loadKols();
+        const map: Record<string, string> = {};
+        for (const k of kols) map[k.wallet] = k.name || k.wallet;
+        setKolNameByWallet(map);
+      } catch {}
+    })();
     
     // Auto-refresh every 30 seconds
     const interval = setInterval(fetchTerminalData, 30000);
@@ -94,6 +105,8 @@ const KOLTerminal = () => {
   const shortAddress = (addr: string, start = 4, end = 4) => {
     return `${addr.slice(0, start)}...${addr.slice(-end)}`;
   };
+  const nameOrShort = (w: string) => kolNameByWallet[w] || shortAddress(w, 6, 4);
+  const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
   const TokenCard = ({ token }: { token: TerminalToken }) => (
     <div
@@ -123,7 +136,17 @@ const KOLTerminal = () => {
           <div className="font-semibold text-white truncate group-hover:text-accent transition-colors">
             {token.tokenName || token.tokenSymbol}
           </div>
-          <div className="text-sm text-accent font-mono">${token.tokenSymbol}</div>
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-accent font-mono">${token.tokenSymbol}</div>
+            <button
+              onClick={(e) => { e.stopPropagation(); copyToClipboard(token.tokenMint); }}
+              title="Copy mint address"
+              className="text-xs text-neutral-400 hover:text-accent"
+            >
+              Copy
+            </button>
+            <span className="text-[10px] text-neutral-500 font-mono">{shortAddress(token.tokenMint, 6, 6)}</span>
+          </div>
           <div className="text-xs text-neutral-400 mt-1">
             {formatTime(token.latestTrade)}
           </div>
@@ -152,7 +175,7 @@ const KOLTerminal = () => {
         {token.buyers.slice(0, 3).map((buyer, idx) => (
           <div key={idx} className="flex items-center justify-between text-xs">
             <span className="text-neutral-400 font-mono">
-              {shortAddress(buyer.walletAddress, 6, 4)}
+              {nameOrShort(buyer.walletAddress)}
             </span>
             <span className="text-accent font-semibold">
               {Number(buyer.solAmount || 0).toFixed(2)} SOL

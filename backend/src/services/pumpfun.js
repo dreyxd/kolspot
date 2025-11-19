@@ -33,6 +33,8 @@ export const getPumpTokenInfo = async (mintAddress) => {
       telegram: data.telegram,
       website: data.website,
       marketCap: data.usd_market_cap,
+      price: data.usd_market_cap && data.total_supply ? data.usd_market_cap / data.total_supply : null,
+      liquidity: data.virtual_sol_reserves ? data.virtual_sol_reserves * 2 : null, // Rough estimate
       creator: data.creator,
       createdAt: data.created_timestamp
     };
@@ -69,7 +71,9 @@ export const enrichTokenMetadata = async (trades) => {
         tokenSymbol: info.symbol || trade.tokenSymbol,
         tokenName: info.name || trade.tokenName,
         tokenLogoURI: info.image || trade.tokenLogoURI,
-        tokenMarketCap: info.marketCap || trade.tokenMarketCap
+        tokenMarketCap: info.marketCap || trade.tokenMarketCap,
+        tokenPrice: info.price || trade.tokenPrice,
+        tokenLiquidity: info.liquidity || trade.tokenLiquidity
       };
     }
     return trade;

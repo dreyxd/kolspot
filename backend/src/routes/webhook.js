@@ -4,8 +4,8 @@ import {
   fetchTokenMetadata
 } from '../services/helius.js';
 import { enrichTokenMetadata as enrichWithPumpFun } from '../services/pumpfun.js';
+import { enrichTokenMetadata as enrichWithJupiter } from '../services/jupiter.js';
 import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
-import { enrichTokenMetadata as enrichWithBirdeye } from '../services/birdeye.js';
 import { saveTransaction } from '../db/queries.js';
 import { broadcastTransaction } from '../websocket/index.js';
 import * as cache from '../utils/cache.js';
@@ -56,17 +56,17 @@ router.post('/helius', async (req, res) => {
 
         console.log(`[Webhook] Found ${trades.length} trade(s) in ${signature}`);
 
-        // Three-tier enrichment: Pump.fun (best for pump tokens) -> Birdeye -> DexScreener
+        // Three-tier enrichment: Pump.fun -> Jupiter -> DexScreener (all free!)
         let enrichedTrades = await enrichWithPumpFun(trades);
         
-        // Try Birdeye for any still-UNKNOWN tokens
+        // Try Jupiter for any still-UNKNOWN tokens (excellent for established tokens)
         const stillUnknown1 = enrichedTrades.filter(t => t.tokenSymbol === 'UNKNOWN');
         if (stillUnknown1.length > 0) {
-          const birdeyeEnriched = await enrichWithBirdeye(stillUnknown1);
+          const jupiterEnriched = await enrichWithJupiter(stillUnknown1);
           enrichedTrades = enrichedTrades.map(t => {
             if (t.tokenSymbol === 'UNKNOWN') {
-              const birdeyeData = birdeyeEnriched.find(d => d.tokenMint === t.tokenMint);
-              return birdeyeData || t;
+              const jupiterData = jupiterEnriched.find(d => d.tokenMint === t.tokenMint);
+              return jupiterData || t;
             }
             return t;
           });

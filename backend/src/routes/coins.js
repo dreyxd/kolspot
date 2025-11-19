@@ -1,8 +1,8 @@
 import express from 'express';
 import { getKolsCountByToken, getRecentTransactions } from '../db/queries.js';
 import { enrichTokenMetadata as enrichWithPumpFun } from '../services/pumpfun.js';
+import { enrichTokenMetadata as enrichWithJupiter } from '../services/jupiter.js';
 import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
-import { enrichTokenMetadata as enrichWithBirdeye } from '../services/birdeye.js';
 import * as cache from '../utils/cache.js';
 
 const router = express.Router();
@@ -54,17 +54,17 @@ router.get('/recent-trades', async (req, res) => {
 
     const transactions = await getRecentTransactions(limit);
     
-    // Three-tier enrichment: Pump.fun -> Birdeye -> DexScreener
+    // Three-tier enrichment: Pump.fun -> Jupiter -> DexScreener (all free!)
     let enriched = await enrichWithPumpFun(transactions);
     
-    // Try Birdeye for any still-UNKNOWN tokens
+    // Try Jupiter for any still-UNKNOWN tokens
     const stillUnknown1 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
     if (stillUnknown1.length > 0) {
-      const birdeyeEnriched = await enrichWithBirdeye(stillUnknown1);
+      const jupiterEnriched = await enrichWithJupiter(stillUnknown1);
       enriched = enriched.map(t => {
         if (t.tokenSymbol === 'UNKNOWN') {
-          const birdeyeData = birdeyeEnriched.find(d => d.tokenMint === t.tokenMint);
-          return birdeyeData || t;
+          const jupiterData = jupiterEnriched.find(d => d.tokenMint === t.tokenMint);
+          return jupiterData || t;
         }
         return t;
       });

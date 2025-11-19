@@ -16,11 +16,11 @@ export default function Home() {
               See live PNL, trade history, and performance rankings.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/leaderboard" className="btn btn-primary px-8 py-3 text-base">
-                View Leaderboard
+              <Link to="/terminal" className="btn btn-primary px-8 py-3 text-base">
+                Open KOL Terminal
               </Link>
-              <Link to="/kolboard" className="btn btn-outline px-8 py-3 text-base">
-                Live Trades
+              <Link to="/how-it-works" className="btn btn-outline px-8 py-3 text-base">
+                How It Works
               </Link>
             </div>
           </div>
@@ -119,9 +119,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-accent text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">
                 1
               </div>
-              <h3 className="text-lg font-semibold mb-2">Browse Leaderboard</h3>
+              <h3 className="text-lg font-semibold mb-2">Open KOL Terminal</h3>
               <p className="text-sm text-neutral-400">
-                Explore rankings and find top-performing KOLs based on PNL and trade volume
+                See tokens KOLs are buying right now, grouped by stage (New / About to Graduate / Graduated)
               </p>
             </div>
 
@@ -129,9 +129,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-accent text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">
                 2
               </div>
-              <h3 className="text-lg font-semibold mb-2">Track Activity</h3>
+              <h3 className="text-lg font-semibold mb-2">Watch KOL Buys</h3>
               <p className="text-sm text-neutral-400">
-                Monitor live trades on KOLBoard and see which tokens KOLs are buying
+                Monitor live KOL buys on Pump.fun/Raydium, with buyer names and amounts
               </p>
             </div>
 
@@ -139,9 +139,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-accent text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">
                 3
               </div>
-              <h3 className="text-lg font-semibold mb-2">Analyze Performance</h3>
+              <h3 className="text-lg font-semibold mb-2">Analyze Tokens</h3>
               <p className="text-sm text-neutral-400">
-                View detailed KOL profiles with charts, trade history, and success metrics
+                Open a token to see price, liquidity, FDV, charts, and recent KOL buyers
               </p>
             </div>
           </div>
@@ -158,8 +158,8 @@ export default function Home() {
             <p className="text-neutral-400 max-w-2xl mx-auto mb-8">
               Join traders who use KOLSpot to stay ahead of pump.fun trends on Solana
             </p>
-            <Link to="/leaderboard" className="btn btn-primary px-8 py-3 text-base inline-block">
-              View Leaderboard Now
+            <Link to="/terminal" className="btn btn-primary px-8 py-3 text-base inline-block">
+              Open KOL Terminal
             </Link>
           </div>
         </div>

@@ -33,18 +33,33 @@ export default function Footer() {
             <h3 className="font-medium text-sm mb-3">Navigation</h3>
             <ul className="space-y-1.5 text-xs">
               <li>
-                <Link to="/leaderboard" className="text-neutral-400 hover:text-white transition-colors">
-                  Leaderboard
+                <Link to="/" className="text-neutral-400 hover:text-white transition-colors">
+                  Home
                 </Link>
               </li>
               <li>
-                <Link to="/kolboard" className="text-neutral-400 hover:text-white transition-colors">
-                  KOLBoard
+                <Link to="/terminal" className="text-neutral-400 hover:text-white transition-colors">
+                  KOL Terminal
                 </Link>
               </li>
               <li>
                 <Link to="/how-it-works" className="text-neutral-400 hover:text-white transition-colors">
                   How It Works
+                </Link>
+              </li>
+              <li>
+                <Link to="/docs" className="text-neutral-400 hover:text-white transition-colors">
+                  Docs
+                </Link>
+              </li>
+              <li>
+                <Link to="/faqs" className="text-neutral-400 hover:text-white transition-colors">
+                  FAQs
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="text-neutral-400 hover:text-white transition-colors">
+                  About Us
                 </Link>
               </li>
             </ul>
@@ -76,14 +91,20 @@ export default function Footer() {
           <div>
             <h3 className="font-medium text-sm mb-3">Legal</h3>
             <ul className="space-y-1.5 text-xs">
-              <li className="text-neutral-400">
-                Analytics Platform
+              <li>
+                <Link to="/privacy" className="text-neutral-400 hover:text-white transition-colors">
+                  Privacy & Security
+                </Link>
               </li>
-              <li className="text-neutral-400">
-                Not Financial Advice
+              <li>
+                <Link to="/terms" className="text-neutral-400 hover:text-white transition-colors">
+                  Terms & Conditions
+                </Link>
               </li>
-              <li className="text-neutral-400">
-                DYOR
+              <li>
+                <Link to="/disclaimer" className="text-neutral-400 hover:text-white transition-colors">
+                  Disclaimer
+                </Link>
               </li>
             </ul>
           </div>
@@ -97,7 +118,9 @@ export default function Footer() {
           <div className="flex items-center gap-4 text-xs text-neutral-500">
             <span>Built on Solana</span>
             <span>•</span>
-            <span>Powered by Helius</span>
+            <span>Trades via Helius</span>
+            <span>•</span>
+            <span>Data via Moralis</span>
           </div>
         </div>
       </div>

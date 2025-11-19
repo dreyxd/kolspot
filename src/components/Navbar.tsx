@@ -16,18 +16,31 @@ export default function Navbar() {
           <span className="font-semibold">KOLSpot</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1">
-          <NavLink to="/leaderboard" className={navLinkClass}>
-            Leaderboard
-          </NavLink>
-          <NavLink to="/terminal" className={navLinkClass}>
-            KOL Terminal
+          <NavLink to="/" className={navLinkClass}>
+            Home
           </NavLink>
           <NavLink to="/how-it-works" className={navLinkClass}>
             How It Works
           </NavLink>
+          <NavLink to="/docs" className={navLinkClass}>
+            Docs
+          </NavLink>
+          <NavLink to="/faqs" className={navLinkClass}>
+            FAQs
+          </NavLink>
+          <NavLink to="/about" className={navLinkClass}>
+            About
+          </NavLink>
         </nav>
+        <div className="hidden md:flex">
+          <Link to="/terminal" className="px-4 py-2 rounded-md bg-accent text-black font-semibold hover:opacity-90 transition">
+            KOL Terminal
+          </Link>
+        </div>
         <div className="flex md:hidden">
-          <a href="#leaderboard" className="btn btn-primary h-9">View Leaderboard</a>
+          <Link to="/terminal" className="px-3 py-2 rounded-md bg-accent text-black font-semibold">
+            Open Terminal
+          </Link>
         </div>
       </div>
     </header>

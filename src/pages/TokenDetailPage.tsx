@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import ChartWidget from '../components/ChartWidget';
+import PriceChart from '../components/PriceChart';
 import { formatUsdPrice } from '../utils/format';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -44,6 +44,7 @@ const TokenDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [analytics, setAnalytics] = useState<TokenAnalytics | null>(null);
+  const [refreshMs, setRefreshMs] = useState<number>(3000); // default 3s
 
   useEffect(() => {
     const fetchTokenDetails = async () => {
@@ -79,15 +80,18 @@ const TokenDetailPage = () => {
       fetchTokenDetails();
       fetchAnalytics();
     }
-    // Auto-refresh every 5 seconds
-    const interval = setInterval(() => {
-      if (mint) {
+    // Auto-refresh at configurable interval
+    let interval: number | undefined;
+    if (mint && refreshMs > 0) {
+      interval = window.setInterval(() => {
         fetchTokenDetails();
         fetchAnalytics();
-      }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [mint]);
+      }, refreshMs);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [mint, refreshMs]);
 
   const copyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
@@ -104,7 +108,17 @@ const TokenDetailPage = () => {
   };
 
   const formatTime = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString();
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+    if (diffSec < 60) return `${diffSec}s ago`;
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return `${diffHr}h ago`;
+    const diffDay = Math.floor(diffHr / 24);
+    return `${diffDay}d ago`;
   };
 
   const formatUSD = (v?: string | number) => {
@@ -222,7 +236,7 @@ const TokenDetailPage = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-black/20 rounded-lg p-4">
                   <div className="text-xs text-neutral-500 mb-1">Market Cap</div>
-                  <div className="text-xl font-bold text-white">
+                  <div className="text-3xl font-extrabold text-accent tracking-tight">
                     {formatUSD(analytics?.totalFullyDilutedValuation ?? token.tokenMarketCap)}
                   </div>
                 </div>
@@ -267,14 +281,32 @@ const TokenDetailPage = () => {
               )}
             </div>
 
-            {/* Moralis Price Chart Widget */}
+            {/* Price Chart (TradingView Lightweight Charts) */}
             <div className="bg-surface/60 border border-white/10 rounded-lg p-6">
-              <h2 className="text-xl font-bold mb-4">Price Chart</h2>
+              <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+                <h2 className="text-xl font-bold">Price Chart</h2>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-neutral-500">Auto-refresh</label>
+                  <select
+                    value={refreshMs}
+                    onChange={(e) => setRefreshMs(parseInt(e.target.value, 10))}
+                    className="bg-black/30 text-sm text-neutral-200 rounded-md px-2 py-1 border border-white/10 focus:outline-none focus:border-accent"
+                    title="Change auto-refresh interval"
+                 >
+                    <option value={0}>Off</option>
+                    <option value={3000}>3s</option>
+                    <option value={5000}>5s</option>
+                    <option value={10000}>10s</option>
+                    <option value={30000}>30s</option>
+                    <option value={60000}>60s</option>
+                  </select>
+                </div>
+              </div>
               <div className="bg-black/20 rounded-lg overflow-hidden">
-                <ChartWidget tokenMint={token.tokenMint} height={500} />
+                <PriceChart tokenMint={token.tokenMint} price={token.tokenPrice ?? null} height={500} />
               </div>
               <p className="text-xs text-neutral-500 mt-2 text-center">
-                Powered by Moralis Price Chart Widget
+                Powered by TradingView Lightweight Charts (dark theme)
               </p>
             </div>
           </div>
@@ -320,9 +352,7 @@ const TokenDetailPage = () => {
                       </span>
                     </div>
                     
-                    <div className="text-xs text-neutral-400 mb-2">
-                      {formatTime(buyer.timestamp)}
-                    </div>
+                    <div className="text-xs text-neutral-400 mb-2">{formatTime(buyer.timestamp)}</div>
                     
                     <a
                       href={`https://solscan.io/tx/${buyer.signature}`}

@@ -35,6 +35,7 @@ const KOLTerminal = () => {
   const [graduated, setGraduated] = useState<TerminalToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [kolNameByWallet, setKolNameByWallet] = useState<Record<string, string>>({});
+  const [refreshMs, setRefreshMs] = useState<number>(3000); // default 3s
 
   const fetchTerminalData = async () => {
     try {
@@ -44,9 +45,35 @@ const KOLTerminal = () => {
         fetch(`${backendBaseUrl}/api/terminal/graduated`)
       ]);
 
-      const early = await earlyRes.json();
-      const bond = await bondingRes.json();
-      const grad = await graduatedRes.json();
+      let early: TerminalToken[] = await earlyRes.json();
+      let bond: TerminalToken[] = await bondingRes.json();
+      let grad: TerminalToken[] = await graduatedRes.json();
+
+      // Move any bonded tokens into graduated list (safety in case backend lag)
+      const movedToGrad: TerminalToken[] = [];
+      const filterNotBonded = (arr: TerminalToken[]) => arr.filter(t => {
+        if (t.isBonded) { movedToGrad.push(t); return false; }
+        return true;
+      });
+      early = filterNotBonded(early);
+      bond = filterNotBonded(bond);
+      grad = [...grad, ...movedToGrad];
+
+      // De-duplicate by mint across groups: Graduated > Bonding > New
+      const gradMints = new Set(grad.map(t => t.tokenMint));
+      bond = bond.filter(t => !gradMints.has(t.tokenMint));
+      const bondMints = new Set(bond.map(t => t.tokenMint));
+      early = early.filter(t => !gradMints.has(t.tokenMint) && !bondMints.has(t.tokenMint));
+
+      // Sort each group by latest KOL buy time desc to bump newest to top
+      const byLatestDesc = (a: TerminalToken, b: TerminalToken) => {
+        const ta = new Date(a.latestTrade).getTime() || 0;
+        const tb = new Date(b.latestTrade).getTime() || 0;
+        return tb - ta;
+      };
+      early.sort(byLatestDesc);
+      bond.sort(byLatestDesc);
+      grad.sort(byLatestDesc);
 
       setEarlyPlays(early);
       setBonding(bond);
@@ -70,11 +97,15 @@ const KOLTerminal = () => {
       } catch {}
     })();
     
-    // Auto-refresh every 5 seconds
-    const interval = setInterval(fetchTerminalData, 5000);
-    
-    return () => clearInterval(interval);
-  }, []);
+    // Auto-refresh at configurable interval
+    let interval: number | undefined;
+    if (refreshMs > 0) {
+      interval = window.setInterval(fetchTerminalData, refreshMs);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [refreshMs]);
 
   const formatMarketCap = (mc?: number) => {
     if (mc === null || mc === undefined) return 'Unknown';
@@ -92,12 +123,14 @@ const KOLTerminal = () => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-    return `${Math.floor(diffMins / 1440)}d ago`;
+    const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+    if (diffSec < 60) return `${diffSec}s ago`;
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return `${diffHr}h ago`;
+    const diffDay = Math.floor(diffHr / 24);
+    return `${diffDay}d ago`;
   };
 
   const shortAddress = (addr: string, start = 4, end = 4) => {
@@ -180,7 +213,7 @@ const KOLTerminal = () => {
 
       {/* KOL Buyers Preview */}
       <div className="space-y-1">
-        <div className="text-[10px] text-neutral-500 uppercase font-semibold">Recent Buyers:</div>
+        <div className="text-[10px] text-neutral-500 uppercase font-semibold">Recent KOL Bought</div>
         {token.buyers.slice(0, 3).map((buyer, idx) => (
           <div key={idx} className="flex items-center justify-between text-xs">
             <span className="text-neutral-400 font-mono">
@@ -195,6 +228,10 @@ const KOLTerminal = () => {
           <div className="text-[10px] text-neutral-500 italic">
             +{token.buyers.length - 3} more
           </div>
+        )}
+        {/* Show time for the most recent buy */}
+        {token.buyers[0] && (
+          <div className="text-[10px] text-neutral-500">{formatTime(token.buyers[0].timestamp)}</div>
         )}
       </div>
     </div>
@@ -253,13 +290,29 @@ const KOLTerminal = () => {
           <p className="text-neutral-400">
             Real-time tracking of tokens bought by Key Opinion Leaders
           </p>
-          <div className="mt-4 flex items-center gap-4 text-sm">
+          <div className="mt-4 flex items-center gap-4 text-sm flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
               <span className="text-neutral-400">Live Updates</span>
             </div>
             <div className="text-neutral-500">
               New: {earlyPlays.length} | About to Graduate: {bonding.length} | Graduated: {graduated.length}
+            </div>
+            <div className="flex items-center gap-2 ml-auto">
+              <label className="text-xs text-neutral-500">Auto-refresh</label>
+              <select
+                value={refreshMs}
+                onChange={(e) => setRefreshMs(parseInt(e.target.value, 10))}
+                className="bg-black/30 text-sm text-neutral-200 rounded-md px-2 py-1 border border-white/10 focus:outline-none focus:border-accent"
+                title="Change auto-refresh interval"
+              >
+                <option value={0}>Off</option>
+                <option value={3000}>3s</option>
+                <option value={5000}>5s</option>
+                <option value={10000}>10s</option>
+                <option value={30000}>30s</option>
+                <option value={60000}>60s</option>
+              </select>
             </div>
           </div>
         </div>

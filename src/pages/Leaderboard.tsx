@@ -159,21 +159,3 @@ export default function Leaderboard() {
     </main>
   )
 }
-                      <div className="text-xs text-neutral-400">{e.kol.wallet.slice(0,4)}...{e.kol.wallet.slice(-4)}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-3 pr-3">{formatNumber(e.totalTrades)}</td>
-                <td className={`py-3 pr-3 ${e.pnl>=0?'text-emerald-400':'text-rose-400'}`}>{formatCurrency(e.pnl)}</td>
-                <td className="py-3 pr-3 text-right">
-                  <Link to={`/kol/${e.kol.id}`} className="btn btn-outline px-3 py-1 text-xs">View</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      )}
-    </main>
-  )
-}

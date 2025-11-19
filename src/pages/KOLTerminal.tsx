@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { loadKols } from '../services/kols';
 import { formatCurrency, formatUsdPrice } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
@@ -104,16 +105,27 @@ const KOLTerminal = () => {
       bond.sort(byLatestDesc);
       grad.sort(byLatestDesc);
 
-      setEarlyPlays(early);
-      setBonding(bond);
-      setGraduated(grad);
-      setLoading(false);
+      // Update state synchronously to ensure DOM is updated before scroll restore
+      flushSync(() => {
+        setEarlyPlays(early);
+        setBonding(bond);
+        setGraduated(grad);
+        setLoading(false);
+      });
       
-      // Restore scroll positions after state update
+      // Double RAF ensures layout is complete before restoring scroll
       requestAnimationFrame(() => {
-        if (earlyRef.current) earlyRef.current.scrollTop = savedScrolls.early;
-        if (bondingRef.current) bondingRef.current.scrollTop = savedScrolls.bonding;
-        if (graduatedRef.current) graduatedRef.current.scrollTop = savedScrolls.graduated;
+        requestAnimationFrame(() => {
+          if (earlyRef.current && savedScrolls.early > 0) {
+            earlyRef.current.scrollTop = savedScrolls.early;
+          }
+          if (bondingRef.current && savedScrolls.bonding > 0) {
+            bondingRef.current.scrollTop = savedScrolls.bonding;
+          }
+          if (graduatedRef.current && savedScrolls.graduated > 0) {
+            graduatedRef.current.scrollTop = savedScrolls.graduated;
+          }
+        });
       });
     } catch (error) {
       console.error('Error fetching terminal data:', error);

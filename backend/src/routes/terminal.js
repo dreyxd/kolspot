@@ -12,7 +12,8 @@ const router = express.Router();
 const BONDING_THRESHOLD = 69000; // $69K market cap
 
 /**
- * Enrich trades with full metadata using 4-tier system
+ * Enrich trades with full metadata using 3-tier system
+ * Moralis temporarily disabled due to API issues
  */
 async function enrichTrades(transactions) {
   let enriched = await enrichWithPumpFun(transactions);
@@ -41,17 +42,18 @@ async function enrichTrades(transactions) {
     });
   }
   
-  const stillUnknown3 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
-  if (stillUnknown3.length > 0) {
-    const moralisEnriched = await enrichWithMoralis(stillUnknown3);
-    enriched = enriched.map(t => {
-      if (t.tokenSymbol === 'UNKNOWN') {
-        const moralisData = moralisEnriched.find(d => d.tokenMint === t.tokenMint);
-        return moralisData || t;
-      }
-      return t;
-    });
-  }
+  // Moralis enrichment disabled - causing too many API errors
+  // const stillUnknown3 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
+  // if (stillUnknown3.length > 0) {
+  //   const moralisEnriched = await enrichWithMoralis(stillUnknown3);
+  //   enriched = enriched.map(t => {
+  //     if (t.tokenSymbol === 'UNKNOWN') {
+  //       const moralisData = moralisEnriched.find(d => d.tokenMint === t.tokenMint);
+  //       return moralisData || t;
+  //     }
+  //     return t;
+  //   });
+  // }
   
   return enriched;
 }

@@ -125,7 +125,7 @@ export const fetchTokenPrice = async (mintAddress) => {
   }
 };
 
-// Combined function to fetch both metadata and price
+// Combined function to fetch both metadata and price (+ attempt market cap)
 export const fetchTokenInfo = async (mintAddress) => {
   // Validate mint address early
   if (!mintAddress || typeof mintAddress !== 'string' || mintAddress.length < 32) {
@@ -143,12 +143,26 @@ export const fetchTokenInfo = async (mintAddress) => {
       return null;
     }
 
+    // Attempt market cap derivation if metadata contains supply fields (future-proof)
+    const totalSupply = metadata.totalSupply || metadata.supply || null; // Moralis may expose in future
+    let marketCap = null;
+    if (price && totalSupply) {
+      try {
+        // If decimals provided, assume supply is raw units
+        const adjustedSupply = metadata.decimals ? (Number(totalSupply) / Math.pow(10, metadata.decimals)) : Number(totalSupply);
+        marketCap = adjustedSupply * price;
+      } catch (_) {
+        marketCap = null;
+      }
+    }
+
     return {
       symbol: metadata.symbol,
       name: metadata.name,
       logo: metadata.logo,
       decimals: metadata.decimals,
-      price: price
+      price: price,
+      marketCap
     };
   } catch (error) {
     console.warn(`[Moralis] Error fetching token info for ${mintAddress}:`, error.message);
@@ -228,7 +242,8 @@ export const enrichTokenMetadata = async (trades) => {
         tokenName: info.name || trade.tokenName,
         tokenLogoURI: info.logo || trade.tokenLogoURI,
         tokenPrice: info.price || trade.tokenPrice,
-        tokenDecimals: info.decimals || trade.tokenDecimals
+        tokenDecimals: info.decimals || trade.tokenDecimals,
+        tokenMarketCap: info.marketCap || trade.tokenMarketCap
       };
     }
     return trade;

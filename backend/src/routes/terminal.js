@@ -1,8 +1,5 @@
 import express from 'express';
 import { getRecentTransactions } from '../db/queries.js';
-import { enrichTokenMetadata as enrichWithPumpFun } from '../services/pumpfun.js';
-import { enrichTokenMetadata as enrichWithJupiter } from '../services/jupiter.js';
-import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
 import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
 import * as cache from '../utils/cache.js';
 import { normalizeTradesMints } from '../utils/mint.js';
@@ -17,49 +14,8 @@ const BONDING_THRESHOLD = 69000; // $69K market cap
  * Moralis temporarily disabled due to API issues
  */
 async function enrichTrades(transactions) {
-  // Normalize mints to strip any accidental suffixes (e.g., 'pump')
   const normalized = normalizeTradesMints(transactions);
-
-  let enriched = await enrichWithPumpFun(normalized);
-  
-  const stillUnknown1 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
-  if (stillUnknown1.length > 0) {
-    const jupiterEnriched = await enrichWithJupiter(stillUnknown1);
-    enriched = enriched.map(t => {
-      if (t.tokenSymbol === 'UNKNOWN') {
-        const jupiterData = jupiterEnriched.find(d => d.tokenMint === t.tokenMint);
-        return jupiterData || t;
-      }
-      return t;
-    });
-  }
-  
-  const stillUnknown2 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
-  if (stillUnknown2.length > 0) {
-    const dexEnriched = await enrichWithDexScreener(stillUnknown2);
-    enriched = enriched.map(t => {
-      if (t.tokenSymbol === 'UNKNOWN') {
-        const dexData = dexEnriched.find(d => d.tokenMint === t.tokenMint);
-        return dexData || t;
-      }
-      return t;
-    });
-  }
-  
-  // Moralis enrichment disabled - causing too many API errors
-  // const stillUnknown3 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
-  // if (stillUnknown3.length > 0) {
-  //   const moralisEnriched = await enrichWithMoralis(stillUnknown3);
-  //   enriched = enriched.map(t => {
-  //     if (t.tokenSymbol === 'UNKNOWN') {
-  //       const moralisData = moralisEnriched.find(d => d.tokenMint === t.tokenMint);
-  //       return moralisData || t;
-  //     }
-  //     return t;
-  //   });
-  // }
-  
-  return enriched;
+  return await enrichWithMoralis(normalized);
 }
 
 /**

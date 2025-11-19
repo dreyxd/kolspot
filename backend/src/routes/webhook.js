@@ -3,11 +3,7 @@ import {
   parseTransactions,
   fetchTokenMetadata
 } from '../services/helius.js';
-import { enrichTokenMetadata as enrichWithPumpFun } from '../services/pumpfun.js';
-import { enrichTokenMetadata as enrichWithJupiter } from '../services/jupiter.js';
-import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
-// Moralis temporarily disabled due to API validation issues
-// import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
+import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
 import { saveTransaction } from '../db/queries.js';
 import { broadcastTransaction } from '../websocket/index.js';
 import * as cache from '../utils/cache.js';
@@ -63,36 +59,8 @@ router.post('/helius', async (req, res) => {
 
         console.log(`[Webhook] Found ${trades.length} trade(s) in ${signature}`);
 
-        // Three-tier enrichment: Pump.fun -> Jupiter -> DexScreener (Moralis disabled)
-        let enrichedTrades = await enrichWithPumpFun(trades);
-        
-        // Try Jupiter for any still-UNKNOWN tokens (excellent for established tokens)
-        const stillUnknown1 = enrichedTrades.filter(t => t.tokenSymbol === 'UNKNOWN');
-        if (stillUnknown1.length > 0) {
-          const jupiterEnriched = await enrichWithJupiter(stillUnknown1);
-          enrichedTrades = enrichedTrades.map(t => {
-            if (t.tokenSymbol === 'UNKNOWN') {
-              const jupiterData = jupiterEnriched.find(d => d.tokenMint === t.tokenMint);
-              return jupiterData || t;
-            }
-            return t;
-          });
-        }
-        
-        // Try DexScreener for remaining unknowns
-        const stillUnknown2 = enrichedTrades.filter(t => t.tokenSymbol === 'UNKNOWN');
-        if (stillUnknown2.length > 0) {
-          const dexEnriched = await enrichWithDexScreener(stillUnknown2);
-          enrichedTrades = enrichedTrades.map(t => {
-            if (t.tokenSymbol === 'UNKNOWN') {
-              const dexData = dexEnriched.find(d => d.tokenMint === t.tokenMint);
-              return dexData || t;
-            }
-            return t;
-          });
-        }
-        
-        // Moralis enrichment disabled
+        // Single enrichment pass using Moralis only
+        let enrichedTrades = await enrichWithMoralis(trades);
 
         // Process all trades (BUY and SELL)
         for (const tx of enrichedTrades) {

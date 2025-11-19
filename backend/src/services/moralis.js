@@ -22,6 +22,48 @@ const initializeMoralis = async () => {
   }
 };
 
+// Direct gateway fetch for metadata (alternative to SDK) using example provided.
+// Endpoint: https://solana-gateway.moralis.io/token/mainnet/{mint}/metadata
+// Returns basic metadata; we normalize to same shape used elsewhere.
+export const fetchTokenMetadataGateway = async (mintAddress) => {
+  if (!mintAddress || typeof mintAddress !== 'string' || mintAddress.length < 32) {
+    console.warn(`[Moralis][Gateway] Invalid mint address: ${mintAddress}`);
+    return null;
+  }
+  const cacheKey = `gateway-metadata-${mintAddress}`;
+  const cached = cache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  try {
+    const res = await fetch(`https://solana-gateway.moralis.io/token/mainnet/${mintAddress}/metadata`, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': MORALIS_API_KEY
+      }
+    });
+    if (!res.ok) {
+      console.warn(`[Moralis][Gateway] Non-OK response ${res.status} for ${mintAddress}`);
+      return null;
+    }
+    const data = await res.json();
+    if (!data) return null;
+    const metadata = {
+      name: data.name || data.symbol || 'UNKNOWN',
+      symbol: data.symbol || data.name || 'UNKNOWN',
+      logo: data.logo || data.image || data.thumbnail || null,
+      decimals: typeof data.decimals === 'number' ? data.decimals : (data.decimals ? Number(data.decimals) : undefined),
+      mint: mintAddress
+    };
+    cache.set(cacheKey, { data: metadata, timestamp: Date.now() });
+    return metadata;
+  } catch (err) {
+    console.warn(`[Moralis][Gateway] Error fetching metadata for ${mintAddress}: ${err.message}`);
+    return null;
+  }
+};
+
 // Fetch token metadata (name, symbol, logo, decimals)
 export const fetchTokenMetadata = async (mintAddress) => {
   // Validate mint address
@@ -134,10 +176,9 @@ export const fetchTokenInfo = async (mintAddress) => {
   }
 
   try {
-    const [metadata, price] = await Promise.all([
-      fetchTokenMetadata(mintAddress),
-      fetchTokenPrice(mintAddress)
-    ]);
+    // Prefer gateway metadata, fall back to SDK method.
+    const metadata = await fetchTokenMetadataGateway(mintAddress) || await fetchTokenMetadata(mintAddress);
+    const price = await fetchTokenPrice(mintAddress);
 
     if (!metadata) {
       return null;

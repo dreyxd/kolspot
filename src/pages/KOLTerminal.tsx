@@ -65,7 +65,8 @@ const KOLTerminal = () => {
   }, []);
 
   const formatMarketCap = (mc?: number) => {
-    if (!mc) return 'N/A';
+    if (mc === null || mc === undefined) return 'Unknown';
+    if (mc === 0) return '$0';
     if (mc >= 1000000) return `$${(mc / 1000000).toFixed(2)}M`;
     if (mc >= 1000) return `$${(mc / 1000).toFixed(1)}K`;
     return `$${mc.toFixed(0)}`;
@@ -147,7 +148,7 @@ const KOLTerminal = () => {
               {shortAddress(buyer.walletAddress, 6, 4)}
             </span>
             <span className="text-accent font-semibold">
-              {buyer.solAmount.toFixed(2)} SOL
+              {Number(buyer.solAmount || 0).toFixed(2)} SOL
             </span>
           </div>
         ))}

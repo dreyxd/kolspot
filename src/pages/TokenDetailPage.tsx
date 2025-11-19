@@ -61,7 +61,8 @@ const TokenDetailPage = () => {
   };
 
   const formatMarketCap = (mc?: number) => {
-    if (!mc) return 'N/A';
+    if (mc === null || mc === undefined) return 'Unknown';
+    if (mc === 0) return '$0';
     if (mc >= 1000000) return `$${(mc / 1000000).toFixed(2)}M`;
     if (mc >= 1000) return `$${(mc / 1000).toFixed(1)}K`;
     return `$${mc.toFixed(0)}`;
@@ -251,7 +252,7 @@ const TokenDetailPage = () => {
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-neutral-500">Amount:</span>
                       <span className="text-sm font-semibold text-accent">
-                        {buyer.solAmount.toFixed(2)} SOL
+                        {Number(buyer.solAmount || 0).toFixed(2)} SOL
                       </span>
                     </div>
                     

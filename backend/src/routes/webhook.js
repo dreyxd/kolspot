@@ -4,6 +4,7 @@ import {
   fetchTokenMetadata
 } from '../services/helius.js';
 import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
+import { enrichMarketCap } from '../services/marketcap.js';
 import { saveTransaction } from '../db/queries.js';
 import { broadcastTransaction } from '../websocket/index.js';
 import * as cache from '../utils/cache.js';
@@ -61,6 +62,7 @@ router.post('/helius', async (req, res) => {
 
         // Single enrichment pass using Moralis only
         let enrichedTrades = await enrichWithMoralis(trades);
+        enrichedTrades = await enrichMarketCap(enrichedTrades);
 
         // Process all trades (BUY and SELL)
         for (const tx of enrichedTrades) {

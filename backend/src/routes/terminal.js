@@ -1,6 +1,7 @@
 import express from 'express';
 import { getRecentTransactions } from '../db/queries.js';
 import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
+import { enrichMarketCap } from '../services/marketcap.js';
 import * as cache from '../utils/cache.js';
 import { normalizeTradesMints } from '../utils/mint.js';
 
@@ -15,7 +16,8 @@ const BONDING_THRESHOLD = 69000; // $69K market cap
  */
 async function enrichTrades(transactions) {
   const normalized = normalizeTradesMints(transactions);
-  return await enrichWithMoralis(normalized);
+  const moralisEnriched = await enrichWithMoralis(normalized);
+  return await enrichMarketCap(moralisEnriched);
 }
 
 /**

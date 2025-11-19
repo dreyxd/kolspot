@@ -127,6 +127,12 @@ export const fetchTokenPrice = async (mintAddress) => {
 
 // Combined function to fetch both metadata and price
 export const fetchTokenInfo = async (mintAddress) => {
+  // Validate mint address early
+  if (!mintAddress || typeof mintAddress !== 'string' || mintAddress.length < 32) {
+    console.warn(`[Moralis] Skipping invalid mint in fetchTokenInfo: ${mintAddress}`);
+    return null;
+  }
+
   try {
     const [metadata, price] = await Promise.all([
       fetchTokenMetadata(mintAddress),
@@ -153,10 +159,20 @@ export const fetchTokenInfo = async (mintAddress) => {
 
 // Enrich trades with Moralis data
 export const enrichTokenMetadata = async (trades) => {
-  // Filter out undefined/null mints
-  const uniqueMints = [...new Set(trades.map(t => t.tokenMint).filter(m => m))];
+  // Debug: log what we're receiving
+  console.log(`[Moralis] Received ${trades.length} trades to enrich`);
   
-  console.log(`[Moralis] Enriching metadata for ${uniqueMints.length} tokens...`);
+  // Filter out undefined/null mints
+  const allMints = trades.map(t => t.tokenMint);
+  const invalidMints = allMints.filter(m => !m || typeof m !== 'string' || m.length < 32);
+  
+  if (invalidMints.length > 0) {
+    console.warn(`[Moralis] Found ${invalidMints.length} invalid mints, skipping them`);
+  }
+  
+  const uniqueMints = [...new Set(allMints.filter(m => m && typeof m === 'string' && m.length >= 32))];
+  
+  console.log(`[Moralis] Enriching metadata for ${uniqueMints.length} valid tokens...`);
   
   if (uniqueMints.length === 0) {
     console.warn('[Moralis] No valid token mints to enrich');

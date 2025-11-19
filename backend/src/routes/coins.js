@@ -3,6 +3,7 @@ import { getKolsCountByToken, getRecentTransactions } from '../db/queries.js';
 import { enrichTokenMetadata as enrichWithPumpFun } from '../services/pumpfun.js';
 import { enrichTokenMetadata as enrichWithJupiter } from '../services/jupiter.js';
 import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
+import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
 import * as cache from '../utils/cache.js';
 
 const router = express.Router();
@@ -54,7 +55,7 @@ router.get('/recent-trades', async (req, res) => {
 
     const transactions = await getRecentTransactions(limit);
     
-    // Three-tier enrichment: Pump.fun -> Jupiter -> DexScreener (all free!)
+    // Four-tier enrichment: Pump.fun -> Jupiter -> DexScreener -> Moralis
     let enriched = await enrichWithPumpFun(transactions);
     
     // Try Jupiter for any still-UNKNOWN tokens
@@ -70,7 +71,7 @@ router.get('/recent-trades', async (req, res) => {
       });
     }
     
-    // Final fallback to DexScreener
+    // Try DexScreener
     const stillUnknown2 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
     if (stillUnknown2.length > 0) {
       const dexEnriched = await enrichWithDexScreener(stillUnknown2);
@@ -78,6 +79,19 @@ router.get('/recent-trades', async (req, res) => {
         if (t.tokenSymbol === 'UNKNOWN') {
           const dexData = dexEnriched.find(d => d.tokenMint === t.tokenMint);
           return dexData || t;
+        }
+        return t;
+      });
+    }
+    
+    // Final fallback to Moralis
+    const stillUnknown3 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
+    if (stillUnknown3.length > 0) {
+      const moralisEnriched = await enrichWithMoralis(stillUnknown3);
+      enriched = enriched.map(t => {
+        if (t.tokenSymbol === 'UNKNOWN') {
+          const moralisData = moralisEnriched.find(d => d.tokenMint === t.tokenMint);
+          return moralisData || t;
         }
         return t;
       });

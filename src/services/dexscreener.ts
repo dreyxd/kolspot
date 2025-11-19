@@ -1,7 +1,7 @@
 // DexScreener API integration to fetch real token data
 // Helps validate pump.fun tokens and get accurate trading info
 
-interface DexPair {
+export interface DexPair {
   chainId: string
   dexId: string
   url: string
@@ -18,6 +18,7 @@ interface DexPair {
   }
   priceNative: string
   priceUsd?: string
+  fdv?: number
   volume?: {
     h24: number
   }

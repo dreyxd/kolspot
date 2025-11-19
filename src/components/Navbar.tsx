@@ -19,8 +19,8 @@ export default function Navbar() {
           <NavLink to="/leaderboard" className={navLinkClass}>
             Leaderboard
           </NavLink>
-          <NavLink to="/kolboard" className={navLinkClass}>
-            KOLBoard
+          <NavLink to="/terminal" className={navLinkClass}>
+            KOL Terminal
           </NavLink>
           <NavLink to="/how-it-works" className={navLinkClass}>
             How It Works

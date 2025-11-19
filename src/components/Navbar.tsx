@@ -22,6 +22,9 @@ export default function Navbar() {
           <NavLink to="/how-it-works" className={navLinkClass}>
             How It Works
           </NavLink>
+          <NavLink to="/kols" className={navLinkClass}>
+            $KOLS
+          </NavLink>
           <NavLink to="/docs" className={navLinkClass}>
             Docs
           </NavLink>

@@ -10,6 +10,7 @@ import Terms from './pages/Terms'
 import About from './pages/About'
 import FAQs from './pages/FAQs'
 import Disclaimer from './pages/Disclaimer'
+import KOLS from './pages/KOLS'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/faqs" element={<FAQs />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="/kols" element={<KOLS />} />
         {/* Redirect old KOLBoard route to Terminal */}
         <Route path="/kolboard" element={<Navigate to="/terminal" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />

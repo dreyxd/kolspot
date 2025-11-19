@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import DexScreenerChart from '../components/DexScreenerChart';
 import { formatUsdPrice } from '../utils/format';
 import { useParams, useNavigate } from 'react-router-dom';
+import { getTopHolders, getHolderStats, getBondingStatus, type TokenHolder, type HolderStats, type BondingStatus } from '../services/moralis';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -45,6 +45,10 @@ const TokenDetailPage = () => {
   const [copied, setCopied] = useState(false);
   const [analytics, setAnalytics] = useState<TokenAnalytics | null>(null);
   const [refreshMs, setRefreshMs] = useState<number>(3000); // default 3s
+  const [holders, setHolders] = useState<TokenHolder[]>([]);
+  const [holderStats, setHolderStats] = useState<HolderStats | null>(null);
+  const [holdersLoading, setHoldersLoading] = useState(false);
+  const [bondingStatus, setBondingStatus] = useState<BondingStatus | null>(null);
 
   useEffect(() => {
     const fetchTokenDetails = async () => {
@@ -92,6 +96,30 @@ const TokenDetailPage = () => {
       if (interval) clearInterval(interval);
     };
   }, [mint, refreshMs]);
+
+  // Fetch holder data and bonding status
+  useEffect(() => {
+    const fetchHolders = async () => {
+      if (!mint) return;
+      setHoldersLoading(true);
+      try {
+        const [holdersData, statsData, bondingData] = await Promise.all([
+          getTopHolders(mint, 10),
+          getHolderStats(mint),
+          getBondingStatus(mint)
+        ]);
+        setHolders(holdersData?.result || []);
+        setHolderStats(statsData);
+        setBondingStatus(bondingData);
+      } catch (error) {
+        console.error('Error fetching holders:', error);
+      } finally {
+        setHoldersLoading(false);
+      }
+    };
+
+    fetchHolders();
+  }, [mint]);
 
   const copyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
@@ -252,11 +280,29 @@ const TokenDetailPage = () => {
                 </div>
                 <div className="bg-black/20 rounded-lg p-4">
                   <div className="text-xs text-neutral-500 mb-1">Status</div>
-                  <div className={`text-sm font-bold ${token.isBonded ? 'text-purple-400' : 'text-yellow-400'}`}>
-                    {token.isBonded ? '✓ Bonded' : '⏳ Bonding'}
+                  <div className={`text-sm font-bold ${bondingStatus?.complete ? 'text-purple-400' : 'text-yellow-400'}`}>
+                    {bondingStatus?.complete ? '✓ Migrated' : '⏳ Bonding'}
                   </div>
                 </div>
               </div>
+
+              {/* Bonding Progress Bar - Only show if not complete */}
+              {bondingStatus && !bondingStatus.complete && (
+                <div className="mt-4 bg-black/20 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-neutral-400">Bonding Progress</span>
+                    <span className="text-xs font-semibold text-yellow-400">
+                      {bondingStatus.percentage ? `${bondingStatus.percentage.toFixed(1)}%` : '0%'}
+                    </span>
+                  </div>
+                  <div className="w-full bg-black/40 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 transition-all duration-500"
+                      style={{ width: `${bondingStatus.percentage || 0}%` }}
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Quick Analytics (24h) */}
               {analytics && (
@@ -281,32 +327,89 @@ const TokenDetailPage = () => {
               )}
             </div>
 
-            {/* Public Chart (DexScreener embed) */}
+            {/* Top 10 Holders */}
             <div className="bg-surface/60 border border-white/10 rounded-lg p-6">
               <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
-                <h2 className="text-xl font-bold">Price Chart</h2>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-neutral-500">Auto-refresh</label>
-                  <select
-                    value={refreshMs}
-                    onChange={(e) => setRefreshMs(parseInt(e.target.value, 10))}
-                    className="bg-black/30 text-sm text-neutral-200 rounded-md px-2 py-1 border border-white/10 focus:outline-none focus:border-accent"
-                    title="Change auto-refresh interval"
-                 >
-                    <option value={0}>Off</option>
-                    <option value={3000}>3s</option>
-                    <option value={5000}>5s</option>
-                    <option value={10000}>10s</option>
-                    <option value={30000}>30s</option>
-                    <option value={60000}>60s</option>
-                  </select>
+                <div>
+                  <h2 className="text-xl font-bold">Top 10 Holders</h2>
+                  {holderStats && (
+                    <p className="text-sm text-neutral-500 mt-1">
+                      Total Holders: {holderStats.totalHolders?.toLocaleString() || 'N/A'}
+                    </p>
+                  )}
                 </div>
               </div>
-              <div className="bg-black/20 rounded-lg overflow-hidden">
-                <DexScreenerChart tokenMint={token.tokenMint} height={500} />
-              </div>
-              <p className="text-xs text-neutral-500 mt-2 text-center">
-                Powered by DexScreener public chart
+              
+              {holdersLoading ? (
+                <div className="bg-black/20 rounded-lg p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent mx-auto mb-2"></div>
+                  <p className="text-neutral-400 text-sm">Loading holders...</p>
+                </div>
+              ) : holders.length === 0 ? (
+                <div className="bg-black/20 rounded-lg p-8 text-center">
+                  <p className="text-neutral-400 text-sm">No holder data available</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left py-3 px-2 text-neutral-400 font-medium">Rank</th>
+                        <th className="text-left py-3 px-2 text-neutral-400 font-medium">Address</th>
+                        <th className="text-right py-3 px-2 text-neutral-400 font-medium">Balance</th>
+                        <th className="text-right py-3 px-2 text-neutral-400 font-medium">% Supply</th>
+                        <th className="text-right py-3 px-2 text-neutral-400 font-medium">USD Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {holders.map((holder, idx) => (
+                        <tr key={holder.ownerAddress} className="border-b border-white/5 hover:bg-black/20 transition-colors">
+                          <td className="py-3 px-2">
+                            <span className="text-neutral-300 font-mono">#{idx + 1}</span>
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-neutral-300 font-mono text-xs">
+                                {shortAddress(holder.ownerAddress, 6, 4)}
+                              </span>
+                              <button
+                                onClick={() => copyAddress(holder.ownerAddress)}
+                                className="text-neutral-500 hover:text-accent transition-colors"
+                                title="Copy address"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-right">
+                            <span className="text-neutral-200 font-medium">
+                              {holder.balanceFormatted || 'N/A'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2 text-right">
+                            <span className="text-accent font-medium">
+                              {holder.percentageRelativeToTotalSupply 
+                                ? `${Number(holder.percentageRelativeToTotalSupply).toFixed(2)}%`
+                                : 'N/A'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-2 text-right">
+                            <span className="text-neutral-200">
+                              {holder.usdValue 
+                                ? `$${Number(holder.usdValue).toLocaleString(undefined, {maximumFractionDigits: 2})}`
+                                : 'N/A'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <p className="text-xs text-neutral-500 mt-3 text-center">
+                Powered by Moralis API
               </p>
             </div>
           </div>

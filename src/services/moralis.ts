@@ -88,3 +88,73 @@ export async function getBondingStatus(mint: string): Promise<BondingStatus> {
     return null
   }
 }
+
+// --- Token Holders ---
+export interface TokenHolder {
+  balance: string
+  balanceFormatted: string
+  isContract: boolean
+  ownerAddress: string
+  usdValue?: string
+  percentageRelativeToTotalSupply?: string
+}
+
+export interface TopHoldersResponse {
+  result: TokenHolder[]
+  cursor?: string
+  page?: number
+  pageSize?: number
+  totalSupply?: string
+}
+
+export async function getTopHolders(mint: string, limit = 10): Promise<TopHoldersResponse | null> {
+  const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
+  if (!apiKey) return null
+  const url = `${SOLANA_GATEWAY}/token/mainnet/${mint}/top-holders?limit=${limit}`
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+    })
+    if (!res.ok) {
+      console.warn('Moralis top-holders error', mint, res.status)
+      return null
+    }
+    const data = await res.json()
+    return data as TopHoldersResponse
+  } catch (e) {
+    console.warn('Moralis top-holders failed', mint, e)
+    return null
+  }
+}
+
+export interface HolderStats {
+  totalHolders: number
+}
+
+export async function getHolderStats(mint: string): Promise<HolderStats | null> {
+  const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
+  if (!apiKey) return null
+  const url = `${SOLANA_GATEWAY}/token/mainnet/holders/${mint}`
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+    })
+    if (!res.ok) {
+      console.warn('Moralis holder-stats error', mint, res.status)
+      return null
+    }
+    const data = await res.json()
+    return data as HolderStats
+  } catch (e) {
+    console.warn('Moralis holder-stats failed', mint, e)
+    return null
+  }
+}

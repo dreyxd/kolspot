@@ -123,17 +123,33 @@ const KOLTerminal = () => {
   // Categorize and sort tokens based on state
   const { earlyPlays, bonding, graduated } = useMemo(() => {
     const allTokens = Object.values(tokens);
+    const now = Date.now();
+    const EIGHT_HOURS_MS = 8 * 60 * 60 * 1000;
     
     let early: TerminalToken[] = [];
     let bond: TerminalToken[] = [];
     let grad: TerminalToken[] = [];
 
     allTokens.forEach(token => {
-      if (token.isBonded) {
+      const mc = token.tokenMarketCap || 0;
+      const bondingStatus = bondingStatusByMint[token.tokenMint];
+      const tokenAge = now - new Date(token.latestTrade).getTime();
+      
+      // Skip tokens older than 8 hours OR below 15K market cap
+      if (tokenAge > EIGHT_HOURS_MS || mc < 15000) {
+        return;
+      }
+      
+      // Graduated: 57K+ market cap AND bonding complete
+      if (mc >= 57000 && (bondingStatus?.complete || token.isBonded)) {
         grad.push(token);
-      } else if (token.tokenMarketCap && token.tokenMarketCap > 50000) {
+      } 
+      // About to Graduate: 10K-57K market cap (not yet graduated)
+      else if (mc >= 10000 && mc < 57000 && !bondingStatus?.complete && !token.isBonded) {
         bond.push(token);
-      } else {
+      } 
+      // New token: < 10K market cap
+      else if (mc < 10000) {
         early.push(token);
       }
     });
@@ -152,7 +168,7 @@ const KOLTerminal = () => {
     grad.sort(sortFn);
 
     return { earlyPlays: early, bonding: bond, graduated: grad };
-  }, [tokens, sortBy]);
+  }, [tokens, sortBy, bondingStatusByMint]);
 
   // Enrich visible tokens with bonding status
   useEffect(() => {

@@ -18,7 +18,18 @@ const pool = new Pool({
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+  // Don't exit process - just log the error and continue
+  // Railway will restart if needed, but we don't want to crash on every DB hiccup
+});
+
+// Test connection on startup
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('Database connection error:', err.message);
+    console.warn('⚠️  Database not connected - some features may be unavailable');
+  } else {
+    console.log('✅ Database connected successfully');
+  }
 });
 
 export const query = (text, params) => pool.query(text, params);

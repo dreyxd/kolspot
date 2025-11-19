@@ -25,7 +25,7 @@ export const saveTransaction = async (transaction) => {
     return result.rows[0];
   } catch (error) {
     console.error('Error saving transaction:', error);
-    throw error;
+    return null; // Return null instead of throwing
   }
 };
 
@@ -47,7 +47,7 @@ export const getKolsCountByToken = async (hoursWindow = 24) => {
     return result.rows;
   } catch (error) {
     console.error('Error fetching KOLs count:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 };
 
@@ -72,7 +72,7 @@ export const getRecentTransactions = async (limit = 100) => {
     return result.rows;
   } catch (error) {
     console.error('Error fetching recent transactions:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 };
 
@@ -99,7 +99,7 @@ export const getRecentBuysByMint = async (tokenMint, limit = 10) => {
     return result.rows;
   } catch (error) {
     console.error('Error fetching recent buys by mint:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 };
 
@@ -129,6 +129,6 @@ export const getRecentBuysByMints = async (mints = [], limitPerMint = 10) => {
     return result.rows;
   } catch (error) {
     console.error('Error fetching recent buys by mints:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 };

@@ -72,6 +72,13 @@ const KOLTerminal = () => {
     return `$${mc.toFixed(0)}`;
   };
 
+  const formatPrice = (p?: number) => {
+    if (p === null || p === undefined) return 'Unknown';
+    if (p >= 1) return `$${p.toFixed(4)}`;
+    if (p > 0) return `$${p.toExponential(2)}`;
+    return 'Unknown';
+  };
+
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -126,9 +133,9 @@ const KOLTerminal = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div className="bg-black/20 rounded p-2">
-          <div className="text-[10px] text-neutral-500">Market Cap</div>
+          <div className="text-[10px] text-neutral-500">Price</div>
           <div className="text-sm font-semibold text-white">
-            {formatMarketCap(token.tokenMarketCap)}
+            {formatPrice(token.tokenPrice)}
           </div>
         </div>
         <div className="bg-black/20 rounded p-2">

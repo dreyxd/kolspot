@@ -1,6 +1,6 @@
 import express from 'express';
-import { getRecentTransactions } from '../db/queries.js';
-import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
+import { getRecentTransactions, getRecentBuysByMint } from '../db/queries.js';
+import { enrichTokenMetadata as enrichWithMoralis, fetchExchangeTokens } from '../services/moralis.js';
 import { enrichMarketCap } from '../services/marketcap.js';
 import * as cache from '../utils/cache.js';
 import { normalizeTradesMints } from '../utils/mint.js';
@@ -89,36 +89,41 @@ function groupByToken(trades) {
 router.get('/early-plays', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
-    
-    // Check cache
     const cacheKey = `terminal-early-plays`;
     const cached = cache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
+    if (cached) return res.json(cached);
+
+    // Use Moralis gateway: new tokens
+    const listings = await fetchExchangeTokens('new', Math.min(limit, 100));
+
+    // Attach KOL buyers from DB
+    const out = [];
+    for (const t of listings) {
+      const buyers = await getRecentBuysByMint(t.tokenMint, 10);
+      out.push({
+        tokenMint: t.tokenMint,
+        tokenSymbol: t.tokenSymbol,
+        tokenName: t.tokenName,
+        tokenLogoURI: t.tokenLogoURI,
+        tokenPrice: t.tokenPrice,
+        tokenMarketCap: t.tokenMarketCap,
+        tokenLiquidity: t.tokenLiquidity,
+        isBonded: false,
+        buyers: buyers.map(b => ({
+          walletAddress: b.walletAddress,
+          amount: b.amount,
+          solAmount: b.solAmount,
+          timestamp: b.timestamp,
+          signature: b.signature
+        })),
+        totalVolume: buyers.reduce((s, b) => s + (b.solAmount || 0), 0),
+        tradeCount: buyers.length,
+        latestTrade: buyers[0]?.timestamp || t.createdAt || new Date().toISOString()
+      });
     }
-    
-    // Get recent transactions
-    const transactions = await getRecentTransactions(limit);
-    
-    // Enrich with metadata
-    const enriched = await enrichTrades(transactions);
-    
-    // Group by token
-    const tokens = groupByToken(enriched);
-    
-    // Filter: Market cap < $10K
-    const earlyPlays = tokens.filter(t => {
-      const marketCap = t.tokenMarketCap || 0;
-      return marketCap >= 0 && marketCap < 10000;
-    });
-    
-    // Sort by latest trade
-    earlyPlays.sort((a, b) => new Date(b.latestTrade) - new Date(a.latestTrade));
-    
-    // Cache for 30 seconds
-    cache.set(cacheKey, earlyPlays, 30);
-    
-    res.json(earlyPlays);
+
+    cache.set(cacheKey, out, 30);
+    res.json(out);
   } catch (error) {
     console.error('Error fetching early plays:', error);
     res.status(500).json({ error: 'Failed to fetch early plays' });
@@ -132,28 +137,38 @@ router.get('/early-plays', async (req, res) => {
 router.get('/bonding', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
-    
     const cacheKey = `terminal-bonding`;
     const cached = cache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
+    if (cached) return res.json(cached);
+
+    const listings = await fetchExchangeTokens('bonding', Math.min(limit, 100));
+    const out = [];
+    for (const t of listings) {
+      const buyers = await getRecentBuysByMint(t.tokenMint, 10);
+      out.push({
+        tokenMint: t.tokenMint,
+        tokenSymbol: t.tokenSymbol,
+        tokenName: t.tokenName,
+        tokenLogoURI: t.tokenLogoURI,
+        tokenPrice: t.tokenPrice,
+        tokenMarketCap: t.tokenMarketCap,
+        tokenLiquidity: t.tokenLiquidity,
+        isBonded: false,
+        buyers: buyers.map(b => ({
+          walletAddress: b.walletAddress,
+          amount: b.amount,
+          solAmount: b.solAmount,
+          timestamp: b.timestamp,
+          signature: b.signature
+        })),
+        totalVolume: buyers.reduce((s, b) => s + (b.solAmount || 0), 0),
+        tradeCount: buyers.length,
+        latestTrade: buyers[0]?.timestamp || new Date().toISOString()
+      });
     }
-    
-    const transactions = await getRecentTransactions(limit);
-    const enriched = await enrichTrades(transactions);
-    const tokens = groupByToken(enriched);
-    
-    // Filter: $10K <= Market cap < $69K (bonding curve)
-    const bonding = tokens.filter(t => {
-      const marketCap = t.tokenMarketCap || 0;
-      return marketCap >= 10000 && marketCap < BONDING_THRESHOLD && !t.isBonded;
-    });
-    
-    bonding.sort((a, b) => new Date(b.latestTrade) - new Date(a.latestTrade));
-    
-    cache.set(cacheKey, bonding, 30);
-    
-    res.json(bonding);
+
+    cache.set(cacheKey, out, 30);
+    res.json(out);
   } catch (error) {
     console.error('Error fetching bonding tokens:', error);
     res.status(500).json({ error: 'Failed to fetch bonding tokens' });
@@ -167,28 +182,38 @@ router.get('/bonding', async (req, res) => {
 router.get('/graduated', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
-    
     const cacheKey = `terminal-graduated`;
     const cached = cache.get(cacheKey);
-    if (cached) {
-      return res.json(cached);
+    if (cached) return res.json(cached);
+
+    const listings = await fetchExchangeTokens('graduated', Math.min(limit, 100));
+    const out = [];
+    for (const t of listings) {
+      const buyers = await getRecentBuysByMint(t.tokenMint, 10);
+      out.push({
+        tokenMint: t.tokenMint,
+        tokenSymbol: t.tokenSymbol,
+        tokenName: t.tokenName,
+        tokenLogoURI: t.tokenLogoURI,
+        tokenPrice: t.tokenPrice,
+        tokenMarketCap: t.tokenMarketCap,
+        tokenLiquidity: t.tokenLiquidity,
+        isBonded: true,
+        buyers: buyers.map(b => ({
+          walletAddress: b.walletAddress,
+          amount: b.amount,
+          solAmount: b.solAmount,
+          timestamp: b.timestamp,
+          signature: b.signature
+        })),
+        totalVolume: buyers.reduce((s, b) => s + (b.solAmount || 0), 0),
+        tradeCount: buyers.length,
+        latestTrade: buyers[0]?.timestamp || t.graduatedAt || new Date().toISOString()
+      });
     }
-    
-    const transactions = await getRecentTransactions(limit);
-    const enriched = await enrichTrades(transactions);
-    const tokens = groupByToken(enriched);
-    
-    // Filter: Market cap >= $69K or bonded status
-    const graduated = tokens.filter(t => {
-      const marketCap = t.tokenMarketCap || 0;
-      return marketCap >= BONDING_THRESHOLD || t.isBonded;
-    });
-    
-    graduated.sort((a, b) => new Date(b.latestTrade) - new Date(a.latestTrade));
-    
-    cache.set(cacheKey, graduated, 30);
-    
-    res.json(graduated);
+
+    cache.set(cacheKey, out, 30);
+    res.json(out);
   } catch (error) {
     console.error('Error fetching graduated tokens:', error);
     res.status(500).json({ error: 'Failed to fetch graduated tokens' });

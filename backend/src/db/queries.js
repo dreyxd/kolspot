@@ -75,3 +75,30 @@ export const getRecentTransactions = async (limit = 100) => {
     throw error;
   }
 };
+
+// Recent BUY-side transactions for a specific token mint
+export const getRecentBuysByMint = async (tokenMint, limit = 10) => {
+  try {
+    const result = await query(
+      `SELECT 
+         wallet_address as "walletAddress",
+         token_mint as "tokenMint",
+         token_symbol as "tokenSymbol",
+         amount,
+         sol_amount as "solAmount",
+         side,
+         timestamp,
+         signature
+       FROM kol_transactions
+       WHERE token_mint = $1 AND side = 'BUY'
+       ORDER BY timestamp DESC
+       LIMIT $2`,
+      [tokenMint, limit]
+    );
+
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching recent buys by mint:', error);
+    throw error;
+  }
+};

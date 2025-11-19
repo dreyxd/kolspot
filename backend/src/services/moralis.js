@@ -377,3 +377,40 @@ setInterval(() => {
     }
   }
 }, 300000); // Clean every 5 minutes
+
+// ---- Exchange listing helpers (Pump.fun) ----
+export const fetchExchangeTokens = async (kind = 'new', limit = 50) => {
+  const allowed = new Set(['new', 'bonding', 'graduated']);
+  const type = allowed.has(kind) ? kind : 'new';
+  try {
+    const url = `https://solana-gateway.moralis.io/token/mainnet/exchange/pumpfun/${type}?limit=${limit}`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': MORALIS_API_KEY
+      }
+    });
+    if (!res.ok) {
+      console.warn(`[Moralis][Exchange] ${type} non-OK ${res.status}`);
+      return [];
+    }
+    const data = await res.json();
+    const arr = Array.isArray(data?.result) ? data.result : [];
+    return arr.map((t) => ({
+      tokenMint: t.tokenAddress,
+      tokenSymbol: t.symbol,
+      tokenName: t.name,
+      tokenLogoURI: t.logo,
+      tokenPrice: typeof t.priceUsd === 'number' ? t.priceUsd : (t.priceUsd ? Number(t.priceUsd) : undefined),
+      tokenLiquidity: typeof t.liquidity === 'number' ? t.liquidity : (t.liquidity ? Number(t.liquidity) : undefined),
+      tokenMarketCap: typeof t.fullyDilutedValuation === 'number' ? t.fullyDilutedValuation : (t.fullyDilutedValuation ? Number(t.fullyDilutedValuation) : undefined),
+      createdAt: t.createdAt,
+      graduatedAt: t.graduatedAt,
+      bondingCurveProgress: t.bondingCurveProgress
+    }));
+  } catch (err) {
+    console.warn(`[Moralis][Exchange] ${kind} fetch error: ${err.message}`);
+    return [];
+  }
+};

@@ -3,6 +3,7 @@ import {
   parseTransactions,
   fetchTokenMetadata
 } from '../services/helius.js';
+import { enrichTokenMetadata } from '../services/dexscreener.js';
 import { saveTransaction } from '../db/queries.js';
 import { broadcastTransaction } from '../websocket/index.js';
 import * as cache from '../utils/cache.js';
@@ -53,33 +54,12 @@ router.post('/helius', async (req, res) => {
 
         console.log(`[Webhook] Found ${trades.length} trade(s) in ${signature}`);
 
-        // Fetch metadata for tokens with UNKNOWN symbol
-        const unknownTokens = trades
-          .filter(t => t.tokenSymbol === 'UNKNOWN')
-          .map(t => t.tokenMint);
-        
-        const tokenMetadataMap = {};
-        if (unknownTokens.length > 0) {
-          try {
-            const uniqueTokens = [...new Set(unknownTokens)];
-            const metadata = await fetchTokenMetadata(uniqueTokens);
-            metadata.forEach(meta => {
-              if (meta.account) {
-                tokenMetadataMap[meta.account] = meta.onChainMetadata?.metadata?.data?.symbol || 'UNKNOWN';
-              }
-            });
-          } catch (error) {
-            console.error('[Webhook] Error fetching token metadata:', error.message);
-          }
-        }
+        // Enrich token metadata using DexScreener for UNKNOWN tokens
+        const enrichedTrades = await enrichTokenMetadata(trades);
 
         // Process all trades (BUY and SELL)
-        for (const tx of trades) {
+        for (const tx of enrichedTrades) {
           try {
-            // Update token symbol from metadata if it was UNKNOWN
-            if (tx.tokenSymbol === 'UNKNOWN' && tokenMetadataMap[tx.tokenMint]) {
-              tx.tokenSymbol = tokenMetadataMap[tx.tokenMint];
-            }
 
             const emoji = tx.side === 'BUY' ? '💰' : '💸';
             console.log(`[Webhook] ${emoji} ${tx.side}: ${tx.tokenSymbol} by ${tx.walletAddress.slice(0, 4)}... (${tx.solAmount.toFixed(2)} SOL)`);

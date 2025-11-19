@@ -32,6 +32,25 @@ class TradeStore {
     this.listeners.forEach(listener => listener(currentTrades))
   }
 
+  updateTokenMetadata(mint: string, symbol: string, name: string) {
+    let updated = false
+    this.trades = this.trades.map(trade => {
+      if (trade.coinMint === mint && (trade.coin === 'UNKNOWN' || !trade.coin || trade.coin.startsWith('0x'))) {
+        updated = true
+        return {
+          ...trade,
+          coin: symbol,
+          coinName: name
+        }
+      }
+      return trade
+    })
+    
+    if (updated) {
+      this.notifyListeners()
+    }
+  }
+
   clear() {
     this.trades = []
     this.notifyListeners()

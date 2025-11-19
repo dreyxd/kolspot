@@ -1,5 +1,6 @@
 import express from 'express';
 import { getKolsCountByToken, getRecentTransactions } from '../db/queries.js';
+import { enrichTokenMetadata } from '../services/dexscreener.js';
 import * as cache from '../utils/cache.js';
 
 const router = express.Router();
@@ -50,8 +51,11 @@ router.get('/recent-trades', async (req, res) => {
     const limit = parseInt(req.query.limit) || 100;
 
     const transactions = await getRecentTransactions(limit);
+    
+    // Enrich UNKNOWN tokens with DexScreener metadata
+    const enriched = await enrichTokenMetadata(transactions);
 
-    res.json(transactions);
+    res.json(enriched);
   } catch (error) {
     console.error('Error fetching recent trades:', error);
     res.status(500).json({ error: 'Failed to fetch recent trades' });

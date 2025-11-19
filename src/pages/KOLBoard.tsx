@@ -6,6 +6,7 @@ import { formatCurrency, formatDate, shortAddress } from '../utils/format'
 import { loadKols } from '../services/kols'
 import { getRecentTrades } from '../services/backendApi'
 import { subscribeToTrades } from '../services/backendWs'
+import { enrichTokenSymbol } from '../services/dexscreener'
 
 // Categorization: Left (1-2 unique KOL buyers), Middle (3-4), Right (5+)
 
@@ -23,7 +24,7 @@ type CoinEntry = {
 }
 
 // Separate component for coin card to properly handle useState
-const CoinCard: React.FC<{ entry: CoinEntry; kols: any[] }> = ({ entry, kols }) => {
+const CoinCard: React.FC<{ entry: CoinEntry; kols: any[]; enriching?: boolean }> = ({ entry, kols, enriching }) => {
   const [copied, setCopied] = useState(false)
   
   const copyAddress = () => {
@@ -33,6 +34,9 @@ const CoinCard: React.FC<{ entry: CoinEntry; kols: any[] }> = ({ entry, kols }) 
       setTimeout(() => setCopied(false), 2000)
     }
   }
+  
+  // Check if this token is UNKNOWN
+  const isUnknown = entry.name === 'UNKNOWN' || entry.symbol === 'UNKNOWN' || entry.name?.startsWith('0x')
   
   // Sort buyers by buy time (earliest first) and take top 3
   const buyersArray = Array.from(entry.buyers)
@@ -55,6 +59,9 @@ const CoinCard: React.FC<{ entry: CoinEntry; kols: any[] }> = ({ entry, kols }) 
                 <span className="font-medium truncate">{entry.name}</span>
               )}
               {entry.symbol && <span className="text-xs text-neutral-400">({entry.symbol})</span>}
+              {isUnknown && enriching && (
+                <span className="text-[10px] text-yellow-400 animate-pulse">Fetching...</span>
+              )}
             </div>
             {entry.mint && (
               <div 
@@ -106,6 +113,45 @@ export default function KOLBoard() {
   const [buyTrades, setBuyTrades] = useState<BuyTrade[]>([])
   const [kols, setKols] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [enriching, setEnriching] = useState(false)
+
+  // Enrich UNKNOWN tokens with DexScreener data
+  useEffect(() => {
+    const enrichUnknownTokens = async () => {
+      const unknownTrades = buyTrades.filter(t => 
+        t.coin === 'UNKNOWN' || !t.coin || t.coin.startsWith('0x')
+      )
+      
+      if (unknownTrades.length === 0) return
+      
+      setEnriching(true)
+      console.log(`🔍 Enriching ${unknownTrades.length} UNKNOWN tokens...`)
+      
+      // Get unique mints to avoid duplicate API calls
+      const uniqueMints = [...new Set(unknownTrades.map(t => t.coinMint).filter(Boolean))]
+      
+      for (const mint of uniqueMints) {
+        try {
+          const { symbol, name } = await enrichTokenSymbol(mint!, 'UNKNOWN')
+          
+          // Update all trades with this mint
+          tradeStore.updateTokenMetadata(mint!, symbol, name)
+          
+          // Small delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 150))
+        } catch (err) {
+          console.warn(`Failed to enrich ${mint}:`, err)
+        }
+      }
+      
+      setEnriching(false)
+      console.log('✅ Token enrichment complete')
+    }
+    
+    // Run enrichment after initial load and when new UNKNOWN tokens appear
+    const timer = setTimeout(enrichUnknownTokens, 1000)
+    return () => clearTimeout(timer)
+  }, [buyTrades.filter(t => t.coin === 'UNKNOWN').length])
 
   useEffect(() => {
     const init = async () => {
@@ -252,19 +298,19 @@ export default function KOLBoard() {
         <div className="card p-4 flex flex-col">
           <h2 className="text-sm font-semibold tracking-wide text-accent mb-4">Coins (1–2 KOL Buyers)</h2>
           <div className="flex-1 overflow-y-auto max-h-[520px] pr-1">
-            {leftCoins.length ? leftCoins.map(entry => <CoinCard key={entry.id} entry={entry} kols={kols} />) : <p className="text-xs text-neutral-500">No coins in this range.</p>}
+            {leftCoins.length ? leftCoins.map(entry => <CoinCard key={entry.id} entry={entry} kols={kols} enriching={enriching} />) : <p className="text-xs text-neutral-500">No coins in this range.</p>}
           </div>
         </div>
         <div className="card p-4 flex flex-col">
           <h2 className="text-sm font-semibold tracking-wide text-accent mb-4">Coins (3–4 KOL Buyers)</h2>
           <div className="flex-1 overflow-y-auto max-h-[520px] pr-1">
-            {middleCoins.length ? middleCoins.map(entry => <CoinCard key={entry.id} entry={entry} kols={kols} />) : <p className="text-xs text-neutral-500">No coins in this range.</p>}
+            {middleCoins.length ? middleCoins.map(entry => <CoinCard key={entry.id} entry={entry} kols={kols} enriching={enriching} />) : <p className="text-xs text-neutral-500">No coins in this range.</p>}
           </div>
         </div>
         <div className="card p-4 flex flex-col">
           <h2 className="text-sm font-semibold tracking-wide text-accent mb-4">Coins (5+ KOL Buyers)</h2>
           <div className="flex-1 overflow-y-auto max-h-[520px] pr-1">
-            {rightCoins.length ? rightCoins.map(entry => <CoinCard key={entry.id} entry={entry} kols={kols} />) : <p className="text-xs text-neutral-500">No coins in this range.</p>}
+            {rightCoins.length ? rightCoins.map(entry => <CoinCard key={entry.id} entry={entry} kols={kols} enriching={enriching} />) : <p className="text-xs text-neutral-500">No coins in this range.</p>}
           </div>
         </div>
       </div>

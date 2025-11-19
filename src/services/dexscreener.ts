@@ -87,3 +87,29 @@ export async function verifyPumpFunToken(mintAddress: string): Promise<boolean> 
 export function clearCache() {
   cache.clear()
 }
+
+/**
+ * Enrich a token symbol by fetching from DexScreener if it's UNKNOWN
+ */
+export async function enrichTokenSymbol(mint: string, currentSymbol: string): Promise<{ symbol: string; name: string }> {
+  // If we already have a good symbol, return it
+  if (currentSymbol && currentSymbol !== 'UNKNOWN' && !currentSymbol.startsWith('0x')) {
+    return { symbol: currentSymbol, name: currentSymbol }
+  }
+
+  // Try to get token info from DexScreener
+  const tokenInfo = await getTokenInfo(mint)
+  
+  if (tokenInfo && tokenInfo.baseToken) {
+    return {
+      symbol: tokenInfo.baseToken.symbol,
+      name: tokenInfo.baseToken.name
+    }
+  }
+
+  // Fallback to shortened mint address
+  return {
+    symbol: currentSymbol === 'UNKNOWN' ? mint.slice(0, 6) : currentSymbol,
+    name: mint.slice(0, 8)
+  }
+}

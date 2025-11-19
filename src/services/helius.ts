@@ -302,3 +302,186 @@ export async function startHeliusPolling(addresses: string[], onTrades: (t: Trad
 
   return { stop() { stopped = true } }
 }
+
+// ============================================
+// Enhanced Transactions API
+// ============================================
+
+export interface EnhancedTransaction {
+  signature: string;
+  timestamp: number;
+  type: string; // e.g., "SWAP", "TRANSFER", "NFT_SALE"
+  description: string; // Human-readable description
+  accountData?: Array<{
+    account: string;
+    nativeBalanceChange: number;
+    tokenBalanceChanges?: Array<{
+      mint: string;
+      rawTokenAmount: {
+        tokenAmount: string;
+        decimals: number;
+      };
+      userAccount: string;
+    }>;
+  }>;
+  source?: string; // e.g., "RAYDIUM", "JUPITER"
+  fee?: number;
+  feePayer?: string;
+}
+
+/**
+ * Get enhanced transaction data with human-readable parsing
+ * @param signature Transaction signature
+ * @returns Enhanced transaction data with pre-parsed information
+ */
+export async function getEnhancedTransaction(signature: string): Promise<EnhancedTransaction | null> {
+  if (!API_KEY) {
+    console.warn('[Helius] Enhanced Transactions: API key not configured');
+    return null;
+  }
+
+  try {
+    const url = `${API_BASE}/v0/transactions?api-key=${API_KEY}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transactions: [signature]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Enhanced transaction fetch failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data[0] || null;
+  } catch (error) {
+    console.error('[Helius] Enhanced transaction error:', error);
+    return null;
+  }
+}
+
+/**
+ * Get enhanced transactions for multiple signatures
+ * @param signatures Array of transaction signatures
+ * @returns Array of enhanced transaction data
+ */
+export async function getEnhancedTransactions(signatures: string[]): Promise<EnhancedTransaction[]> {
+  if (!API_KEY) {
+    console.warn('[Helius] Enhanced Transactions: API key not configured');
+    return [];
+  }
+
+  try {
+    const url = `${API_BASE}/v0/transactions?api-key=${API_KEY}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transactions: signatures
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Enhanced transactions fetch failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data || [];
+  } catch (error) {
+    console.error('[Helius] Enhanced transactions error:', error);
+    return [];
+  }
+}
+
+/**
+ * Get parsed transaction history for a wallet address
+ * @param address Wallet address
+ * @param limit Number of transactions to fetch (max 100)
+ * @param before Optional signature to paginate from
+ * @returns Array of enhanced transactions
+ */
+export async function getWalletTransactions(
+  address: string,
+  limit: number = 50,
+  before?: string
+): Promise<EnhancedTransaction[]> {
+  if (!API_KEY) {
+    console.warn('[Helius] Enhanced Transactions: API key not configured');
+    return [];
+  }
+
+  try {
+    const params = new URLSearchParams({
+      'api-key': API_KEY,
+      limit: Math.min(limit, 100).toString()
+    });
+    
+    if (before) {
+      params.append('before', before);
+    }
+
+    const url = `${API_BASE}/v0/addresses/${address}/transactions?${params}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Wallet transactions fetch failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data || [];
+  } catch (error) {
+    console.error('[Helius] Wallet transactions error:', error);
+    return [];
+  }
+}
+
+// ============================================
+// Priority Fee API
+// ============================================
+
+export interface PriorityFeeEstimate {
+  min: number;
+  low: number;
+  medium: number;
+  high: number;
+  veryHigh: number;
+  unsafeMax: number;
+}
+
+/**
+ * Get priority fee recommendations for optimal transaction landing
+ * @param accountKeys Optional array of account addresses to analyze
+ * @returns Priority fee estimates in micro-lamports per compute unit
+ */
+export async function getPriorityFeeEstimate(accountKeys?: string[]): Promise<PriorityFeeEstimate | null> {
+  if (!API_KEY) {
+    console.warn('[Helius] Priority Fee API: API key not configured');
+    return null;
+  }
+
+  try {
+    const url = `${API_BASE}/v0/priority-fee?api-key=${API_KEY}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accountKeys: accountKeys || [],
+        options: {
+          includeAllPriorityFeeLevels: true
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Priority fee fetch failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.priorityFeeEstimate || null;
+  } catch (error) {
+    console.error('[Helius] Priority fee error:', error);
+    return null;
+  }
+}

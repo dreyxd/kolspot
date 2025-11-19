@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { getBondingStatus, BondingStatus } from '../services/moralis';
 import { subscribeToTerminalUpdates, TokenUpdate } from '../services/terminalWs';
 import KOLLiveActivity from '../components/KOLLiveActivity';
+import VolumeAnalytics from '../components/VolumeAnalytics';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -450,6 +451,11 @@ const KOLTerminal = () => {
               </select>
             </div>
           </div>
+        </div>
+
+        {/* Volume Analytics */}
+        <div className="mb-6">
+          <VolumeAnalytics />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

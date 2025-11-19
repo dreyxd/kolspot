@@ -224,3 +224,196 @@ export async function getSwapsByWallet(
     return null
   }
 }
+
+// --- Token Snipers (Security Feature) ---
+export interface TokenSniper {
+  walletAddress: string
+  firstBuyTimestamp: string
+  totalBuys: number
+  totalSells: number
+  totalBuyAmount: string
+  totalSellAmount: string
+  profitLoss?: number
+  isActive: boolean
+}
+
+export interface SnipersResponse {
+  page: number
+  pageSize: number
+  result: TokenSniper[]
+}
+
+export async function getSnipersByPair(pairAddress: string, limit = 25): Promise<SnipersResponse | null> {
+  const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
+  if (!apiKey) return null
+  
+  const url = `${SOLANA_GATEWAY}/token/mainnet/pairs/${pairAddress}/snipers?limit=${limit}`
+  
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+    })
+    if (!res.ok) {
+      console.warn('Moralis snipers error', pairAddress, res.status)
+      return null
+    }
+    const data = await res.json()
+    return data as SnipersResponse
+  } catch (e) {
+    console.warn('Moralis snipers failed', pairAddress, e)
+    return null
+  }
+}
+
+// --- Pair Statistics ---
+export interface PairStats {
+  pairAddress: string
+  volume24h: number
+  volumeChange24h: number
+  liquidity: number
+  liquidityChange24h: number
+  price: number
+  priceChange24h: number
+  txns24h: number
+  buys24h: number
+  sells24h: number
+  makers24h: number
+  priceHigh24h: number
+  priceLow24h: number
+}
+
+export async function getPairStats(pairAddress: string): Promise<PairStats | null> {
+  const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
+  if (!apiKey) return null
+  
+  const url = `${SOLANA_GATEWAY}/token/mainnet/pairs/${pairAddress}/stats`
+  
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+    })
+    if (!res.ok) {
+      console.warn('Moralis pair stats error', pairAddress, res.status)
+      return null
+    }
+    const data = await res.json()
+    return data as PairStats
+  } catch (e) {
+    console.warn('Moralis pair stats failed', pairAddress, e)
+    return null
+  }
+}
+
+// --- Token Search ---
+export interface TokenSearchResult {
+  address: string
+  name: string
+  symbol: string
+  logo?: string
+  price?: number
+  marketCap?: number
+  chain: string
+}
+
+export async function searchTokens(query: string, limit = 10): Promise<TokenSearchResult[]> {
+  const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
+  if (!apiKey) return []
+  
+  const url = `${BASE_URL}/tokens/search?query=${encodeURIComponent(query)}&limit=${limit}`
+  
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+    })
+    if (!res.ok) {
+      console.warn('Moralis search error', res.status)
+      return []
+    }
+    const data = await res.json()
+    return Array.isArray(data) ? data : (data.result || [])
+  } catch (e) {
+    console.warn('Moralis search failed', e)
+    return []
+  }
+}
+
+// --- Historical Holder Stats ---
+export interface HistoricalHolderData {
+  timestamp: string
+  totalHolders: number
+  change: number
+}
+
+export async function getHistoricalHolders(mint: string): Promise<HistoricalHolderData[] | null> {
+  const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
+  if (!apiKey) return null
+  
+  const url = `${SOLANA_GATEWAY}/token/mainnet/holders/${mint}/historical`
+  
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+    })
+    if (!res.ok) {
+      console.warn('Moralis historical holders error', mint, res.status)
+      return null
+    }
+    const data = await res.json()
+    return Array.isArray(data.result) ? data.result : null
+  } catch (e) {
+    console.warn('Moralis historical holders failed', mint, e)
+    return null
+  }
+}
+
+// --- Volume Analytics ---
+export interface VolumeStats {
+  totalVolume: number
+  volumeChange24h: number
+  activeWallets: number
+  totalTransactions: number
+  buyVolume: number
+  sellVolume: number
+}
+
+export async function getVolumeStatsByChain(chain = 'solana'): Promise<VolumeStats | null> {
+  const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
+  if (!apiKey) return null
+  
+  const url = `${BASE_URL}/volume/chains?chain=${chain}`
+  
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+    })
+    if (!res.ok) {
+      console.warn('Moralis volume stats error', res.status)
+      return null
+    }
+    const data = await res.json()
+    return data
+  } catch (e) {
+    console.warn('Moralis volume stats failed', e)
+    return null
+  }
+}

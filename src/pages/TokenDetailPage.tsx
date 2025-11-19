@@ -1,7 +1,20 @@
 import { useState, useEffect } from 'react';
 import { formatUsdPrice } from '../utils/format';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTopHolders, getHolderStats, getBondingStatus, type TokenHolder, type HolderStats, type BondingStatus } from '../services/moralis';
+import { 
+  getTopHolders, 
+  getHolderStats, 
+  getBondingStatus, 
+  getSnipersByPair,
+  getPairStats,
+  getHistoricalHolders,
+  type TokenHolder, 
+  type HolderStats, 
+  type BondingStatus,
+  type TokenSniper,
+  type PairStats,
+  type HistoricalHolderData
+} from '../services/moralis';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -26,6 +39,7 @@ interface TokenDetail {
   totalVolume: number;
   tradeCount: number;
   latestTrade: string;
+  pairAddress?: string;
 }
 
 interface TokenAnalytics {
@@ -49,6 +63,9 @@ const TokenDetailPage = () => {
   const [holderStats, setHolderStats] = useState<HolderStats | null>(null);
   const [holdersLoading, setHoldersLoading] = useState(false);
   const [bondingStatus, setBondingStatus] = useState<BondingStatus | null>(null);
+  const [snipers, setSnipers] = useState<TokenSniper[]>([]);
+  const [pairStats, setPairStats] = useState<PairStats | null>(null);
+  const [historicalHolders, setHistoricalHolders] = useState<HistoricalHolderData[]>([]);
 
   useEffect(() => {
     const fetchTokenDetails = async () => {
@@ -120,6 +137,36 @@ const TokenDetailPage = () => {
 
     fetchHolders();
   }, [mint]);
+
+  // Fetch enhanced data: snipers, pair stats, historical holders
+  useEffect(() => {
+    const fetchEnhancedData = async () => {
+      if (!mint || !token?.pairAddress) return;
+      
+      try {
+        // Fetch snipers and pair stats if pair address is available
+        const [snipersData, pairStatsData, historicalData] = await Promise.all([
+          token.pairAddress ? getSnipersByPair(token.pairAddress, 20).catch(() => null) : Promise.resolve(null),
+          token.pairAddress ? getPairStats(token.pairAddress).catch(() => null) : Promise.resolve(null),
+          getHistoricalHolders(mint).catch(() => [])
+        ]);
+
+        if (snipersData?.result) {
+          setSnipers(snipersData.result);
+        }
+        if (pairStatsData) {
+          setPairStats(pairStatsData);
+        }
+        if (historicalData && historicalData.length > 0) {
+          setHistoricalHolders(historicalData);
+        }
+      } catch (error) {
+        console.error('Error fetching enhanced data:', error);
+      }
+    };
+
+    fetchEnhancedData();
+  }, [mint, token?.pairAddress]);
 
   const copyAddress = (address: string) => {
     navigator.clipboard.writeText(address);
@@ -412,6 +459,156 @@ const TokenDetailPage = () => {
                 Powered by Moralis API
               </p>
             </div>
+
+            {/* Sniper Detection Panel */}
+            {snipers.length > 0 && (
+              <div className="bg-surface/60 border border-red-500/30 rounded-lg p-6 mt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="text-2xl">🎯</div>
+                  <div>
+                    <h2 className="text-xl font-bold text-red-400">Sniper Detection</h2>
+                    <p className="text-xs text-neutral-500">Wallets with suspicious early trading patterns</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                  {snipers.map((sniper, idx) => (
+                    <div 
+                      key={sniper.walletAddress}
+                      className="bg-black/20 rounded-lg p-4 border border-red-500/20 hover:border-red-500/40 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-neutral-500">Rank #{idx + 1}</span>
+                        <button
+                          onClick={() => copyAddress(sniper.walletAddress)}
+                          className="text-neutral-400 hover:text-accent transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        </button>
+                      </div>
+                      
+                      <div className="text-xs font-mono text-neutral-300 mb-3 break-all">
+                        {sniper.walletAddress}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-green-500/10 rounded p-2">
+                          <div className="text-[10px] text-neutral-500">Buys</div>
+                          <div className="text-sm font-bold text-green-400">{sniper.totalBuys || 0}</div>
+                        </div>
+                        <div className="bg-red-500/10 rounded p-2">
+                          <div className="text-[10px] text-neutral-500">Sells</div>
+                          <div className="text-sm font-bold text-red-400">{sniper.totalSells || 0}</div>
+                        </div>
+                        {sniper.profitLoss !== undefined && (
+                          <div className={`rounded p-2 col-span-2 ${sniper.profitLoss >= 0 ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                            <div className="text-[10px] text-neutral-500">Profit/Loss</div>
+                            <div className={`text-sm font-bold ${sniper.profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              {sniper.profitLoss >= 0 ? '+' : ''}{formatUSD(sniper.profitLoss)}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <p className="text-xs text-neutral-500 mt-3 text-center">
+                  ⚠️ High buy/sell frequency may indicate bot activity
+                </p>
+              </div>
+            )}
+
+            {/* Pair Statistics Panel */}
+            {pairStats && (
+              <div className="bg-surface/60 border border-white/10 rounded-lg p-6 mt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="text-2xl">📊</div>
+                  <div>
+                    <h2 className="text-xl font-bold">Pair Statistics</h2>
+                    <p className="text-xs text-neutral-500">24-hour trading metrics</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-black/20 rounded-lg p-4">
+                    <div className="text-xs text-neutral-500 mb-1">24h Volume</div>
+                    <div className="text-lg font-bold text-accent">
+                      {formatUSD(pairStats.volume24h)}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-black/20 rounded-lg p-4">
+                    <div className="text-xs text-neutral-500 mb-1">Liquidity</div>
+                    <div className="text-lg font-bold text-blue-400">
+                      {formatUSD(pairStats.liquidity)}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-black/20 rounded-lg p-4">
+                    <div className="text-xs text-neutral-500 mb-1">Transactions (24h)</div>
+                    <div className="text-lg font-bold text-white">
+                      {pairStats.txns24h?.toLocaleString() || 'N/A'}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-black/20 rounded-lg p-4">
+                    <div className="text-xs text-neutral-500 mb-1">Price Change (24h)</div>
+                    <div className={`text-lg font-bold ${(pairStats.priceChange24h || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {pairStats.priceChange24h !== undefined 
+                        ? `${pairStats.priceChange24h >= 0 ? '+' : ''}${pairStats.priceChange24h.toFixed(2)}%`
+                        : 'N/A'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Historical Holders Growth Chart */}
+            {historicalHolders.length > 0 && (
+              <div className="bg-surface/60 border border-white/10 rounded-lg p-6 mt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="text-2xl">📈</div>
+                  <div>
+                    <h2 className="text-xl font-bold">Holder Growth</h2>
+                    <p className="text-xs text-neutral-500">Historical holder count trends</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  {historicalHolders.slice(0, 10).map((data, idx) => {
+                    const maxCount = Math.max(...historicalHolders.map(h => h.totalHolders));
+                    const barWidth = (data.totalHolders / maxCount) * 100;
+                    
+                    return (
+                      <div key={idx} className="flex items-center gap-3">
+                        <div className="text-xs text-neutral-500 w-24 flex-shrink-0">
+                          {new Date(data.timestamp).toLocaleDateString()}
+                        </div>
+                        <div className="flex-1 bg-black/20 rounded-full h-6 overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-end pr-2 transition-all duration-300"
+                            style={{ width: `${barWidth}%` }}
+                          >
+                            <span className="text-xs font-bold text-white">
+                              {data.totalHolders.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                <div className="mt-4 text-center">
+                  <div className="text-sm text-neutral-400">
+                    Latest: <span className="font-bold text-accent">{historicalHolders[0]?.totalHolders.toLocaleString()}</span> holders
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column - KOL Buyers */}

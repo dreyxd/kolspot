@@ -27,12 +27,22 @@ interface TokenDetail {
   latestTrade: string;
 }
 
+interface TokenAnalytics {
+  totalLiquidityUsd?: string | number;
+  totalFullyDilutedValuation?: string | number;
+  totalBuyers?: Record<string, number | string>;
+  totalSellers?: Record<string, number | string>;
+  totalBuys?: Record<string, number | string>;
+  totalSells?: Record<string, number | string>;
+}
+
 const TokenDetailPage = () => {
   const { mint } = useParams<{ mint: string }>();
   const navigate = useNavigate();
   const [token, setToken] = useState<TokenDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [analytics, setAnalytics] = useState<TokenAnalytics | null>(null);
 
   useEffect(() => {
     const fetchTokenDetails = async () => {
@@ -50,8 +60,23 @@ const TokenDetailPage = () => {
       }
     };
 
+    const fetchAnalytics = async () => {
+      try {
+        const res = await fetch(`${backendBaseUrl}/api/terminal/token/${mint}/analytics`);
+        if (res.ok) {
+          const data = await res.json();
+          setAnalytics(data);
+        } else {
+          setAnalytics(null);
+        }
+      } catch (_) {
+        setAnalytics(null);
+      }
+    };
+
     if (mint) {
       fetchTokenDetails();
+      fetchAnalytics();
     }
   }, [mint]);
 
@@ -71,6 +96,15 @@ const TokenDetailPage = () => {
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleString();
+  };
+
+  const formatUSD = (v?: string | number) => {
+    if (v === undefined || v === null || v === '') return 'Unknown';
+    const n = typeof v === 'string' ? Number(v) : v;
+    if (!isFinite(n)) return 'Unknown';
+    if (n >= 1_000_000) return `$${(n/1_000_000).toFixed(2)}M`;
+    if (n >= 1_000) return `$${(n/1_000).toFixed(1)}K`;
+    return `$${n.toFixed(0)}`;
   };
 
   const shortAddress = (addr: string, start = 6, end = 4) => {
@@ -180,19 +214,21 @@ const TokenDetailPage = () => {
                 <div className="bg-black/20 rounded-lg p-4">
                   <div className="text-xs text-neutral-500 mb-1">Market Cap</div>
                   <div className="text-xl font-bold text-white">
-                    {formatMarketCap(token.tokenMarketCap)}
+                    {formatUSD(analytics?.totalFullyDilutedValuation ?? token.tokenMarketCap)}
                   </div>
                 </div>
                 <div className="bg-black/20 rounded-lg p-4">
                   <div className="text-xs text-neutral-500 mb-1">Price</div>
                   <div className="text-xl font-bold text-white">
-                    {token.tokenPrice ? `$${token.tokenPrice.toExponential(2)}` : 'N/A'}
+                    {typeof token.tokenPrice === 'number' && isFinite(token.tokenPrice)
+                      ? `$${token.tokenPrice >= 1 ? token.tokenPrice.toFixed(4) : token.tokenPrice.toExponential(2)}`
+                      : 'Unknown'}
                   </div>
                 </div>
                 <div className="bg-black/20 rounded-lg p-4">
-                  <div className="text-xs text-neutral-500 mb-1">Total Volume</div>
+                  <div className="text-xs text-neutral-500 mb-1">Liquidity</div>
                   <div className="text-xl font-bold text-accent">
-                    {token.totalVolume.toFixed(2)} SOL
+                    {formatUSD(analytics?.totalLiquidityUsd ?? token.tokenLiquidity)}
                   </div>
                 </div>
                 <div className="bg-black/20 rounded-lg p-4">
@@ -202,6 +238,28 @@ const TokenDetailPage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Quick Analytics (24h) */}
+              {analytics && (
+                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-black/10 rounded p-3">
+                    <div className="text-[10px] text-neutral-500">24h Buys</div>
+                    <div className="text-sm font-semibold">{(analytics.totalBuys?.['24h'] as any) ?? '-'}</div>
+                  </div>
+                  <div className="bg-black/10 rounded p-3">
+                    <div className="text-[10px] text-neutral-500">24h Sells</div>
+                    <div className="text-sm font-semibold">{(analytics.totalSells?.['24h'] as any) ?? '-'}</div>
+                  </div>
+                  <div className="bg-black/10 rounded p-3">
+                    <div className="text-[10px] text-neutral-500">24h Buyers</div>
+                    <div className="text-sm font-semibold">{(analytics.totalBuyers?.['24h'] as any) ?? '-'}</div>
+                  </div>
+                  <div className="bg-black/10 rounded p-3">
+                    <div className="text-[10px] text-neutral-500">24h Sellers</div>
+                    <div className="text-sm font-semibold">{(analytics.totalSellers?.['24h'] as any) ?? '-'}</div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Moralis Price Chart Widget */}

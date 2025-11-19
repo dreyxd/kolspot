@@ -39,17 +39,20 @@ export const fetchTokenMetadata = async (mintAddress) => {
       return null;
     }
 
+    // Use correct Moralis Solana API method
     const response = await Moralis.SolApi.token.getTokenMetadata({
       network: "mainnet",
-      address: mintAddress
+      addresses: [mintAddress]
     });
 
-    if (response) {
+    if (response && response.length > 0) {
+      const tokenData = response[0];
       const metadata = {
-        name: response.name,
-        symbol: response.symbol,
-        logo: response.logo || response.thumbnail,
-        decimals: response.decimals
+        name: tokenData.name,
+        symbol: tokenData.symbol,
+        logo: tokenData.logo || tokenData.thumbnail,
+        decimals: tokenData.decimals,
+        mint: tokenData.mint
       };
 
       // Cache successful response
@@ -60,6 +63,8 @@ export const fetchTokenMetadata = async (mintAddress) => {
     return null;
   } catch (error) {
     console.warn(`[Moralis] Error fetching metadata for ${mintAddress}:`, error.message);
+    if (error.code) console.warn(`[Moralis] Error code:`, error.code);
+    if (error.response) console.warn(`[Moralis] Response:`, error.response);
     return null;
   }
 };
@@ -81,22 +86,29 @@ export const fetchTokenPrice = async (mintAddress) => {
       return null;
     }
 
+    // Use Moralis Solana token price endpoint
     const response = await Moralis.SolApi.token.getTokenPrice({
       network: "mainnet",
       address: mintAddress
     });
 
-    if (response && response.usdPrice !== undefined) {
-      const price = response.usdPrice;
+    if (response && response.usdPrice) {
+      const priceData = {
+        price: parseFloat(response.usdPrice),
+        nativePrice: response.nativePrice,
+        exchangeName: response.exchangeName,
+        exchangeAddress: response.exchangeAddress
+      };
       
       // Cache successful response
-      cache.set(cacheKey, { data: price, timestamp: Date.now() });
-      return price;
+      cache.set(cacheKey, { data: priceData.price, timestamp: Date.now() });
+      return priceData.price;
     }
 
     return null;
   } catch (error) {
     console.warn(`[Moralis] Error fetching price for ${mintAddress}:`, error.message);
+    if (error.code) console.warn(`[Moralis] Error code:`, error.code);
     return null;
   }
 };
@@ -122,6 +134,7 @@ export const fetchTokenInfo = async (mintAddress) => {
     };
   } catch (error) {
     console.warn(`[Moralis] Error fetching token info for ${mintAddress}:`, error.message);
+    if (error.details) console.warn(`[Moralis] Details:`, error.details);
     return null;
   }
 };
@@ -141,16 +154,29 @@ export const enrichTokenMetadata = async (trades) => {
   }
   
   const results = new Map();
+  let successCount = 0;
+  let errorCount = 0;
   
   // Process tokens with small delay to respect rate limits
   for (const mint of uniqueMints) {
-    const info = await fetchTokenInfo(mint);
-    if (info) {
-      results.set(mint, info);
+    try {
+      const info = await fetchTokenInfo(mint);
+      if (info && info.symbol && info.symbol !== 'UNKNOWN') {
+        results.set(mint, info);
+        successCount++;
+        console.log(`[Moralis] ✓ Found: ${info.symbol} (${info.name})`);
+      } else {
+        errorCount++;
+      }
+    } catch (error) {
+      console.warn(`[Moralis] Error processing ${mint}:`, error.message);
+      errorCount++;
     }
     // Small delay to avoid rate limiting (2M CU/month = ~66k/day)
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 150));
   }
+  
+  console.log(`[Moralis] Success: ${successCount}, Errors: ${errorCount}`);
   
   // Update trades with enriched metadata
   const enriched = trades.map(trade => {

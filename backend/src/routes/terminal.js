@@ -60,6 +60,19 @@ function groupByToken(trades) {
     token.totalVolume += trade.solAmount || 0;
     token.tradeCount += 1;
     
+    // Update token-level fields when new info becomes available
+    if (trade.tokenPrice && !token.tokenPrice) {
+      token.tokenPrice = trade.tokenPrice;
+    }
+    if (typeof trade.tokenMarketCap === 'number') {
+      // Prefer latest non-null market cap
+      if (token.tokenMarketCap == null || token.tokenMarketCap === 0) {
+        token.tokenMarketCap = trade.tokenMarketCap;
+      }
+    }
+    // Recompute bonded status based on current market cap
+    token.isBonded = (token.tokenMarketCap || 0) >= BONDING_THRESHOLD;
+
     // Update to latest trade time
     if (new Date(trade.timestamp) > new Date(token.latestTrade)) {
       token.latestTrade = trade.timestamp;

@@ -242,6 +242,10 @@ const KOLTerminal = () => {
 
   const deriveBondingBadge = (mint: string, fallbackIsBonded: boolean) => {
     const bs = bondingStatusByMint[mint];
+    
+    // If no bonding status data is available yet, return null (don't show badge)
+    if (!bs) return null;
+    
     const raw = bs || {};
     const status = (typeof raw === 'object' && raw && 'status' in raw) ? String((raw as any).status) : undefined;
     const progressKeys = ['progress', 'progressPercent', 'progress_percentage', 'progress_pct'];
@@ -250,23 +254,29 @@ const KOLTerminal = () => {
       const v = (raw as any)[k];
       if (typeof v === 'number' && isFinite(v)) { progress = v; break; }
     }
-    const isBonding = fallbackIsBonded || /bond/i.test(status || '') || (raw as any)?.isBonding === true;
-
+    
+    // Check if bonding is complete
+    if ((raw as any)?.complete === true || (status && /graduat|complete|migrat/i.test(status))) {
+      return { label: 'Graduated', className: 'bg-purple-500/15 text-purple-300 border-purple-400/20' };
+    }
+    
+    // Check if currently bonding
+    const isBonding = /bond/i.test(status || '') || (raw as any)?.isBonding === true || progress !== undefined;
+    
     if (isBonding) {
       const pct = progress !== undefined ? Math.max(0, Math.min(100, progress)) : undefined;
       return { label: pct !== undefined ? `Bonding ${pct.toFixed(0)}%` : 'Bonding', className: 'bg-yellow-500/15 text-yellow-300 border-yellow-400/20' };
     }
-    if (status && /graduat/i.test(status)) {
-      return { label: 'Graduated', className: 'bg-purple-500/15 text-purple-300 border-purple-400/20' };
-    }
-    return { label: fallbackIsBonded ? 'Bonding' : 'Unknown', className: 'bg-white/10 text-neutral-300 border-white/10' };
+    
+    // No clear status - don't show badge
+    return null;
   };
 
   const TokenCard = ({ token }: { token: TerminalToken }) => {
     const badge = deriveBondingBadge(token.tokenMint, token.isBonded);
-    const borderClass = badge.label.includes('Bonding')
+    const borderClass = badge?.label.includes('Bonding')
       ? 'border-yellow-400/30 hover:border-yellow-400/60'
-      : badge.label === 'Graduated'
+      : badge?.label === 'Graduated'
       ? 'border-purple-400/30 hover:border-purple-400/60'
       : 'border-white/10 hover:border-accent/50';
     
@@ -297,9 +307,11 @@ const KOLTerminal = () => {
                 {token.tokenName || token.tokenSymbol}
               </div>
               <div className="ml-auto whitespace-nowrap flex items-center gap-2">
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs ${badge.className}`}>
-                  {badge.label}
-                </span>
+                {badge && (
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs ${badge.className}`}>
+                    {badge.label}
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 border border-white/10 shadow-sm">
                   <span className="text-[10px] uppercase tracking-wide text-neutral-400">MC</span>
                   <span className="text-sm font-extrabold text-accent tracking-tight">

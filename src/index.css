@@ -11,7 +11,22 @@ html, body, #root {
 }
 
 body {
-  @apply bg-background text-neutral-200 antialiased;
+  /* Global gradient background inspired by reference, in our own style */
+  background: 
+    radial-gradient(90rem 50rem at 80% -10%, rgba(139, 92, 246, 0.18) 0%, rgba(0,0,0,0) 60%),
+    radial-gradient(70rem 40rem at 10% 110%, rgba(249, 115, 22, 0.10) 0%, rgba(0,0,0,0) 55%),
+    linear-gradient(180deg,
+      #0b0b0c 0%,
+      #141225 18%,
+      #211a52 42%,
+      #3a1b7a 58%,
+      #4c1d95 70%,
+      #6d28d9 84%,
+      #8b5cf6 94%);
+  background-attachment: fixed, fixed, fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  @apply text-neutral-200 antialiased;
 }
 
 .btn {

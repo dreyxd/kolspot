@@ -16,6 +16,7 @@ export interface Trade {
   liquidity?: number
   volume24h?: number
   priceChange24h?: number
+  marketCap?: number
 }
 
 export interface Kol {

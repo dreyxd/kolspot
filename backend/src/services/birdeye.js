@@ -87,7 +87,8 @@ export const enrichTokenMetadata = async (trades) => {
         tokenPrice: info.price,
         tokenLiquidity: info.liquidity,
         tokenVolume24h: info.volume24h,
-        tokenPriceChange24h: info.priceChange24h
+        tokenPriceChange24h: info.priceChange24h,
+        tokenMarketCap: info.mc
       };
     }
     return trade;

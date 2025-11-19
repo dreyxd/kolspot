@@ -22,6 +22,7 @@ type CoinEntry = {
   liquidity?: number
   volume24h?: number
   priceChange24h?: number
+  marketCap?: number
   buyers: Set<string>
   tradeCount: number
   lastTime: number
@@ -66,12 +67,19 @@ const CoinCard: React.FC<{ entry: CoinEntry; kols: any[]; enriching?: boolean }>
                   alt={entry.symbol || entry.name}
                   className="w-12 h-12 rounded-full object-cover shrink-0 bg-surface border border-white/10"
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    const target = e.currentTarget;
+                    const parent = target.parentElement;
+                    if (parent) {
+                      const gradient = parent.querySelector('.token-gradient-placeholder');
+                      if (gradient) {
+                        gradient.classList.remove('hidden');
+                      }
+                    }
+                    target.style.display = 'none';
                   }}
                 />
               ) : null}
-              <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center shrink-0 ${entry.logoURI ? 'hidden' : ''}`}>
+              <div className={`token-gradient-placeholder w-12 h-12 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center shrink-0 ${entry.logoURI ? 'hidden' : ''}`}>
                 <span className="text-sm font-bold text-accent">
                   {entry.symbol?.slice(0, 2) || entry.name?.slice(0, 2) || '??'}
                 </span>
@@ -119,20 +127,25 @@ const CoinCard: React.FC<{ entry: CoinEntry; kols: any[]; enriching?: boolean }>
                 )}
                 
                 {/* Token Stats */}
-                {(entry.price || entry.liquidity || entry.volume24h) && (
-                  <div className="flex items-center gap-3 mt-2 text-[10px] text-neutral-400">
+                {(entry.price || entry.liquidity || entry.volume24h || entry.marketCap) && (
+                  <div className="flex items-center gap-3 mt-2 text-[10px] text-neutral-400 flex-wrap">
                     {entry.price && (
                       <div>
-                        Price: <span className="text-white">${entry.price < 0.01 ? entry.price.toExponential(2) : entry.price.toFixed(4)}</span>
+                        <span className="text-neutral-500">Price:</span> <span className="text-white font-semibold">${entry.price < 0.01 ? entry.price.toExponential(2) : entry.price.toFixed(4)}</span>
+                      </div>
+                    )}
+                    {entry.marketCap && (
+                      <div>
+                        <span className="text-neutral-500">MCap:</span> <span className="text-white font-semibold">${entry.marketCap >= 1000000 ? (entry.marketCap / 1000000).toFixed(2) + 'M' : (entry.marketCap / 1000).toFixed(1) + 'K'}</span>
                       </div>
                     )}
                     {entry.liquidity && (
                       <div>
-                        Liq: <span className="text-white">${(entry.liquidity / 1000).toFixed(1)}K</span>
+                        <span className="text-neutral-500">Liq:</span> <span className="text-white font-semibold">${(entry.liquidity / 1000).toFixed(1)}K</span>
                       </div>
                     )}
                     {entry.priceChange24h !== undefined && (
-                      <div className={entry.priceChange24h >= 0 ? 'text-green-400' : 'text-red-400'}>
+                      <div className={entry.priceChange24h >= 0 ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
                         24h: {entry.priceChange24h >= 0 ? '+' : ''}{entry.priceChange24h.toFixed(1)}%
                       </div>
                     )}
@@ -269,6 +282,7 @@ export default function KOLBoard() {
                 liquidity: tx.tokenLiquidity,
                 volume24h: tx.tokenVolume24h,
                 priceChange24h: tx.tokenPriceChange24h,
+                marketCap: tx.tokenMarketCap,
               }
               tradeStore.addTrade(trade)
             }
@@ -297,6 +311,7 @@ export default function KOLBoard() {
               liquidity: tradeData.tokenLiquidity,
               volume24h: tradeData.tokenVolume24h,
               priceChange24h: tradeData.tokenPriceChange24h,
+              marketCap: tradeData.tokenMarketCap,
             }
             tradeStore.addTrade(trade)
           }
@@ -356,6 +371,7 @@ export default function KOLBoard() {
         liquidity: t.liquidity,
         volume24h: t.volume24h,
         priceChange24h: t.priceChange24h,
+        marketCap: t.marketCap,
       }
       entry.buyers.add(t.kolId)
       entry.tradeCount += 1
@@ -367,6 +383,7 @@ export default function KOLBoard() {
       if (t.liquidity !== undefined) entry.liquidity = t.liquidity
       if (t.volume24h !== undefined) entry.volume24h = t.volume24h
       if (t.priceChange24h !== undefined) entry.priceChange24h = t.priceChange24h
+      if (t.marketCap !== undefined) entry.marketCap = t.marketCap
       
       // Track first buy time for each KOL
       if (!entry.buyerTimes.has(t.kolId)) {

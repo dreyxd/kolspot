@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ChartWidget from '../components/ChartWidget';
+import { formatUsdPrice } from '../utils/format';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
@@ -227,11 +228,7 @@ const TokenDetailPage = () => {
                 </div>
                 <div className="bg-black/20 rounded-lg p-4">
                   <div className="text-xs text-neutral-500 mb-1">Price</div>
-                  <div className="text-xl font-bold text-white">
-                    {typeof token.tokenPrice === 'number' && isFinite(token.tokenPrice)
-                      ? `$${token.tokenPrice >= 1 ? token.tokenPrice.toFixed(4) : token.tokenPrice.toExponential(2)}`
-                      : 'Unknown'}
-                  </div>
+                  <div className="text-xl font-bold text-white">{formatUsdPrice(token.tokenPrice)}</div>
                 </div>
                 <div className="bg-black/20 rounded-lg p-4">
                   <div className="text-xs text-neutral-500 mb-1">Liquidity</div>

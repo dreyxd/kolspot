@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { loadKols } from '../services/kols';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, formatUsdPrice } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
@@ -85,10 +85,7 @@ const KOLTerminal = () => {
   };
 
   const formatPrice = (p?: number) => {
-    if (p === null || p === undefined) return 'Unknown';
-    if (p >= 1) return `$${p.toFixed(4)}`;
-    if (p > 0) return `$${p.toExponential(2)}`;
-    return 'Unknown';
+    return formatUsdPrice(p);
   };
 
   const formatTime = (timestamp: string) => {

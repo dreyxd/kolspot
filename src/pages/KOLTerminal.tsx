@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { loadKols } from '../services/kols';
 import { formatCurrency, formatUsdPrice } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
@@ -36,8 +36,11 @@ const KOLTerminal = () => {
   const [loading, setLoading] = useState(true);
   const [kolNameByWallet, setKolNameByWallet] = useState<Record<string, string>>({});
   const [refreshMs, setRefreshMs] = useState<number>(3000); // default 3s
+  const isFetchingRef = useRef<boolean>(false);
 
   const fetchTerminalData = async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     try {
       const [earlyRes, bondingRes, graduatedRes] = await Promise.all([
         fetch(`${backendBaseUrl}/api/terminal/early-plays`),
@@ -82,6 +85,8 @@ const KOLTerminal = () => {
     } catch (error) {
       console.error('Error fetching terminal data:', error);
       setLoading(false);
+    } finally {
+      isFetchingRef.current = false;
     }
   };
 
@@ -307,6 +312,7 @@ const KOLTerminal = () => {
                 title="Change auto-refresh interval"
               >
                 <option value={0}>Off</option>
+                <option value={1000}>1s</option>
                 <option value={3000}>3s</option>
                 <option value={5000}>5s</option>
                 <option value={10000}>10s</option>

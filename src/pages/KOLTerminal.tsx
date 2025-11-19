@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { flushSync } from 'react-dom';
+import { useState, useEffect, useMemo } from 'react';
 import { loadKols } from '../services/kols';
 import { formatCurrency, formatUsdPrice } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
 import { getBondingStatus, BondingStatus } from '../services/moralis';
+import { subscribeToTerminalUpdates, TokenUpdate } from '../services/terminalWs';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -30,47 +30,18 @@ interface TerminalToken {
   latestTrade: string;
 }
 
+type SortBy = 'recent' | 'marketcap';
+
 const KOLTerminal = () => {
   const navigate = useNavigate();
-  const [earlyPlays, setEarlyPlays] = useState<TerminalToken[]>([]);
-  const [bonding, setBonding] = useState<TerminalToken[]>([]);
-  const [graduated, setGraduated] = useState<TerminalToken[]>([]);
+  const [tokens, setTokens] = useState<Record<string, TerminalToken>>({});
   const [loading, setLoading] = useState(true);
   const [kolNameByWallet, setKolNameByWallet] = useState<Record<string, string>>({});
-  const [refreshMs, setRefreshMs] = useState<number>(3000); // default 3s
-  const isFetchingRef = useRef<boolean>(false);
+  const [sortBy, setSortBy] = useState<SortBy>('recent');
   const [bondingStatusByMint, setBondingStatusByMint] = useState<Record<string, BondingStatus>>({});
 
-  // Per-column scroll containers for preserving scroll position
-  const earlyRef = useRef<HTMLDivElement | null>(null);
-  const bondingRef = useRef<HTMLDivElement | null>(null);
-  const graduatedRef = useRef<HTMLDivElement | null>(null);
-  const restoredOnceRef = useRef<boolean>(false);
-  
-  // Track scroll positions in refs for immediate access
-  const scrollPositions = useRef({ early: 0, bonding: 0, graduated: 0 });
-
-  const saveScroll = (key: string, value: number) => {
-    try { localStorage.setItem(key, String(value)); } catch {}
-  }
-  const readScroll = (key: string) => {
-    try {
-      const v = localStorage.getItem(key);
-      return v ? parseInt(v, 10) : 0;
-    } catch { return 0 }
-  }
-
-  const fetchTerminalData = async () => {
-    if (isFetchingRef.current) return;
-    isFetchingRef.current = true;
-    
-    // Capture current scroll positions before updating state
-    const savedScrolls = {
-      early: earlyRef.current?.scrollTop || 0,
-      bonding: bondingRef.current?.scrollTop || 0,
-      graduated: graduatedRef.current?.scrollTop || 0,
-    };
-    
+  // Initial data fetch (once)
+  const fetchInitialData = async () => {
     try {
       const [earlyRes, bondingRes, graduatedRes] = await Promise.all([
         fetch(`${backendBaseUrl}/api/terminal/early-plays`),
@@ -78,54 +49,67 @@ const KOLTerminal = () => {
         fetch(`${backendBaseUrl}/api/terminal/graduated`)
       ]);
 
-      let early: TerminalToken[] = await earlyRes.json();
-      let bond: TerminalToken[] = await bondingRes.json();
-      let grad: TerminalToken[] = await graduatedRes.json();
+      const early: TerminalToken[] = await earlyRes.json();
+      const bond: TerminalToken[] = await bondingRes.json();
+      const grad: TerminalToken[] = await graduatedRes.json();
 
-      // Move any bonded tokens into graduated list (safety in case backend lag)
-      const movedToGrad: TerminalToken[] = [];
-      const filterNotBonded = (arr: TerminalToken[]) => arr.filter(t => {
-        if (t.isBonded) { movedToGrad.push(t); return false; }
-        return true;
-      });
-      early = filterNotBonded(early);
-      bond = filterNotBonded(bond);
-      grad = [...grad, ...movedToGrad];
-
-      // De-duplicate by mint across groups: Graduated > Bonding > New
-      const gradMints = new Set(grad.map(t => t.tokenMint));
-      bond = bond.filter(t => !gradMints.has(t.tokenMint));
-      const bondMints = new Set(bond.map(t => t.tokenMint));
-      early = early.filter(t => !gradMints.has(t.tokenMint) && !bondMints.has(t.tokenMint));
-
-      // Sort each group by latest KOL buy time desc to bump newest to top
-      const byLatestDesc = (a: TerminalToken, b: TerminalToken) => {
-        const ta = new Date(a.latestTrade).getTime() || 0;
-        const tb = new Date(b.latestTrade).getTime() || 0;
-        return tb - ta;
-      };
-      early.sort(byLatestDesc);
-      bond.sort(byLatestDesc);
-      grad.sort(byLatestDesc);
-
-      // Store scroll positions before update
-      scrollPositions.current = savedScrolls;
+      const allTokens = [...early, ...bond, ...grad];
+      const tokenMap: Record<string, TerminalToken> = {};
       
-      setEarlyPlays(early);
-      setBonding(bond);
-      setGraduated(grad);
+      allTokens.forEach(token => {
+        tokenMap[token.tokenMint] = token;
+      });
+
+      setTokens(tokenMap);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching terminal data:', error);
+      console.error('Error fetching initial terminal data:', error);
       setLoading(false);
-    } finally {
-      isFetchingRef.current = false;
     }
   };
 
+  // Handle real-time WebSocket updates
+  const handleTerminalUpdate = (update: { type: string; data: TokenUpdate }) => {
+    if (update.type === 'token_update' && update.data) {
+      const { tokenMint, tokenPrice, tokenMarketCap, tokenLiquidity, isBonded, latestTrade, newBuyer } = update.data;
+      
+      setTokens(prev => {
+        const existing = prev[tokenMint];
+        if (!existing) return prev; // Token not in our list yet
+        
+        const updated = { ...existing };
+        
+        // Update fields if provided
+        if (tokenPrice !== undefined) updated.tokenPrice = tokenPrice;
+        if (tokenMarketCap !== undefined) updated.tokenMarketCap = tokenMarketCap;
+        if (tokenLiquidity !== undefined) updated.tokenLiquidity = tokenLiquidity;
+        if (isBonded !== undefined) updated.isBonded = isBonded;
+        if (latestTrade) updated.latestTrade = latestTrade;
+        
+        // Add new buyer if provided
+        if (newBuyer) {
+          updated.buyers = [newBuyer, ...existing.buyers].slice(0, 10); // Keep last 10
+          updated.latestTrade = newBuyer.timestamp;
+        }
+        
+        return {
+          ...prev,
+          [tokenMint]: updated
+        };
+      });
+    }
+  };
+
+  // Subscribe to WebSocket updates
   useEffect(() => {
-    fetchTerminalData();
-    // Load KOL names mapping
+    const unsubscribe = subscribeToTerminalUpdates(handleTerminalUpdate);
+    return unsubscribe;
+  }, []);
+
+  // Load initial data and KOL names
+  useEffect(() => {
+    fetchInitialData();
+    
     (async () => {
       try {
         const kols = await loadKols();
@@ -134,76 +118,71 @@ const KOLTerminal = () => {
         setKolNameByWallet(map);
       } catch {}
     })();
-    
-    // Auto-refresh at configurable interval
-    let interval: number | undefined;
-    if (refreshMs > 0) {
-      interval = window.setInterval(fetchTerminalData, refreshMs);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [refreshMs]);
+  }, []);
 
-  // Restore scroll positions synchronously after each render
-  useLayoutEffect(() => {
-    if (loading) return;
+  // Categorize and sort tokens based on state
+  const { earlyPlays, bonding, graduated } = useMemo(() => {
+    const allTokens = Object.values(tokens);
     
-    // First load: restore from localStorage
-    if (!restoredOnceRef.current) {
-      restoredOnceRef.current = true;
-      const earlyTop = readScroll('kolspot:terminal:scroll:early');
-      const bondTop = readScroll('kolspot:terminal:scroll:bonding');
-      const gradTop = readScroll('kolspot:terminal:scroll:graduated');
-      scrollPositions.current = { early: earlyTop, bonding: bondTop, graduated: gradTop };
-    }
-    
-    // Always restore current scroll positions
-    if (earlyRef.current && scrollPositions.current.early > 0) {
-      earlyRef.current.scrollTop = scrollPositions.current.early;
-    }
-    if (bondingRef.current && scrollPositions.current.bonding > 0) {
-      bondingRef.current.scrollTop = scrollPositions.current.bonding;
-    }
-    if (graduatedRef.current && scrollPositions.current.graduated > 0) {
-      graduatedRef.current.scrollTop = scrollPositions.current.graduated;
-    }
-  }, [earlyPlays, bonding, graduated, loading]);
+    let early: TerminalToken[] = [];
+    let bond: TerminalToken[] = [];
+    let grad: TerminalToken[] = [];
 
-  // Enrich visible tokens with bonding status (concurrency-limited)
+    allTokens.forEach(token => {
+      if (token.isBonded) {
+        grad.push(token);
+      } else if (token.tokenMarketCap && token.tokenMarketCap > 50000) {
+        bond.push(token);
+      } else {
+        early.push(token);
+      }
+    });
+
+    // Sort function based on selected sort mode
+    const sortFn = sortBy === 'marketcap'
+      ? (a: TerminalToken, b: TerminalToken) => (b.tokenMarketCap || 0) - (a.tokenMarketCap || 0)
+      : (a: TerminalToken, b: TerminalToken) => {
+          const ta = new Date(a.latestTrade).getTime() || 0;
+          const tb = new Date(b.latestTrade).getTime() || 0;
+          return tb - ta;
+        };
+
+    early.sort(sortFn);
+    bond.sort(sortFn);
+    grad.sort(sortFn);
+
+    return { earlyPlays: early, bonding: bond, graduated: grad };
+  }, [tokens, sortBy]);
+
+  // Enrich visible tokens with bonding status
   useEffect(() => {
-    const mints = Array.from(new Set([
-      ...earlyPlays.map(t => t.tokenMint),
-      ...bonding.map(t => t.tokenMint),
-      ...graduated.map(t => t.tokenMint),
-    ]))
-      .filter(m => !bondingStatusByMint[m])
-
-    if (mints.length === 0) return
-    let cancelled = false
+    const mints = Object.keys(tokens).filter(m => !bondingStatusByMint[m]);
+    if (mints.length === 0) return;
+    
+    let cancelled = false;
     const run = async () => {
-      const concurrency = 6
+      const concurrency = 6;
       for (let i = 0; i < mints.length && !cancelled; i += concurrency) {
-        const chunk = mints.slice(i, i + concurrency)
+        const chunk = mints.slice(i, i + concurrency);
         const results = await Promise.all(chunk.map(async (mint) => {
           try {
-            const bs = await getBondingStatus(mint)
-            return [mint, bs] as const
+            const bs = await getBondingStatus(mint);
+            return [mint, bs] as const;
           } catch {
-            return [mint, null] as const
+            return [mint, null] as const;
           }
-        }))
-        if (cancelled) return
+        }));
+        if (cancelled) return;
         setBondingStatusByMint(prev => {
-          const next = { ...prev }
-          for (const [mint, bs] of results) next[mint] = bs
-          return next
-        })
+          const next = { ...prev };
+          for (const [mint, bs] of results) next[mint] = bs;
+          return next;
+        });
       }
-    }
-    run()
-    return () => { cancelled = true }
-  }, [earlyPlays, bonding, graduated])
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [tokens]);
 
   const formatMarketCap = (mc?: number) => {
     if (mc === null || mc === undefined) return 'Unknown';
@@ -234,162 +213,152 @@ const KOLTerminal = () => {
   const shortAddress = (addr: string, start = 4, end = 4) => {
     return `${addr.slice(0, start)}...${addr.slice(-end)}`;
   };
+
   const formatMarketCapShort = (mc?: number) => {
     if (mc === null || mc === undefined) return 'Unknown';
     if (mc >= 1_000_000) return `${(mc/1_000_000).toFixed(1)}M`;
     if (mc >= 1_000) return `${(mc/1_000).toFixed(0)}K`;
     return mc.toFixed(0);
   };
+
   const nameOrShort = (w: string) => kolNameByWallet[w] || shortAddress(w, 6, 4);
   const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
   const deriveBondingBadge = (mint: string, fallbackIsBonded: boolean) => {
-    const bs = bondingStatusByMint[mint]
-    const raw = bs || {}
-    const status = (typeof raw === 'object' && raw && 'status' in raw) ? String((raw as any).status) : undefined
-    // Try various progress keys
-    const progressKeys = ['progress', 'progressPercent', 'progress_percentage', 'progress_pct']
-    let progress: number | undefined
+    const bs = bondingStatusByMint[mint];
+    const raw = bs || {};
+    const status = (typeof raw === 'object' && raw && 'status' in raw) ? String((raw as any).status) : undefined;
+    const progressKeys = ['progress', 'progressPercent', 'progress_percentage', 'progress_pct'];
+    let progress: number | undefined;
     for (const k of progressKeys) {
-      const v = (raw as any)[k]
-      if (typeof v === 'number' && isFinite(v)) { progress = v; break }
+      const v = (raw as any)[k];
+      if (typeof v === 'number' && isFinite(v)) { progress = v; break; }
     }
-    const isBonding = fallbackIsBonded || /bond/i.test(status || '') || (raw as any)?.isBonding === true
+    const isBonding = fallbackIsBonded || /bond/i.test(status || '') || (raw as any)?.isBonding === true;
 
     if (isBonding) {
-      const pct = progress !== undefined ? Math.max(0, Math.min(100, progress)) : undefined
-      return { label: pct !== undefined ? `Bonding ${pct.toFixed(0)}%` : 'Bonding', className: 'bg-yellow-500/15 text-yellow-300 border-yellow-400/20' }
+      const pct = progress !== undefined ? Math.max(0, Math.min(100, progress)) : undefined;
+      return { label: pct !== undefined ? `Bonding ${pct.toFixed(0)}%` : 'Bonding', className: 'bg-yellow-500/15 text-yellow-300 border-yellow-400/20' };
     }
     if (status && /graduat/i.test(status)) {
-      return { label: 'Graduated', className: 'bg-purple-500/15 text-purple-300 border-purple-400/20' }
+      return { label: 'Graduated', className: 'bg-purple-500/15 text-purple-300 border-purple-400/20' };
     }
-    return { label: fallbackIsBonded ? 'Bonding' : 'Unknown', className: 'bg-white/10 text-neutral-300 border-white/10' }
-  }
+    return { label: fallbackIsBonded ? 'Bonding' : 'Unknown', className: 'bg-white/10 text-neutral-300 border-white/10' };
+  };
 
   const TokenCard = ({ token }: { token: TerminalToken }) => {
-    const badge = deriveBondingBadge(token.tokenMint, token.isBonded)
+    const badge = deriveBondingBadge(token.tokenMint, token.isBonded);
     const borderClass = badge.label.includes('Bonding')
       ? 'border-yellow-400/30 hover:border-yellow-400/60'
       : badge.label === 'Graduated'
       ? 'border-purple-400/30 hover:border-purple-400/60'
-      : 'border-white/10 hover:border-accent/50'
+      : 'border-white/10 hover:border-accent/50';
+    
     return (
       <div
         onClick={() => navigate(`/token/${token.tokenMint}`)}
         className={`p-4 rounded-lg border ${borderClass} bg-surface/60 hover:bg-white/5 transition-all cursor-pointer group`}
       >
-      {/* Token Header */}
-      <div className="flex items-start gap-3 mb-3">
-        {token.tokenLogoURI ? (
-          <img
-            src={token.tokenLogoURI}
-            alt={token.tokenSymbol}
-            className="w-12 h-12 rounded-full bg-surface border border-white/10 shrink-0"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
-        ) : (
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center shrink-0">
-            <span className="text-sm font-bold text-accent">
-              {token.tokenSymbol?.slice(0, 2) || '??'}
-            </span>
-          </div>
-        )}
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <div className="font-semibold text-white truncate group-hover:text-accent transition-colors">
-              {token.tokenName || token.tokenSymbol}
-            </div>
-            <div className="ml-auto whitespace-nowrap flex items-center gap-2">
-              {/* Bonding Status */}
-              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs ${badge.className}`}>
-                {badge.label}
+        <div className="flex items-start gap-3 mb-3">
+          {token.tokenLogoURI ? (
+            <img
+              src={token.tokenLogoURI}
+              alt={token.tokenSymbol}
+              className="w-12 h-12 rounded-full bg-surface border border-white/10 shrink-0"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center shrink-0">
+              <span className="text-sm font-bold text-accent">
+                {token.tokenSymbol?.slice(0, 2) || '??'}
               </span>
-
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 border border-white/10 shadow-sm">
-                <span className="text-[10px] uppercase tracking-wide text-neutral-400">MC</span>
-                <span className="text-sm font-extrabold text-accent tracking-tight">
-                  {formatMarketCapShort(token.tokenMarketCap)}
+            </div>
+          )}
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <div className="font-semibold text-white truncate group-hover:text-accent transition-colors">
+                {token.tokenName || token.tokenSymbol}
+              </div>
+              <div className="ml-auto whitespace-nowrap flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs ${badge.className}`}>
+                  {badge.label}
                 </span>
-              </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 border border-white/10 shadow-sm">
+                  <span className="text-[10px] uppercase tracking-wide text-neutral-400">MC</span>
+                  <span className="text-sm font-extrabold text-accent tracking-tight">
+                    {formatMarketCapShort(token.tokenMarketCap)}
+                  </span>
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="text-sm text-accent font-mono">${token.tokenSymbol}</div>
+              <button
+                onClick={(e) => { e.stopPropagation(); copyToClipboard(token.tokenMint); }}
+                title="Copy mint address"
+                className="text-xs text-neutral-400 hover:text-accent"
+              >
+                Copy
+              </button>
+              <span className="text-[10px] text-neutral-500 font-mono">{shortAddress(token.tokenMint, 6, 6)}</span>
+            </div>
+            <div className="text-xs text-neutral-400 mt-1">
+              {formatTime(token.latestTrade)}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="text-sm text-accent font-mono">${token.tokenSymbol}</div>
-            <button
-              onClick={(e) => { e.stopPropagation(); copyToClipboard(token.tokenMint); }}
-              title="Copy mint address"
-              className="text-xs text-neutral-400 hover:text-accent"
-            >
-              Copy
-            </button>
-            <span className="text-[10px] text-neutral-500 font-mono">{shortAddress(token.tokenMint, 6, 6)}</span>
-          </div>
-          <div className="text-xs text-neutral-400 mt-1">
-            {formatTime(token.latestTrade)}
-          </div>
         </div>
-      </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-2 mb-3">
-        <div className="bg-black/20 rounded p-2">
-          <div className="text-[10px] text-neutral-500">Price</div>
-          <div className="text-sm font-semibold text-white">
-            {formatPrice(token.tokenPrice)}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="bg-black/20 rounded p-2">
+            <div className="text-[10px] text-neutral-500">Price</div>
+            <div className="text-sm font-semibold text-white">
+              {formatPrice(token.tokenPrice)}
+            </div>
+          </div>
+          <div className="bg-black/20 rounded p-2">
+            <div className="text-[10px] text-neutral-500">Liquidity</div>
+            <div className="text-sm font-semibold text-accent">
+              {typeof token.tokenLiquidity === 'number' ? formatCurrency(token.tokenLiquidity) : 'Unknown'}
+            </div>
           </div>
         </div>
-        <div className="bg-black/20 rounded p-2">
-          <div className="text-[10px] text-neutral-500">Liquidity</div>
-          <div className="text-sm font-semibold text-accent">
-            {typeof token.tokenLiquidity === 'number' ? formatCurrency(token.tokenLiquidity) : 'Unknown'}
-          </div>
-        </div>
-      </div>
 
-      {/* KOL Buyers Preview */}
-      <div className="space-y-1">
-        <div className="text-[10px] text-neutral-500 uppercase font-semibold">Recent KOL Bought</div>
-        {token.buyers.slice(0, 3).map((buyer, idx) => (
-          <div key={idx} className="flex items-center justify-between text-xs">
-            <span className="text-neutral-400 font-mono">
-              {nameOrShort(buyer.walletAddress)}
-            </span>
-            <span className="text-accent font-semibold">
-              {Number(buyer.solAmount || 0).toFixed(2)} SOL
-            </span>
-          </div>
-        ))}
-        {token.buyers.length > 3 && (
-          <div className="text-[10px] text-neutral-500 italic">
-            +{token.buyers.length - 3} more
-          </div>
-        )}
-        {/* Show time for the most recent buy */}
-        {token.buyers[0] && (
-          <div className="text-[10px] text-neutral-500">{formatTime(token.buyers[0].timestamp)}</div>
-        )}
+        <div className="space-y-1">
+          <div className="text-[10px] text-neutral-500 uppercase font-semibold">Recent KOL Bought</div>
+          {token.buyers.slice(0, 3).map((buyer, idx) => (
+            <div key={idx} className="flex items-center justify-between text-xs">
+              <span className="text-neutral-400 font-mono">
+                {nameOrShort(buyer.walletAddress)}
+              </span>
+              <span className="text-accent font-semibold">
+                {Number(buyer.solAmount || 0).toFixed(2)} SOL
+              </span>
+            </div>
+          ))}
+          {token.buyers.length > 3 && (
+            <div className="text-[10px] text-neutral-500 italic">
+              +{token.buyers.length - 3} more
+            </div>
+          )}
+          {token.buyers[0] && (
+            <div className="text-[10px] text-neutral-500">{formatTime(token.buyers[0].timestamp)}</div>
+          )}
+        </div>
       </div>
-      </div>
-    )
+    );
   };
 
   const TerminalColumn = ({ 
     title, 
     subtitle, 
     tokens, 
-    color,
-    innerRef,
-    onScroll,
+    color 
   }: { 
     title: string; 
     subtitle: string; 
     tokens: TerminalToken[]; 
     color: string;
-    innerRef?: React.RefObject<HTMLDivElement>;
-    onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
   }) => (
     <div className="flex-1 min-w-0">
       <div className="mb-4">
@@ -398,11 +367,7 @@ const KOLTerminal = () => {
         <div className={`mt-2 h-1 w-20 rounded-full bg-gradient-to-r ${color}`}></div>
       </div>
       
-      <div
-        ref={innerRef}
-        onScroll={onScroll}
-        className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto pr-2 custom-scrollbar"
-      >
+      <div className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto pr-2 custom-scrollbar">
         {tokens.length === 0 ? (
           <div className="text-center py-12 text-neutral-500">
             <div className="text-4xl mb-2">👀</div>
@@ -429,7 +394,6 @@ const KOLTerminal = () => {
   return (
     <div className="min-h-screen bg-transparent text-white">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
             KOL Terminal
@@ -440,44 +404,31 @@ const KOLTerminal = () => {
           <div className="mt-4 flex items-center gap-4 text-sm flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-              <span className="text-neutral-400">Live Updates</span>
+              <span className="text-neutral-400">Live Updates via WebSocket</span>
             </div>
             <div className="text-neutral-500">
               New: {earlyPlays.length} | About to Graduate: {bonding.length} | Graduated: {graduated.length}
             </div>
             <div className="flex items-center gap-2 ml-auto">
-              <label className="text-xs text-neutral-500">Auto-refresh</label>
+              <label className="text-xs text-neutral-500">Sort by</label>
               <select
-                value={refreshMs}
-                onChange={(e) => setRefreshMs(parseInt(e.target.value, 10))}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortBy)}
                 className="bg-black/30 text-sm text-neutral-200 rounded-md px-2 py-1 border border-white/10 focus:outline-none focus:border-accent"
-                title="Change auto-refresh interval"
               >
-                <option value={0}>Off</option>
-                <option value={1000}>1s</option>
-                <option value={3000}>3s</option>
-                <option value={5000}>5s</option>
-                <option value={10000}>10s</option>
-                <option value={30000}>30s</option>
-                <option value={60000}>60s</option>
+                <option value="recent">Recent KOL Buy</option>
+                <option value="marketcap">Highest Market Cap</option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* Three Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <TerminalColumn
             title="New Tokens"
             subtitle="Recently listed on Pump.fun"
             tokens={earlyPlays}
             color="from-green-500 to-emerald-500"
-            innerRef={earlyRef}
-            onScroll={(e) => {
-              const top = (e.currentTarget as HTMLDivElement).scrollTop;
-              scrollPositions.current.early = top;
-              saveScroll('kolspot:terminal:scroll:early', top);
-            }}
           />
           
           <TerminalColumn
@@ -485,12 +436,6 @@ const KOLTerminal = () => {
             subtitle="On bonding curve"
             tokens={bonding}
             color="from-yellow-500 to-orange-500"
-            innerRef={bondingRef}
-            onScroll={(e) => {
-              const top = (e.currentTarget as HTMLDivElement).scrollTop;
-              scrollPositions.current.bonding = top;
-              saveScroll('kolspot:terminal:scroll:bonding', top);
-            }}
           />
           
           <TerminalColumn
@@ -498,17 +443,10 @@ const KOLTerminal = () => {
             subtitle="Already graduated"
             tokens={graduated}
             color="from-purple-500 to-pink-500"
-            innerRef={graduatedRef}
-            onScroll={(e) => {
-              const top = (e.currentTarget as HTMLDivElement).scrollTop;
-              scrollPositions.current.graduated = top;
-              saveScroll('kolspot:terminal:scroll:graduated', top);
-            }}
           />
         </div>
       </div>
 
-      {/* Custom Scrollbar Styles */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;

@@ -239,6 +239,30 @@ export const fetchTokenPricesGateway = async (mintAddresses = []) => {
   }
 };
 
+// ---- Token Analytics (via Moralis deep-index) ----
+export const fetchTokenAnalytics = async (address, chain = 'solana') => {
+  if (!address) return null;
+  try {
+    const url = new URL(`https://deep-index.moralis.io/api/v2.2/tokens/${address}/analytics`);
+    url.searchParams.set('chain', chain);
+    const res = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': MORALIS_API_KEY
+      }
+    });
+    if (!res.ok) {
+      console.warn(`[Moralis][Analytics] Non-OK ${res.status} for ${address} (${chain})`);
+      return null;
+    }
+    return await res.json();
+  } catch (err) {
+    console.warn(`[Moralis][Analytics] Error for ${address}: ${err.message}`);
+    return null;
+  }
+};
+
 // Combined function to fetch both metadata and price (+ attempt market cap)
 export const fetchTokenInfo = async (mintAddress) => {
   // Validate mint address early

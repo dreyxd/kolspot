@@ -1,6 +1,6 @@
 import express from 'express';
 import { getRecentTransactions, getRecentBuysByMint, getRecentBuysByMints } from '../db/queries.js';
-import { enrichTokenMetadata as enrichWithMoralis, fetchExchangeTokens } from '../services/moralis.js';
+import { enrichTokenMetadata as enrichWithMoralis, fetchExchangeTokens, fetchTokenAnalytics } from '../services/moralis.js';
 import { enrichMarketCap } from '../services/marketcap.js';
 import * as cache from '../utils/cache.js';
 import { normalizeTradesMints } from '../utils/mint.js';
@@ -274,3 +274,16 @@ router.get('/token/:mint', async (req, res) => {
 });
 
 export default router;
+
+// Optional: token analytics passthrough
+router.get('/token/:mint/analytics', async (req, res) => {
+  try {
+    const { mint } = req.params;
+    const data = await fetchTokenAnalytics(mint, 'solana');
+    if (!data) return res.status(404).json({ error: 'Analytics unavailable' });
+    res.json(data);
+  } catch (e) {
+    console.error('Error fetching token analytics:', e);
+    res.status(500).json({ error: 'Failed to fetch token analytics' });
+  }
+});

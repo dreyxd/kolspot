@@ -106,6 +106,12 @@ const KOLTerminal = () => {
   const shortAddress = (addr: string, start = 4, end = 4) => {
     return `${addr.slice(0, start)}...${addr.slice(-end)}`;
   };
+  const formatMarketCapShort = (mc?: number) => {
+    if (mc === null || mc === undefined) return 'Unknown';
+    if (mc >= 1_000_000) return `${(mc/1_000_000).toFixed(1)}M`;
+    if (mc >= 1_000) return `${(mc/1_000).toFixed(0)}K`;
+    return mc.toFixed(0);
+  };
   const nameOrShort = (w: string) => kolNameByWallet[w] || shortAddress(w, 6, 4);
   const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
@@ -134,8 +140,13 @@ const KOLTerminal = () => {
         )}
         
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-white truncate group-hover:text-accent transition-colors">
-            {token.tokenName || token.tokenSymbol}
+          <div className="flex items-center gap-2">
+            <div className="font-semibold text-white truncate group-hover:text-accent transition-colors">
+              {token.tokenName || token.tokenSymbol}
+            </div>
+            <div className="ml-auto text-xs text-neutral-400 font-semibold whitespace-nowrap">
+              MC {formatMarketCapShort(token.tokenMarketCap)}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="text-sm text-accent font-mono">${token.tokenSymbol}</div>

@@ -102,3 +102,33 @@ export const getRecentBuysByMint = async (tokenMint, limit = 10) => {
     throw error;
   }
 };
+
+// Recent BUY transactions for multiple mints, limited per mint
+export const getRecentBuysByMints = async (mints = [], limitPerMint = 10) => {
+  if (!Array.isArray(mints) || mints.length === 0) return [];
+  try {
+    const result = await query(
+      `WITH ranked AS (
+         SELECT 
+           wallet_address as "walletAddress",
+           token_mint as "tokenMint",
+           token_symbol as "tokenSymbol",
+           amount,
+           sol_amount as "solAmount",
+           side,
+           timestamp,
+           signature,
+           ROW_NUMBER() OVER (PARTITION BY token_mint ORDER BY timestamp DESC) AS rn
+         FROM kol_transactions
+         WHERE token_mint = ANY($1) AND side = 'BUY'
+       )
+       SELECT * FROM ranked WHERE rn <= $2
+       ORDER BY "tokenMint", timestamp DESC`,
+      [mints, limitPerMint]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching recent buys by mints:', error);
+    throw error;
+  }
+};

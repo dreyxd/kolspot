@@ -1,5 +1,5 @@
 import express from 'express';
-import { getRecentTransactions, getRecentBuysByMint } from '../db/queries.js';
+import { getRecentTransactions, getRecentBuysByMint, getRecentBuysByMints } from '../db/queries.js';
 import { enrichTokenMetadata as enrichWithMoralis, fetchExchangeTokens } from '../services/moralis.js';
 import { enrichMarketCap } from '../services/marketcap.js';
 import * as cache from '../utils/cache.js';
@@ -95,12 +95,15 @@ router.get('/early-plays', async (req, res) => {
 
     // Use Moralis gateway: new tokens
     const listings = await fetchExchangeTokens('new', Math.min(limit, 100));
+    const mints = listings.map(l => l.tokenMint).filter(Boolean);
+    const buyersRows = await getRecentBuysByMints(mints, 10);
+    const buyersMap = new Map();
+    for (const row of buyersRows) {
+      if (!buyersMap.has(row.tokenMint)) buyersMap.set(row.tokenMint, []);
+      buyersMap.get(row.tokenMint).push(row);
+    }
 
-    // Attach KOL buyers from DB
-    const out = [];
-    for (const t of listings) {
-      const buyers = await getRecentBuysByMint(t.tokenMint, 10);
-      out.push({
+    const out = listings.map(t => ({
         tokenMint: t.tokenMint,
         tokenSymbol: t.tokenSymbol,
         tokenName: t.tokenName,
@@ -109,18 +112,17 @@ router.get('/early-plays', async (req, res) => {
         tokenMarketCap: t.tokenMarketCap,
         tokenLiquidity: t.tokenLiquidity,
         isBonded: false,
-        buyers: buyers.map(b => ({
+        buyers: (buyersMap.get(t.tokenMint) || []).map(b => ({
           walletAddress: b.walletAddress,
           amount: b.amount,
           solAmount: b.solAmount,
           timestamp: b.timestamp,
           signature: b.signature
         })),
-        totalVolume: buyers.reduce((s, b) => s + (b.solAmount || 0), 0),
-        tradeCount: buyers.length,
-        latestTrade: buyers[0]?.timestamp || t.createdAt || new Date().toISOString()
-      });
-    }
+        totalVolume: (buyersMap.get(t.tokenMint) || []).reduce((s, b) => s + (b.solAmount || 0), 0),
+        tradeCount: (buyersMap.get(t.tokenMint) || []).length,
+        latestTrade: (buyersMap.get(t.tokenMint) || [])[0]?.timestamp || t.createdAt || new Date().toISOString()
+      }));
 
     cache.set(cacheKey, out, 30);
     res.json(out);
@@ -142,10 +144,14 @@ router.get('/bonding', async (req, res) => {
     if (cached) return res.json(cached);
 
     const listings = await fetchExchangeTokens('bonding', Math.min(limit, 100));
-    const out = [];
-    for (const t of listings) {
-      const buyers = await getRecentBuysByMint(t.tokenMint, 10);
-      out.push({
+    const mints = listings.map(l => l.tokenMint).filter(Boolean);
+    const buyersRows = await getRecentBuysByMints(mints, 10);
+    const buyersMap = new Map();
+    for (const row of buyersRows) {
+      if (!buyersMap.has(row.tokenMint)) buyersMap.set(row.tokenMint, []);
+      buyersMap.get(row.tokenMint).push(row);
+    }
+    const out = listings.map(t => ({
         tokenMint: t.tokenMint,
         tokenSymbol: t.tokenSymbol,
         tokenName: t.tokenName,
@@ -154,18 +160,17 @@ router.get('/bonding', async (req, res) => {
         tokenMarketCap: t.tokenMarketCap,
         tokenLiquidity: t.tokenLiquidity,
         isBonded: false,
-        buyers: buyers.map(b => ({
+        buyers: (buyersMap.get(t.tokenMint) || []).map(b => ({
           walletAddress: b.walletAddress,
           amount: b.amount,
           solAmount: b.solAmount,
           timestamp: b.timestamp,
           signature: b.signature
         })),
-        totalVolume: buyers.reduce((s, b) => s + (b.solAmount || 0), 0),
-        tradeCount: buyers.length,
-        latestTrade: buyers[0]?.timestamp || new Date().toISOString()
-      });
-    }
+        totalVolume: (buyersMap.get(t.tokenMint) || []).reduce((s, b) => s + (b.solAmount || 0), 0),
+        tradeCount: (buyersMap.get(t.tokenMint) || []).length,
+        latestTrade: (buyersMap.get(t.tokenMint) || [])[0]?.timestamp || new Date().toISOString()
+      }));
 
     cache.set(cacheKey, out, 30);
     res.json(out);
@@ -187,10 +192,14 @@ router.get('/graduated', async (req, res) => {
     if (cached) return res.json(cached);
 
     const listings = await fetchExchangeTokens('graduated', Math.min(limit, 100));
-    const out = [];
-    for (const t of listings) {
-      const buyers = await getRecentBuysByMint(t.tokenMint, 10);
-      out.push({
+    const mints = listings.map(l => l.tokenMint).filter(Boolean);
+    const buyersRows = await getRecentBuysByMints(mints, 10);
+    const buyersMap = new Map();
+    for (const row of buyersRows) {
+      if (!buyersMap.has(row.tokenMint)) buyersMap.set(row.tokenMint, []);
+      buyersMap.get(row.tokenMint).push(row);
+    }
+    const out = listings.map(t => ({
         tokenMint: t.tokenMint,
         tokenSymbol: t.tokenSymbol,
         tokenName: t.tokenName,
@@ -199,18 +208,17 @@ router.get('/graduated', async (req, res) => {
         tokenMarketCap: t.tokenMarketCap,
         tokenLiquidity: t.tokenLiquidity,
         isBonded: true,
-        buyers: buyers.map(b => ({
+        buyers: (buyersMap.get(t.tokenMint) || []).map(b => ({
           walletAddress: b.walletAddress,
           amount: b.amount,
           solAmount: b.solAmount,
           timestamp: b.timestamp,
           signature: b.signature
         })),
-        totalVolume: buyers.reduce((s, b) => s + (b.solAmount || 0), 0),
-        tradeCount: buyers.length,
-        latestTrade: buyers[0]?.timestamp || t.graduatedAt || new Date().toISOString()
-      });
-    }
+        totalVolume: (buyersMap.get(t.tokenMint) || []).reduce((s, b) => s + (b.solAmount || 0), 0),
+        tradeCount: (buyersMap.get(t.tokenMint) || []).length,
+        latestTrade: (buyersMap.get(t.tokenMint) || [])[0]?.timestamp || t.graduatedAt || new Date().toISOString()
+      }));
 
     cache.set(cacheKey, out, 30);
     res.json(out);

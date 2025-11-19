@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { loadKols } from '../services/kols';
+import { formatCurrency } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
@@ -162,9 +163,9 @@ const KOLTerminal = () => {
           </div>
         </div>
         <div className="bg-black/20 rounded p-2">
-          <div className="text-[10px] text-neutral-500">KOL Buyers</div>
+          <div className="text-[10px] text-neutral-500">Liquidity</div>
           <div className="text-sm font-semibold text-accent">
-            {token.buyers.length}
+            {typeof token.tokenLiquidity === 'number' ? formatCurrency(token.tokenLiquidity) : 'Unknown'}
           </div>
         </div>
       </div>
@@ -250,7 +251,7 @@ const KOLTerminal = () => {
               <span className="text-neutral-400">Live Updates</span>
             </div>
             <div className="text-neutral-500">
-              Early: {earlyPlays.length} | Bonding: {bonding.length} | Graduated: {graduated.length}
+              New: {earlyPlays.length} | About to Graduate: {bonding.length} | Graduated: {graduated.length}
             </div>
           </div>
         </div>
@@ -258,22 +259,22 @@ const KOLTerminal = () => {
         {/* Three Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <TerminalColumn
-            title="Early Plays"
-            subtitle="< $10K Market Cap"
+            title="New Tokens"
+            subtitle="Recently listed on Pump.fun"
             tokens={earlyPlays}
             color="from-green-500 to-emerald-500"
           />
           
           <TerminalColumn
-            title="About to Bond"
-            subtitle="$10K - $69K Market Cap"
+            title="About to Graduate"
+            subtitle="On bonding curve"
             tokens={bonding}
             color="from-yellow-500 to-orange-500"
           />
           
           <TerminalColumn
-            title="Bonded/Migrated"
-            subtitle="≥ $69K Market Cap"
+            title="Graduated Tokens"
+            subtitle="Already graduated"
             tokens={graduated}
             color="from-purple-500 to-pink-500"
           />

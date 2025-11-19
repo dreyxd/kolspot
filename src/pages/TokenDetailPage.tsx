@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import PriceChart from '../components/PriceChart';
+import DexScreenerChart from '../components/DexScreenerChart';
 import { formatUsdPrice } from '../utils/format';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -281,7 +281,7 @@ const TokenDetailPage = () => {
               )}
             </div>
 
-            {/* Price Chart (TradingView Lightweight Charts) */}
+            {/* Public Chart (DexScreener embed) */}
             <div className="bg-surface/60 border border-white/10 rounded-lg p-6">
               <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
                 <h2 className="text-xl font-bold">Price Chart</h2>
@@ -303,10 +303,10 @@ const TokenDetailPage = () => {
                 </div>
               </div>
               <div className="bg-black/20 rounded-lg overflow-hidden">
-                <PriceChart tokenMint={token.tokenMint} price={token.tokenPrice ?? null} height={500} />
+                <DexScreenerChart tokenMint={token.tokenMint} height={500} />
               </div>
               <p className="text-xs text-neutral-500 mt-2 text-center">
-                Powered by TradingView Lightweight Charts (dark theme)
+                Powered by DexScreener public chart
               </p>
             </div>
           </div>

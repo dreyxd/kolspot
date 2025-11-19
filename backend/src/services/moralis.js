@@ -24,6 +24,12 @@ const initializeMoralis = async () => {
 
 // Fetch token metadata (name, symbol, logo, decimals)
 export const fetchTokenMetadata = async (mintAddress) => {
+  // Validate mint address
+  if (!mintAddress || typeof mintAddress !== 'string' || mintAddress.length < 32) {
+    console.warn(`[Moralis] Invalid mint address: ${mintAddress}`);
+    return null;
+  }
+
   // Check cache first
   const cacheKey = `metadata-${mintAddress}`;
   const cached = cache.get(cacheKey);
@@ -71,6 +77,12 @@ export const fetchTokenMetadata = async (mintAddress) => {
 
 // Fetch token price in USD
 export const fetchTokenPrice = async (mintAddress) => {
+  // Validate mint address
+  if (!mintAddress || typeof mintAddress !== 'string' || mintAddress.length < 32) {
+    console.warn(`[Moralis] Invalid mint address for price: ${mintAddress}`);
+    return null;
+  }
+
   // Check cache first
   const cacheKey = `price-${mintAddress}`;
   const cached = cache.get(cacheKey);
@@ -141,9 +153,15 @@ export const fetchTokenInfo = async (mintAddress) => {
 
 // Enrich trades with Moralis data
 export const enrichTokenMetadata = async (trades) => {
-  const uniqueMints = [...new Set(trades.map(t => t.tokenMint))];
+  // Filter out undefined/null mints
+  const uniqueMints = [...new Set(trades.map(t => t.tokenMint).filter(m => m))];
   
   console.log(`[Moralis] Enriching metadata for ${uniqueMints.length} tokens...`);
+  
+  if (uniqueMints.length === 0) {
+    console.warn('[Moralis] No valid token mints to enrich');
+    return trades;
+  }
   
   // Initialize Moralis once before batch processing
   await initializeMoralis();
@@ -159,6 +177,12 @@ export const enrichTokenMetadata = async (trades) => {
   
   // Process tokens with small delay to respect rate limits
   for (const mint of uniqueMints) {
+    if (!mint) {
+      console.warn('[Moralis] Skipping undefined mint');
+      errorCount++;
+      continue;
+    }
+    
     try {
       const info = await fetchTokenInfo(mint);
       if (info && info.symbol && info.symbol !== 'UNKNOWN') {

@@ -6,10 +6,12 @@ import {
 import { enrichTokenMetadata as enrichWithPumpFun } from '../services/pumpfun.js';
 import { enrichTokenMetadata as enrichWithJupiter } from '../services/jupiter.js';
 import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
-import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
+// Moralis temporarily disabled due to API validation issues
+// import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
 import { saveTransaction } from '../db/queries.js';
 import { broadcastTransaction } from '../websocket/index.js';
 import * as cache from '../utils/cache.js';
+import { normalizeMint } from '../utils/mint.js';
 
 const router = express.Router();
 
@@ -53,11 +55,15 @@ router.post('/helius', async (req, res) => {
           continue;
         }
 
-        const trades = allTrades;
+        // Normalize token mints to avoid invalid addresses like '<mint>pump'
+        const trades = allTrades.map(t => ({
+          ...t,
+          tokenMint: normalizeMint(t.tokenMint)
+        }));
 
         console.log(`[Webhook] Found ${trades.length} trade(s) in ${signature}`);
 
-        // Four-tier enrichment: Pump.fun -> Jupiter -> DexScreener -> Moralis
+        // Three-tier enrichment: Pump.fun -> Jupiter -> DexScreener (Moralis disabled)
         let enrichedTrades = await enrichWithPumpFun(trades);
         
         // Try Jupiter for any still-UNKNOWN tokens (excellent for established tokens)
@@ -86,18 +92,7 @@ router.post('/helius', async (req, res) => {
           });
         }
         
-        // Final fallback to Moralis (comprehensive Solana token coverage)
-        const stillUnknown3 = enrichedTrades.filter(t => t.tokenSymbol === 'UNKNOWN');
-        if (stillUnknown3.length > 0) {
-          const moralisEnriched = await enrichWithMoralis(stillUnknown3);
-          enrichedTrades = enrichedTrades.map(t => {
-            if (t.tokenSymbol === 'UNKNOWN') {
-              const moralisData = moralisEnriched.find(d => d.tokenMint === t.tokenMint);
-              return moralisData || t;
-            }
-            return t;
-          });
-        }
+        // Moralis enrichment disabled
 
         // Process all trades (BUY and SELL)
         for (const tx of enrichedTrades) {
@@ -108,7 +103,7 @@ router.post('/helius', async (req, res) => {
 
             const transaction = {
               walletAddress: tx.walletAddress,
-              tokenMint: tx.tokenMint,
+              tokenMint: normalizeMint(tx.tokenMint),
               tokenSymbol: tx.tokenSymbol,
               amount: tx.tokenAmount,
               solAmount: tx.solAmount,

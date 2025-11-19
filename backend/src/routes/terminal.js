@@ -5,6 +5,7 @@ import { enrichTokenMetadata as enrichWithJupiter } from '../services/jupiter.js
 import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
 import { enrichTokenMetadata as enrichWithMoralis } from '../services/moralis.js';
 import * as cache from '../utils/cache.js';
+import { normalizeTradesMints } from '../utils/mint.js';
 
 const router = express.Router();
 
@@ -16,7 +17,10 @@ const BONDING_THRESHOLD = 69000; // $69K market cap
  * Moralis temporarily disabled due to API issues
  */
 async function enrichTrades(transactions) {
-  let enriched = await enrichWithPumpFun(transactions);
+  // Normalize mints to strip any accidental suffixes (e.g., 'pump')
+  const normalized = normalizeTradesMints(transactions);
+
+  let enriched = await enrichWithPumpFun(normalized);
   
   const stillUnknown1 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
   if (stillUnknown1.length > 0) {
@@ -76,7 +80,7 @@ function groupByToken(trades) {
         tokenPrice: trade.tokenPrice,
         tokenMarketCap: trade.tokenMarketCap,
         tokenLiquidity: trade.tokenLiquidity,
-        isBonded: trade.tokenMarketCap >= BONDING_THRESHOLD,
+        isBonded: (trade.tokenMarketCap || 0) >= BONDING_THRESHOLD,
         buyers: [],
         totalVolume: 0,
         tradeCount: 0,
@@ -134,7 +138,7 @@ router.get('/early-plays', async (req, res) => {
     // Filter: Market cap < $10K
     const earlyPlays = tokens.filter(t => {
       const marketCap = t.tokenMarketCap || 0;
-      return marketCap > 0 && marketCap < 10000;
+      return marketCap >= 0 && marketCap < 10000;
     });
     
     // Sort by latest trade
@@ -226,7 +230,8 @@ router.get('/graduated', async (req, res) => {
  */
 router.get('/token/:mint', async (req, res) => {
   try {
-    const { mint } = req.params;
+    const { mint: mintParam } = req.params;
+    const mint = normalizeTradesMints([{ tokenMint: mintParam }])[0].tokenMint;
     
     const cacheKey = `terminal-token-${mint}`;
     const cached = cache.get(cacheKey);
@@ -236,7 +241,8 @@ router.get('/token/:mint', async (req, res) => {
     
     // Get all transactions for this token
     const transactions = await getRecentTransactions(500);
-    const tokenTxs = transactions.filter(tx => tx.tokenMint === mint);
+    const tokenTxs = transactions.map(t => ({ ...t, tokenMint: normalizeTradesMints([t])[0].tokenMint }))
+      .filter(tx => tx.tokenMint === mint);
     
     if (tokenTxs.length === 0) {
       return res.status(404).json({ error: 'Token not found' });

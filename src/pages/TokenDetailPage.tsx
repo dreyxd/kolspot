@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ChartWidget from '../components/ChartWidget';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
@@ -203,18 +204,11 @@ const TokenDetailPage = () => {
               </div>
             </div>
 
-            {/* Moralis Price Chart */}
+            {/* Moralis Price Chart Widget */}
             <div className="bg-surface/60 border border-white/10 rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4">Price Chart</h2>
               <div className="bg-black/20 rounded-lg overflow-hidden">
-                <iframe
-                  src={`https://moralis.com/price-chart/?network=solana&address=${token.tokenMint}&theme=dark`}
-                  width="100%"
-                  height="500"
-                  frameBorder="0"
-                  className="w-full"
-                  title="Token Price Chart"
-                />
+                <ChartWidget tokenMint={token.tokenMint} height={500} />
               </div>
               <p className="text-xs text-neutral-500 mt-2 text-center">
                 Powered by Moralis Price Chart Widget

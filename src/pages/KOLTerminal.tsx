@@ -70,8 +70,8 @@ const KOLTerminal = () => {
       } catch {}
     })();
     
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchTerminalData, 30000);
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(fetchTerminalData, 5000);
     
     return () => clearInterval(interval);
   }, []);

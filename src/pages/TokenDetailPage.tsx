@@ -78,6 +78,14 @@ const TokenDetailPage = () => {
       fetchTokenDetails();
       fetchAnalytics();
     }
+    // Auto-refresh every 5 seconds
+    const interval = setInterval(() => {
+      if (mint) {
+        fetchTokenDetails();
+        fetchAnalytics();
+      }
+    }, 5000);
+    return () => clearInterval(interval);
   }, [mint]);
 
   const copyAddress = (address: string) => {

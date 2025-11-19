@@ -40,6 +40,22 @@ const KOLTerminal = () => {
   const isFetchingRef = useRef<boolean>(false);
   const [bondingStatusByMint, setBondingStatusByMint] = useState<Record<string, BondingStatus>>({});
 
+  // Per-column scroll containers for preserving scroll position
+  const earlyRef = useRef<HTMLDivElement | null>(null);
+  const bondingRef = useRef<HTMLDivElement | null>(null);
+  const graduatedRef = useRef<HTMLDivElement | null>(null);
+  const restoredOnceRef = useRef<boolean>(false);
+
+  const saveScroll = (key: string, value: number) => {
+    try { localStorage.setItem(key, String(value)); } catch {}
+  }
+  const readScroll = (key: string) => {
+    try {
+      const v = localStorage.getItem(key);
+      return v ? parseInt(v, 10) : 0;
+    } catch { return 0 }
+  }
+
   const fetchTerminalData = async () => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
@@ -113,6 +129,21 @@ const KOLTerminal = () => {
       if (interval) clearInterval(interval);
     };
   }, [refreshMs]);
+
+  // Restore scroll positions after first data load
+  useEffect(() => {
+    if (loading || restoredOnceRef.current) return;
+    restoredOnceRef.current = true;
+    // Defer to next frame to ensure DOM is laid out
+    requestAnimationFrame(() => {
+      const earlyTop = readScroll('kolspot:terminal:scroll:early');
+      const bondTop = readScroll('kolspot:terminal:scroll:bonding');
+      const gradTop = readScroll('kolspot:terminal:scroll:graduated');
+      if (earlyRef.current) earlyRef.current.scrollTop = earlyTop;
+      if (bondingRef.current) bondingRef.current.scrollTop = bondTop;
+      if (graduatedRef.current) graduatedRef.current.scrollTop = gradTop;
+    });
+  }, [loading]);
 
   // Enrich visible tokens with bonding status (concurrency-limited)
   useEffect(() => {
@@ -324,12 +355,16 @@ const KOLTerminal = () => {
     title, 
     subtitle, 
     tokens, 
-    color 
+    color,
+    innerRef,
+    onScroll,
   }: { 
     title: string; 
     subtitle: string; 
     tokens: TerminalToken[]; 
     color: string;
+    innerRef?: React.RefObject<HTMLDivElement>;
+    onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
   }) => (
     <div className="flex-1 min-w-0">
       <div className="mb-4">
@@ -338,7 +373,11 @@ const KOLTerminal = () => {
         <div className={`mt-2 h-1 w-20 rounded-full bg-gradient-to-r ${color}`}></div>
       </div>
       
-      <div className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto pr-2 custom-scrollbar">
+      <div
+        ref={innerRef}
+        onScroll={onScroll}
+        className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto pr-2 custom-scrollbar"
+      >
         {tokens.length === 0 ? (
           <div className="text-center py-12 text-neutral-500">
             <div className="text-4xl mb-2">👀</div>
@@ -408,6 +447,8 @@ const KOLTerminal = () => {
             subtitle="Recently listed on Pump.fun"
             tokens={earlyPlays}
             color="from-green-500 to-emerald-500"
+            innerRef={earlyRef}
+            onScroll={(e) => saveScroll('kolspot:terminal:scroll:early', (e.currentTarget as HTMLDivElement).scrollTop)}
           />
           
           <TerminalColumn
@@ -415,6 +456,8 @@ const KOLTerminal = () => {
             subtitle="On bonding curve"
             tokens={bonding}
             color="from-yellow-500 to-orange-500"
+            innerRef={bondingRef}
+            onScroll={(e) => saveScroll('kolspot:terminal:scroll:bonding', (e.currentTarget as HTMLDivElement).scrollTop)}
           />
           
           <TerminalColumn
@@ -422,6 +465,8 @@ const KOLTerminal = () => {
             subtitle="Already graduated"
             tokens={graduated}
             color="from-purple-500 to-pink-500"
+            innerRef={graduatedRef}
+            onScroll={(e) => saveScroll('kolspot:terminal:scroll:graduated', (e.currentTarget as HTMLDivElement).scrollTop)}
           />
         </div>
       </div>

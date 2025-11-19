@@ -179,8 +179,13 @@ const KOLTerminal = () => {
             <div className="font-semibold text-white truncate group-hover:text-accent transition-colors">
               {token.tokenName || token.tokenSymbol}
             </div>
-            <div className="ml-auto text-xs text-neutral-400 font-semibold whitespace-nowrap">
-              MC {formatMarketCapShort(token.tokenMarketCap)}
+            <div className="ml-auto whitespace-nowrap">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 border border-white/10 shadow-sm">
+                <span className="text-[10px] uppercase tracking-wide text-neutral-400">MC</span>
+                <span className="text-sm font-extrabold text-accent tracking-tight">
+                  {formatMarketCapShort(token.tokenMarketCap)}
+                </span>
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-2">

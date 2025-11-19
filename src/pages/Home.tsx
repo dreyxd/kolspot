@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import TrendingTokens from '../components/TrendingTokens'
 
 export default function Home() {
   return (
@@ -26,6 +27,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Trending Tokens Feed */}
+      <TrendingTokens />
 
       {/* Stats Section */}
       <section className="py-12 border-y border-white/5">

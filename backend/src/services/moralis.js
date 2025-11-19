@@ -140,30 +140,102 @@ export const fetchTokenPrice = async (mintAddress) => {
       return null;
     }
 
-    // Use Moralis Solana token price endpoint
-    const response = await Moralis.SolApi.token.getTokenPrice({
-      network: "mainnet",
-      address: mintAddress
-    });
-
-    if (response && response.usdPrice) {
-      const priceData = {
-        price: parseFloat(response.usdPrice),
-        nativePrice: response.nativePrice,
-        exchangeName: response.exchangeName,
-        exchangeAddress: response.exchangeAddress
-      };
-      
-      // Cache successful response
-      cache.set(cacheKey, { data: priceData.price, timestamp: Date.now() });
-      return priceData.price;
+    // Prefer gateway endpoint (faster, simpler)
+    const gatewayPrice = await fetchTokenPriceGateway(mintAddress);
+    if (gatewayPrice !== null) {
+      cache.set(cacheKey, { data: gatewayPrice, timestamp: Date.now() });
+      return gatewayPrice;
     }
 
+    // Fallback to SDK if gateway fails
+    try {
+      const response = await Moralis.SolApi.token.getTokenPrice({
+        network: "mainnet",
+        address: mintAddress
+      });
+      if (response && response.usdPrice) {
+        const price = parseFloat(response.usdPrice);
+        cache.set(cacheKey, { data: price, timestamp: Date.now() });
+        return price;
+      }
+    } catch (sdkErr) {
+      console.warn(`[Moralis][SDK] Price fallback failed for ${mintAddress}: ${sdkErr.message}`);
+    }
     return null;
   } catch (error) {
     console.warn(`[Moralis] Error fetching price for ${mintAddress}:`, error.message);
     if (error.code) console.warn(`[Moralis] Error code:`, error.code);
     return null;
+  }
+};
+
+// --- Gateway Price Helpers ---
+export const fetchTokenPriceGateway = async (mintAddress) => {
+  if (!mintAddress || typeof mintAddress !== 'string' || mintAddress.length < 32) {
+    return null;
+  }
+  const cacheKey = `gateway-price-${mintAddress}`;
+  const cached = cache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data;
+  }
+  try {
+    const res = await fetch(`https://solana-gateway.moralis.io/token/mainnet/${mintAddress}/price`, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': MORALIS_API_KEY
+      }
+    });
+    if (!res.ok) {
+      return null; // Let fallback handle
+    }
+    const data = await res.json();
+    if (!data) return null;
+    // Expect shape { price: { ... }, usdPrice: number } OR similar
+    const price = typeof data.usdPrice === 'number' ? data.usdPrice : (data.price?.usdPrice ?? null);
+    if (price !== null) {
+      cache.set(cacheKey, { data: price, timestamp: Date.now() });
+    }
+    return price;
+  } catch (err) {
+    return null;
+  }
+};
+
+export const fetchTokenPricesGateway = async (mintAddresses = []) => {
+  const valid = mintAddresses.filter(m => typeof m === 'string' && m.length >= 32);
+  if (valid.length === 0) return new Map();
+  try {
+    const res = await fetch(`https://solana-gateway.moralis.io/token/mainnet/prices`, {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json',
+        'X-API-Key': MORALIS_API_KEY
+      },
+      body: JSON.stringify({ addresses: valid })
+    });
+    if (!res.ok) {
+      console.warn(`[Moralis][Gateway] Batch price non-OK ${res.status}`);
+      return new Map();
+    }
+    const data = await res.json();
+    // Expect array of objects with mint/address and usdPrice
+    const map = new Map();
+    if (Array.isArray(data)) {
+      for (const item of data) {
+        const addr = item.address || item.mint;
+        const price = typeof item.usdPrice === 'number' ? item.usdPrice : (item.price?.usdPrice ?? null);
+        if (addr && price !== null) {
+          map.set(addr, price);
+        }
+      }
+    }
+    return map;
+  } catch (err) {
+    console.warn(`[Moralis][Gateway] Batch price error: ${err.message}`);
+    return new Map();
   }
 };
 

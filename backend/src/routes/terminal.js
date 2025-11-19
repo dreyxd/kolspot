@@ -124,8 +124,10 @@ router.get('/early-plays', async (req, res) => {
         latestTrade: (buyersMap.get(t.tokenMint) || [])[0]?.timestamp || t.createdAt || new Date().toISOString()
       }));
 
-    cache.set(cacheKey, out, 30);
-    res.json(out);
+    // Only include tokens that have at least one KOL buyer
+    const withKols = out.filter(t => t.tradeCount > 0);
+    cache.set(cacheKey, withKols, 30);
+    res.json(withKols);
   } catch (error) {
     console.error('Error fetching early plays:', error);
     res.status(500).json({ error: 'Failed to fetch early plays' });
@@ -172,8 +174,9 @@ router.get('/bonding', async (req, res) => {
         latestTrade: (buyersMap.get(t.tokenMint) || [])[0]?.timestamp || new Date().toISOString()
       }));
 
-    cache.set(cacheKey, out, 30);
-    res.json(out);
+    const withKols = out.filter(t => t.tradeCount > 0);
+    cache.set(cacheKey, withKols, 30);
+    res.json(withKols);
   } catch (error) {
     console.error('Error fetching bonding tokens:', error);
     res.status(500).json({ error: 'Failed to fetch bonding tokens' });
@@ -220,8 +223,9 @@ router.get('/graduated', async (req, res) => {
         latestTrade: (buyersMap.get(t.tokenMint) || [])[0]?.timestamp || t.graduatedAt || new Date().toISOString()
       }));
 
-    cache.set(cacheKey, out, 30);
-    res.json(out);
+    const withKols = out.filter(t => t.tradeCount > 0);
+    cache.set(cacheKey, withKols, 30);
+    res.json(withKols);
   } catch (error) {
     console.error('Error fetching graduated tokens:', error);
     res.status(500).json({ error: 'Failed to fetch graduated tokens' });

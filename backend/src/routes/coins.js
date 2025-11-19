@@ -1,6 +1,7 @@
 import express from 'express';
 import { getKolsCountByToken, getRecentTransactions } from '../db/queries.js';
-import { enrichTokenMetadata } from '../services/dexscreener.js';
+import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
+import { enrichTokenMetadata as enrichWithBirdeye } from '../services/birdeye.js';
 import * as cache from '../utils/cache.js';
 
 const router = express.Router();
@@ -52,8 +53,21 @@ router.get('/recent-trades', async (req, res) => {
 
     const transactions = await getRecentTransactions(limit);
     
-    // Enrich UNKNOWN tokens with DexScreener metadata
-    const enriched = await enrichTokenMetadata(transactions);
+    // Enrich with Birdeye (includes logos and rich metadata)
+    let enriched = await enrichWithBirdeye(transactions);
+    
+    // Fallback to DexScreener for any missing data
+    const stillUnknown = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
+    if (stillUnknown.length > 0) {
+      const dexEnriched = await enrichWithDexScreener(stillUnknown);
+      enriched = enriched.map(t => {
+        if (t.tokenSymbol === 'UNKNOWN') {
+          const dexData = dexEnriched.find(d => d.tokenMint === t.tokenMint);
+          return dexData || t;
+        }
+        return t;
+      });
+    }
 
     res.json(enriched);
   } catch (error) {

@@ -17,6 +17,11 @@ type CoinEntry = {
   name: string
   symbol?: string
   mint?: string
+  logoURI?: string
+  price?: number
+  liquidity?: number
+  volume24h?: number
+  priceChange24h?: number
   buyers: Set<string>
   tradeCount: number
   lastTime: number
@@ -50,70 +55,130 @@ const CoinCard: React.FC<{ entry: CoinEntry; kols: any[]; enriching?: boolean }>
   return (
     <div className="mb-3 last:mb-0">
       <div className="rounded-lg border border-white/5 bg-surface/60 hover:bg-white/5 transition-colors p-3">
-        <div className="flex items-center justify-between">
-          <div className="min-w-0 flex items-center gap-3">
-            {/* Token Icon Placeholder */}
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center shrink-0">
-              <span className="text-xs font-bold text-accent">
-                {entry.symbol?.slice(0, 2) || entry.name?.slice(0, 2) || '??'}
-              </span>
-            </div>
-            
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                {entry.mint ? (
-                  <a className="font-medium truncate hover:underline" href={`https://pump.fun/coin/${entry.mint}`} target="_blank" rel="noreferrer">
-                    {entry.name}
-                  </a>
-                ) : (
-                  <span className="font-medium truncate">{entry.name}</span>
-                )}
-                {entry.symbol && entry.symbol !== entry.name && (
-                  <span className="text-xs text-neutral-400 font-mono">${entry.symbol}</span>
-                )}
-                {isUnknown && enriching && (
-                  <span className="text-[10px] text-yellow-400 animate-pulse">Fetching...</span>
-                )}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            {/* Token Header with Logo */}
+            <div className="flex items-center gap-3 mb-2">
+              {/* Token Logo */}
+              {entry.logoURI ? (
+                <img 
+                  src={entry.logoURI} 
+                  alt={entry.symbol || entry.name}
+                  className="w-12 h-12 rounded-full object-cover shrink-0 bg-surface border border-white/10"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center shrink-0 ${entry.logoURI ? 'hidden' : ''}`}>
+                <span className="text-sm font-bold text-accent">
+                  {entry.symbol?.slice(0, 2) || entry.name?.slice(0, 2) || '??'}
+                </span>
               </div>
-            </div>
-            {entry.mint && (
-              <div 
-                className="text-xs text-neutral-400 truncate cursor-pointer hover:text-accent transition-colors flex items-center gap-1"
-                onClick={copyAddress}
-                title="Click to copy address"
-              >
-                {shortAddress(entry.mint, 6, 6)}
-                {copied && <span className="text-green-400 text-[10px]">✓ Copied</span>}
-              </div>
-            )}
-            {buyersArray.length > 0 && (
-              <div className="text-[10px] mt-2 space-y-1">
-                {buyersArray.map(({ kolId, buyTime }) => {
-                  const kol = kols.find(k => k.id === kolId)
-                  return (
-                    <div key={kolId} className="flex items-center gap-1.5">
-                      <span className="px-1.5 py-0.5 bg-accent/10 text-accent rounded font-medium">
-                        {kol?.name || shortAddress(kolId, 4, 0)}
-                      </span>
-                      <span className="text-neutral-500">•</span>
-                      <span className="text-neutral-400">{formatDate(buyTime)}</span>
-                    </div>
-                  )
-                })}
-                {entry.buyers.size > 3 && (
-                  <div className="px-1.5 py-0.5 text-neutral-400 italic">
-                    +{entry.buyers.size - 3} more KOL{entry.buyers.size - 3 > 1 ? 's' : ''}
+              
+              {/* Token Name and Symbol */}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {entry.mint ? (
+                    <a 
+                      className="font-semibold text-base truncate hover:underline hover:text-accent transition-colors" 
+                      href={`https://pump.fun/coin/${entry.mint}`} 
+                      target="_blank" 
+                      rel="noreferrer"
+                    >
+                      {entry.name}
+                    </a>
+                  ) : (
+                    <span className="font-semibold text-base truncate">{entry.name}</span>
+                  )}
+                  {entry.symbol && entry.symbol !== entry.name && (
+                    <span className="text-sm text-accent font-mono font-semibold">${entry.symbol}</span>
+                  )}
+                  {isUnknown && enriching && (
+                    <span className="text-[10px] text-yellow-400 animate-pulse">Fetching...</span>
+                  )}
+                </div>
+                
+                {/* Contract Address - Copyable */}
+                {entry.mint && (
+                  <div 
+                    className="text-xs text-neutral-400 font-mono cursor-pointer hover:text-accent transition-colors flex items-center gap-2 mt-1"
+                    onClick={copyAddress}
+                    title="Click to copy contract address"
+                  >
+                    <span className="truncate">{shortAddress(entry.mint, 8, 8)}</span>
+                    {copied ? (
+                      <span className="text-green-400 text-[10px] shrink-0">✓ Copied</span>
+                    ) : (
+                      <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </div>
+                )}
+                
+                {/* Token Stats */}
+                {(entry.price || entry.liquidity || entry.volume24h) && (
+                  <div className="flex items-center gap-3 mt-2 text-[10px] text-neutral-400">
+                    {entry.price && (
+                      <div>
+                        Price: <span className="text-white">${entry.price < 0.01 ? entry.price.toExponential(2) : entry.price.toFixed(4)}</span>
+                      </div>
+                    )}
+                    {entry.liquidity && (
+                      <div>
+                        Liq: <span className="text-white">${(entry.liquidity / 1000).toFixed(1)}K</span>
+                      </div>
+                    )}
+                    {entry.priceChange24h !== undefined && (
+                      <div className={entry.priceChange24h >= 0 ? 'text-green-400' : 'text-red-400'}>
+                        24h: {entry.priceChange24h >= 0 ? '+' : ''}{entry.priceChange24h.toFixed(1)}%
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
+            </div>
+            
+            {/* KOL Buyers List */}
+            {buyersArray.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-white/5">
+                <div className="text-[10px] text-neutral-500 mb-2 font-semibold uppercase tracking-wide">Bought by KOLs:</div>
+                <div className="space-y-1.5">
+                  {buyersArray.map(({ kolId, buyTime }) => {
+                    const kol = kols.find(k => k.id === kolId)
+                    return (
+                      <div key={kolId} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-accent"></div>
+                          <span className="font-medium text-white">
+                            {kol?.name || shortAddress(kolId, 6, 4)}
+                          </span>
+                        </div>
+                        <span className="text-neutral-400 text-[10px]">{formatDate(buyTime)}</span>
+                      </div>
+                    )
+                  })}
+                  {entry.buyers.size > 3 && (
+                    <div className="text-[10px] text-neutral-400 italic pl-3.5">
+                      +{entry.buyers.size - 3} more KOL{entry.buyers.size - 3 > 1 ? 's' : ''}
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
-          <div className="text-right ml-3 shrink-0">
-            <div className="text-[11px] px-2 py-0.5 rounded bg-accent/20 text-accent font-semibold">
+          
+          {/* Right Stats Badge */}
+          <div className="text-right shrink-0">
+            <div className="text-xs px-3 py-1.5 rounded-lg bg-accent/20 text-accent font-bold border border-accent/30">
               {entry.buyers.size} KOL{entry.buyers.size>1?'s':''}
             </div>
-            <div className="text-[10px] text-neutral-500 mt-1">{entry.tradeCount} buys</div>
-            <div className="text-[10px] text-neutral-600 mt-0.5">Last: {formatDate(entry.lastTime)}</div>
+            <div className="text-[10px] text-neutral-500 mt-2">{entry.tradeCount} buy{entry.tradeCount > 1 ? 's' : ''}</div>
+            <div className="text-[10px] text-neutral-600 mt-1">
+              {formatDate(entry.lastTime)}
+            </div>
           </div>
         </div>
       </div>
@@ -197,7 +262,13 @@ export default function KOLBoard() {
                 price: tx.solAmount || 0,
                 volume: tx.amount || 0,
                 side: tx.side || 'BUY',
-                time: new Date(tx.timestamp).getTime()
+                time: new Date(tx.timestamp).getTime(),
+                // Birdeye metadata
+                logoURI: tx.tokenLogoURI,
+                tokenPrice: tx.tokenPrice,
+                liquidity: tx.tokenLiquidity,
+                volume24h: tx.tokenVolume24h,
+                priceChange24h: tx.tokenPriceChange24h,
               }
               tradeStore.addTrade(trade)
             }
@@ -219,7 +290,13 @@ export default function KOLBoard() {
               price: tradeData.solAmount || 0,
               volume: tradeData.amount || 0,
               side: tradeData.side || 'BUY',
-              time: new Date(tradeData.timestamp).getTime()
+              time: new Date(tradeData.timestamp).getTime(),
+              // Birdeye metadata
+              logoURI: tradeData.tokenLogoURI,
+              tokenPrice: tradeData.tokenPrice,
+              liquidity: tradeData.tokenLiquidity,
+              volume24h: tradeData.tokenVolume24h,
+              priceChange24h: tradeData.tokenPriceChange24h,
             }
             tradeStore.addTrade(trade)
           }
@@ -273,10 +350,23 @@ export default function KOLBoard() {
         tradeCount: 0,
         lastTime: 0,
         buyerTimes: new Map<string, number>(),
+        // Birdeye metadata
+        logoURI: t.logoURI,
+        price: t.tokenPrice,
+        liquidity: t.liquidity,
+        volume24h: t.volume24h,
+        priceChange24h: t.priceChange24h,
       }
       entry.buyers.add(t.kolId)
       entry.tradeCount += 1
       entry.lastTime = Math.max(entry.lastTime, t.time)
+      
+      // Update metadata if present (use most recent)
+      if (t.logoURI && !entry.logoURI) entry.logoURI = t.logoURI
+      if (t.tokenPrice !== undefined) entry.price = t.tokenPrice
+      if (t.liquidity !== undefined) entry.liquidity = t.liquidity
+      if (t.volume24h !== undefined) entry.volume24h = t.volume24h
+      if (t.priceChange24h !== undefined) entry.priceChange24h = t.priceChange24h
       
       // Track first buy time for each KOL
       if (!entry.buyerTimes.has(t.kolId)) {

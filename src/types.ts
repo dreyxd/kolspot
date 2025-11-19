@@ -10,6 +10,12 @@ export interface Trade {
   volume: number
   side: TradeSide
   time: number // epoch ms
+  // Birdeye metadata
+  logoURI?: string
+  tokenPrice?: number
+  liquidity?: number
+  volume24h?: number
+  priceChange24h?: number
 }
 
 export interface Kol {

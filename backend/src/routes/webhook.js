@@ -3,6 +3,7 @@ import {
   parseTransactions,
   fetchTokenMetadata
 } from '../services/helius.js';
+import { enrichTokenMetadata as enrichWithPumpFun } from '../services/pumpfun.js';
 import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
 import { enrichTokenMetadata as enrichWithBirdeye } from '../services/birdeye.js';
 import { saveTransaction } from '../db/queries.js';
@@ -55,13 +56,26 @@ router.post('/helius', async (req, res) => {
 
         console.log(`[Webhook] Found ${trades.length} trade(s) in ${signature}`);
 
-        // Enrich token metadata using Birdeye (with DexScreener fallback)
-        let enrichedTrades = await enrichWithBirdeye(trades);
+        // Three-tier enrichment: Pump.fun (best for pump tokens) -> Birdeye -> DexScreener
+        let enrichedTrades = await enrichWithPumpFun(trades);
         
-        // Fallback to DexScreener for any still-UNKNOWN tokens
-        const stillUnknown = enrichedTrades.filter(t => t.tokenSymbol === 'UNKNOWN');
-        if (stillUnknown.length > 0) {
-          const dexEnriched = await enrichWithDexScreener(stillUnknown);
+        // Try Birdeye for any still-UNKNOWN tokens
+        const stillUnknown1 = enrichedTrades.filter(t => t.tokenSymbol === 'UNKNOWN');
+        if (stillUnknown1.length > 0) {
+          const birdeyeEnriched = await enrichWithBirdeye(stillUnknown1);
+          enrichedTrades = enrichedTrades.map(t => {
+            if (t.tokenSymbol === 'UNKNOWN') {
+              const birdeyeData = birdeyeEnriched.find(d => d.tokenMint === t.tokenMint);
+              return birdeyeData || t;
+            }
+            return t;
+          });
+        }
+        
+        // Final fallback to DexScreener
+        const stillUnknown2 = enrichedTrades.filter(t => t.tokenSymbol === 'UNKNOWN');
+        if (stillUnknown2.length > 0) {
+          const dexEnriched = await enrichWithDexScreener(stillUnknown2);
           enrichedTrades = enrichedTrades.map(t => {
             if (t.tokenSymbol === 'UNKNOWN') {
               const dexData = dexEnriched.find(d => d.tokenMint === t.tokenMint);

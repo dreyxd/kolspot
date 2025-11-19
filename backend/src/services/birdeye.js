@@ -23,15 +23,23 @@ export const getTokenMetadata = async (mintAddress) => {
     );
 
     if (!response.ok) {
+      // Don't cache 401 (auth) or 429 (rate limit) errors - let them retry or fall through to DexScreener
+      if (response.status === 401) {
+        console.warn(`[Birdeye] Authentication failed (401) - API key may be invalid`);
+        return null;
+      }
+      if (response.status === 429) {
+        console.warn(`[Birdeye] Rate limit exceeded (429) for ${mintAddress}`);
+        return null;
+      }
       console.warn(`[Birdeye] API error ${response.status} for ${mintAddress}`);
-      cache.set(mintAddress, { data: null, timestamp: Date.now() });
       return null;
     }
 
     const result = await response.json();
     
     if (!result.success || !result.data) {
-      cache.set(mintAddress, { data: null, timestamp: Date.now() });
+      console.warn(`[Birdeye] No data returned for ${mintAddress}`);
       return null;
     }
 
@@ -54,7 +62,6 @@ export const getTokenMetadata = async (mintAddress) => {
     return tokenData;
   } catch (error) {
     console.error(`[Birdeye] Failed to fetch token ${mintAddress}:`, error.message);
-    cache.set(mintAddress, { data: null, timestamp: Date.now() });
     return null;
   }
 };
@@ -66,13 +73,23 @@ export const enrichTokenMetadata = async (trades) => {
   
   // Fetch with delay to respect rate limits
   const results = new Map();
+  let successCount = 0;
+  let rateLimitHit = false;
+  
   for (const mint of uniqueMints) {
+    // Skip further Birdeye calls if we hit rate limit
+    if (rateLimitHit) {
+      console.log(`[Birdeye] Skipping remaining tokens due to rate limit`);
+      break;
+    }
+    
     const info = await getTokenMetadata(mint);
     if (info) {
       results.set(mint, info);
+      successCount++;
     }
-    // Delay to avoid rate limiting (100 req/day on free tier)
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // Reduced delay to 100ms for better performance
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   
   // Update trades with enriched metadata

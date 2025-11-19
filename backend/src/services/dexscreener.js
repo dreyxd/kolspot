@@ -12,7 +12,7 @@ export const getTokenInfo = async (mintAddress) => {
   try {
     const response = await fetch(`${DEXSCREENER_API}/tokens/${mintAddress}`);
     if (!response.ok) {
-      cache.set(mintAddress, { data: null, timestamp: Date.now() });
+      console.warn(`[DexScreener] API error ${response.status} for ${mintAddress}`);
       return null;
     }
 
@@ -39,7 +39,6 @@ export const getTokenInfo = async (mintAddress) => {
     return result;
   } catch (error) {
     console.warn(`[DexScreener] Failed to fetch token ${mintAddress}:`, error.message);
-    cache.set(mintAddress, { data: null, timestamp: Date.now() });
     return null;
   }
 };
@@ -63,17 +62,21 @@ export const enrichTokenMetadata = async (trades) => {
   // Update trades with enriched metadata
   const enriched = trades.map(trade => {
     const info = results.get(trade.tokenMint);
-    if (info && trade.tokenSymbol === 'UNKNOWN') {
+    if (info) {
       return {
         ...trade,
-        tokenSymbol: info.symbol,
-        tokenName: info.name
+        tokenSymbol: info.symbol || trade.tokenSymbol,
+        tokenName: info.name || trade.tokenName,
+        tokenPrice: info.priceUsd ? parseFloat(info.priceUsd) : trade.tokenPrice,
+        tokenLiquidity: info.liquidity || trade.tokenLiquidity,
+        tokenVolume24h: info.volume24h || trade.tokenVolume24h,
+        tokenPriceChange24h: info.priceChange24h || trade.tokenPriceChange24h
       };
     }
     return trade;
   });
   
-  const enrichedCount = enriched.filter(t => t.tokenSymbol !== 'UNKNOWN').length;
+  const enrichedCount = enriched.filter(t => t.tokenSymbol && t.tokenSymbol !== 'UNKNOWN').length;
   console.log(`[DexScreener] Enriched ${enrichedCount}/${trades.length} trades`);
   
   return enriched;

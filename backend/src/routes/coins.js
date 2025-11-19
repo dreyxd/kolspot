@@ -1,5 +1,6 @@
 import express from 'express';
 import { getKolsCountByToken, getRecentTransactions } from '../db/queries.js';
+import { enrichTokenMetadata as enrichWithPumpFun } from '../services/pumpfun.js';
 import { enrichTokenMetadata as enrichWithDexScreener } from '../services/dexscreener.js';
 import { enrichTokenMetadata as enrichWithBirdeye } from '../services/birdeye.js';
 import * as cache from '../utils/cache.js';
@@ -53,13 +54,26 @@ router.get('/recent-trades', async (req, res) => {
 
     const transactions = await getRecentTransactions(limit);
     
-    // Enrich with Birdeye (includes logos and rich metadata)
-    let enriched = await enrichWithBirdeye(transactions);
+    // Three-tier enrichment: Pump.fun -> Birdeye -> DexScreener
+    let enriched = await enrichWithPumpFun(transactions);
     
-    // Fallback to DexScreener for any missing data
-    const stillUnknown = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
-    if (stillUnknown.length > 0) {
-      const dexEnriched = await enrichWithDexScreener(stillUnknown);
+    // Try Birdeye for any still-UNKNOWN tokens
+    const stillUnknown1 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
+    if (stillUnknown1.length > 0) {
+      const birdeyeEnriched = await enrichWithBirdeye(stillUnknown1);
+      enriched = enriched.map(t => {
+        if (t.tokenSymbol === 'UNKNOWN') {
+          const birdeyeData = birdeyeEnriched.find(d => d.tokenMint === t.tokenMint);
+          return birdeyeData || t;
+        }
+        return t;
+      });
+    }
+    
+    // Final fallback to DexScreener
+    const stillUnknown2 = enriched.filter(t => t.tokenSymbol === 'UNKNOWN');
+    if (stillUnknown2.length > 0) {
+      const dexEnriched = await enrichWithDexScreener(stillUnknown2);
       enriched = enriched.map(t => {
         if (t.tokenSymbol === 'UNKNOWN') {
           const dexData = dexEnriched.find(d => d.tokenMint === t.tokenMint);

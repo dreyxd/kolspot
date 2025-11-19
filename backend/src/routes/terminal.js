@@ -247,19 +247,42 @@ router.get('/token/:mint', async (req, res) => {
       return res.json(cached);
     }
     
-    // Get all transactions for this token
-    const transactions = await getRecentTransactions(500);
-    const tokenTxs = transactions.map(t => ({ ...t, tokenMint: normalizeTradesMints([t])[0].tokenMint }))
-      .filter(tx => tx.tokenMint === mint);
+    // Get KOL transactions for this token (from database)
+    const buyerTxs = await getRecentBuysByMint(mint, 100);
     
-    if (tokenTxs.length === 0) {
-      return res.status(404).json({ error: 'Token not found' });
+    // Even if no transactions, fetch token metadata from Moralis
+    let tokenData;
+    
+    if (buyerTxs.length > 0) {
+      // We have transactions - enrich them
+      const enriched = await enrichTrades(buyerTxs);
+      const tokens = groupByToken(enriched);
+      tokenData = tokens[0];
+    } else {
+      // No transactions - fetch metadata directly from Moralis
+      const metadata = await enrichWithMoralis([{ tokenMint: mint }]);
+      const withMarketCap = await enrichMarketCap(metadata);
+      
+      if (withMarketCap.length === 0) {
+        return res.status(404).json({ error: 'Token not found' });
+      }
+      
+      const enrichedToken = withMarketCap[0];
+      tokenData = {
+        tokenMint: mint,
+        tokenSymbol: enrichedToken.tokenSymbol || 'UNKNOWN',
+        tokenName: enrichedToken.tokenName || 'Unknown Token',
+        tokenLogoURI: enrichedToken.tokenLogoURI,
+        tokenPrice: enrichedToken.tokenPrice,
+        tokenMarketCap: enrichedToken.tokenMarketCap,
+        tokenLiquidity: enrichedToken.tokenLiquidity,
+        isBonded: (enrichedToken.tokenMarketCap || 0) >= BONDING_THRESHOLD,
+        buyers: [],
+        totalVolume: 0,
+        tradeCount: 0,
+        latestTrade: new Date().toISOString()
+      };
     }
-    
-    // Enrich
-    const enriched = await enrichTrades(tokenTxs);
-    const tokens = groupByToken(enriched);
-    const tokenData = tokens[0];
     
     if (!tokenData) {
       return res.status(404).json({ error: 'Token not found' });

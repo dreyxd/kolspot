@@ -59,6 +59,14 @@ const KOLTerminal = () => {
   const fetchTerminalData = async () => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
+    
+    // Capture current scroll positions before updating state
+    const savedScrolls = {
+      early: earlyRef.current?.scrollTop || 0,
+      bonding: bondingRef.current?.scrollTop || 0,
+      graduated: graduatedRef.current?.scrollTop || 0,
+    };
+    
     try {
       const [earlyRes, bondingRes, graduatedRes] = await Promise.all([
         fetch(`${backendBaseUrl}/api/terminal/early-plays`),
@@ -100,6 +108,13 @@ const KOLTerminal = () => {
       setBonding(bond);
       setGraduated(grad);
       setLoading(false);
+      
+      // Restore scroll positions after state update
+      requestAnimationFrame(() => {
+        if (earlyRef.current) earlyRef.current.scrollTop = savedScrolls.early;
+        if (bondingRef.current) bondingRef.current.scrollTop = savedScrolls.bonding;
+        if (graduatedRef.current) graduatedRef.current.scrollTop = savedScrolls.graduated;
+      });
     } catch (error) {
       console.error('Error fetching terminal data:', error);
       setLoading(false);

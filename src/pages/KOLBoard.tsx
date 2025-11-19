@@ -51,17 +51,30 @@ const CoinCard: React.FC<{ entry: CoinEntry; kols: any[]; enriching?: boolean }>
     <div className="mb-3 last:mb-0">
       <div className="rounded-lg border border-white/5 bg-surface/60 hover:bg-white/5 transition-colors p-3">
         <div className="flex items-center justify-between">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              {entry.mint ? (
-                <a className="font-medium truncate hover:underline" href={`https://pump.fun/coin/${entry.mint}`} target="_blank" rel="noreferrer">{entry.name}</a>
-              ) : (
-                <span className="font-medium truncate">{entry.name}</span>
-              )}
-              {entry.symbol && <span className="text-xs text-neutral-400">({entry.symbol})</span>}
-              {isUnknown && enriching && (
-                <span className="text-[10px] text-yellow-400 animate-pulse">Fetching...</span>
-              )}
+          <div className="min-w-0 flex items-center gap-3">
+            {/* Token Icon Placeholder */}
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center shrink-0">
+              <span className="text-xs font-bold text-accent">
+                {entry.symbol?.slice(0, 2) || entry.name?.slice(0, 2) || '??'}
+              </span>
+            </div>
+            
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                {entry.mint ? (
+                  <a className="font-medium truncate hover:underline" href={`https://pump.fun/coin/${entry.mint}`} target="_blank" rel="noreferrer">
+                    {entry.name}
+                  </a>
+                ) : (
+                  <span className="font-medium truncate">{entry.name}</span>
+                )}
+                {entry.symbol && entry.symbol !== entry.name && (
+                  <span className="text-xs text-neutral-400 font-mono">${entry.symbol}</span>
+                )}
+                {isUnknown && enriching && (
+                  <span className="text-[10px] text-yellow-400 animate-pulse">Fetching...</span>
+                )}
+              </div>
             </div>
             {entry.mint && (
               <div 
@@ -241,10 +254,20 @@ export default function KOLBoard() {
     const map = new Map<string, CoinEntry>()
     for (const t of buyTrades) {
       const id = t.coinMint || t.coin
+      
+      // Better name/symbol extraction
+      const tokenName = t.coinName && t.coinName !== 'UNKNOWN' && !t.coinName.startsWith('0x') 
+        ? t.coinName 
+        : (t.coin && t.coin !== 'UNKNOWN' && !t.coin.startsWith('0x') ? t.coin : t.coinMint?.slice(0, 8) || 'Unknown')
+      
+      const tokenSymbol = t.coin && t.coin !== 'UNKNOWN' && !t.coin.startsWith('0x') && t.coin !== tokenName
+        ? t.coin
+        : undefined
+      
       const entry = map.get(id) || {
         id,
-        name: t.coinName || t.coin,
-        symbol: t.coin !== t.coinName ? t.coin : undefined,
+        name: tokenName,
+        symbol: tokenSymbol,
         mint: t.coinMint,
         buyers: new Set<string>(),
         tradeCount: 0,

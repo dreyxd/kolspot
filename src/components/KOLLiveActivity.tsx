@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getSwapsByWallet, type SwapActivity } from '../services/moralis';
-import { loadKols } from '../services/kols';
+import type { SwapActivity } from '../services/moralis';
 
-interface KOL {
-  id: string;
-  name: string;
-  wallet: string;
-  twitter?: string;
-}
+const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
 interface EnrichedSwap extends SwapActivity {
   kolName: string;
@@ -17,60 +11,28 @@ interface EnrichedSwap extends SwapActivity {
 const KOLLiveActivity = () => {
   const [swaps, setSwaps] = useState<EnrichedSwap[]>([]);
   const [loading, setLoading] = useState(true);
-  const [kols, setKols] = useState<KOL[]>([]);
-
-  useEffect(() => {
-    const fetchKOLs = async () => {
-      const kolData = await loadKols();
-      setKols(kolData);
-    };
-    fetchKOLs();
-  }, []);
 
   useEffect(() => {
     const fetchSwaps = async () => {
-      if (kols.length === 0) return;
-
-      setLoading(true);
-      const allSwaps: EnrichedSwap[] = [];
-
-      // Fetch swaps for first 10 KOLs (to avoid rate limiting)
-      const kolsToFetch = kols.slice(0, 10);
-      
-      for (const kol of kolsToFetch) {
-        try {
-          const swapData = await getSwapsByWallet(kol.wallet, 5, 'buy,sell');
-          if (swapData?.result) {
-            const enriched = swapData.result.map(swap => ({
-              ...swap,
-              kolName: kol.name,
-              kolWallet: kol.wallet
-            }));
-            allSwaps.push(...enriched);
-          }
-          // Small delay to respect rate limits
-          await new Promise(resolve => setTimeout(resolve, 200));
-        } catch (error) {
-          console.error(`Error fetching swaps for ${kol.name}:`, error);
+      try {
+        const response = await fetch(`${backendBaseUrl}/api/kol-activity/swaps`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch KOL activity');
         }
+        const data = await response.json();
+        setSwaps(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching KOL activity:', error);
+        setLoading(false);
       }
-
-      // Sort by timestamp (most recent first)
-      allSwaps.sort((a, b) => 
-        new Date(b.blockTimestamp).getTime() - new Date(a.blockTimestamp).getTime()
-      );
-
-      setSwaps(allSwaps.slice(0, 50)); // Keep last 50 activities
-      setLoading(false);
     };
 
-    if (kols.length > 0) {
-      fetchSwaps();
-      // Refresh every 30 seconds
-      const interval = setInterval(fetchSwaps, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [kols]);
+    fetchSwaps();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchSwaps, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);

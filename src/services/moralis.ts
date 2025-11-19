@@ -14,6 +14,7 @@ export type TrendingToken = {
 }
 
 const BASE_URL = 'https://deep-index.moralis.io/api/v2.2'
+const SOLANA_GATEWAY = 'https://solana-gateway.moralis.io'
 
 export async function getTrendingTokens(limit = 25): Promise<TrendingToken[]> {
   const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
@@ -50,5 +51,40 @@ async function safeText(res: Response) {
     return await res.text()
   } catch {
     return ''
+  }
+}
+
+// --- Bonding Status (Solana) ---
+export type BondingStatus = {
+  status?: string
+  isBonding?: boolean
+  progress?: number
+  progressPercent?: number
+  progress_percentage?: number
+  progress_pct?: number
+  [key: string]: any
+} | null
+
+export async function getBondingStatus(mint: string): Promise<BondingStatus> {
+  const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
+  if (!apiKey) return null
+  const url = `${SOLANA_GATEWAY}/token/mainnet/${mint}/bonding-status`
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+    })
+    if (!res.ok) {
+      console.warn('Moralis bonding-status error', mint, res.status)
+      return null
+    }
+    const data = await res.json()
+    return data as BondingStatus
+  } catch (e) {
+    console.warn('Moralis bonding-status failed', mint, e)
+    return null
   }
 }

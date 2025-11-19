@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { loadKols } from '../services/kols';
 import { formatCurrency, formatUsdPrice } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
+import { getBondingStatus, BondingStatus } from '../services/moralis';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -37,6 +38,7 @@ const KOLTerminal = () => {
   const [kolNameByWallet, setKolNameByWallet] = useState<Record<string, string>>({});
   const [refreshMs, setRefreshMs] = useState<number>(3000); // default 3s
   const isFetchingRef = useRef<boolean>(false);
+  const [bondingStatusByMint, setBondingStatusByMint] = useState<Record<string, BondingStatus>>({});
 
   const fetchTerminalData = async () => {
     if (isFetchingRef.current) return;
@@ -112,6 +114,41 @@ const KOLTerminal = () => {
     };
   }, [refreshMs]);
 
+  // Enrich visible tokens with bonding status (concurrency-limited)
+  useEffect(() => {
+    const mints = Array.from(new Set([
+      ...earlyPlays.map(t => t.tokenMint),
+      ...bonding.map(t => t.tokenMint),
+      ...graduated.map(t => t.tokenMint),
+    ]))
+      .filter(m => !bondingStatusByMint[m])
+
+    if (mints.length === 0) return
+    let cancelled = false
+    const run = async () => {
+      const concurrency = 6
+      for (let i = 0; i < mints.length && !cancelled; i += concurrency) {
+        const chunk = mints.slice(i, i + concurrency)
+        const results = await Promise.all(chunk.map(async (mint) => {
+          try {
+            const bs = await getBondingStatus(mint)
+            return [mint, bs] as const
+          } catch {
+            return [mint, null] as const
+          }
+        }))
+        if (cancelled) return
+        setBondingStatusByMint(prev => {
+          const next = { ...prev }
+          for (const [mint, bs] of results) next[mint] = bs
+          return next
+        })
+      }
+    }
+    run()
+    return () => { cancelled = true }
+  }, [earlyPlays, bonding, graduated])
+
   const formatMarketCap = (mc?: number) => {
     if (mc === null || mc === undefined) return 'Unknown';
     if (mc === 0) return '$0';
@@ -150,6 +187,29 @@ const KOLTerminal = () => {
   const nameOrShort = (w: string) => kolNameByWallet[w] || shortAddress(w, 6, 4);
   const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
+  const deriveBondingBadge = (mint: string, fallbackIsBonded: boolean) => {
+    const bs = bondingStatusByMint[mint]
+    const raw = bs || {}
+    const status = (typeof raw === 'object' && raw && 'status' in raw) ? String((raw as any).status) : undefined
+    // Try various progress keys
+    const progressKeys = ['progress', 'progressPercent', 'progress_percentage', 'progress_pct']
+    let progress: number | undefined
+    for (const k of progressKeys) {
+      const v = (raw as any)[k]
+      if (typeof v === 'number' && isFinite(v)) { progress = v; break }
+    }
+    const isBonding = fallbackIsBonded || /bond/i.test(status || '') || (raw as any)?.isBonding === true
+
+    if (isBonding) {
+      const pct = progress !== undefined ? Math.max(0, Math.min(100, progress)) : undefined
+      return { label: pct !== undefined ? `Bonding ${pct.toFixed(0)}%` : 'Bonding', className: 'bg-yellow-500/15 text-yellow-300 border-yellow-400/20' }
+    }
+    if (status && /graduat/i.test(status)) {
+      return { label: 'Graduated', className: 'bg-purple-500/15 text-purple-300 border-purple-400/20' }
+    }
+    return { label: fallbackIsBonded ? 'Bonding' : 'Unknown', className: 'bg-white/10 text-neutral-300 border-white/10' }
+  }
+
   const TokenCard = ({ token }: { token: TerminalToken }) => (
     <div
       onClick={() => navigate(`/token/${token.tokenMint}`)}
@@ -179,7 +239,17 @@ const KOLTerminal = () => {
             <div className="font-semibold text-white truncate group-hover:text-accent transition-colors">
               {token.tokenName || token.tokenSymbol}
             </div>
-            <div className="ml-auto whitespace-nowrap">
+            <div className="ml-auto whitespace-nowrap flex items-center gap-2">
+              {/* Bonding Status */}
+              {(() => {
+                const badge = deriveBondingBadge(token.tokenMint, token.isBonded)
+                return (
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs ${badge.className}`}>
+                    {badge.label}
+                  </span>
+                )
+              })()}
+
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 border border-white/10 shadow-sm">
                 <span className="text-[10px] uppercase tracking-wide text-neutral-400">MC</span>
                 <span className="text-sm font-extrabold text-accent tracking-tight">

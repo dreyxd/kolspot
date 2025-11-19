@@ -1,12 +1,22 @@
 import { Link } from 'react-router-dom'
 import TrendingTokens from '../components/TrendingTokens'
+import bgImage from '../assets/bg.webp'
 
 export default function Home() {
   return (
     <main className="flex-1">
       {/* Hero Section */}
-      <section className="relative">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
+      <section className="relative overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={bgImage}
+            alt=""
+            className="w-full h-full object-cover opacity-60"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black"></div>
+        </div>
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-4xl sm:text-6xl font-bold tracking-tight mb-6">
               Track Top Solana KOLs <br />
@@ -29,10 +39,12 @@ export default function Home() {
       </section>
 
       {/* Trending Tokens Feed */}
-      <TrendingTokens />
+      <div className="bg-black">
+        <TrendingTokens />
+      </div>
 
       {/* Stats Section */}
-      <section className="py-12 border-y border-white/5">
+      <section className="py-12 border-y border-white/5 bg-gradient-to-b from-black via-neutral-900 to-neutral-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
@@ -56,7 +68,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20">
+      <section className="py-20 bg-gradient-to-b from-neutral-800 via-neutral-900 to-black">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Everything You Need</h2>
@@ -109,7 +121,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-surface/30">
+      <section className="py-20 bg-gradient-to-b from-black via-neutral-900/50 to-black">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
@@ -153,9 +165,11 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20">
+      <section className="py-20 bg-gradient-to-b from-black via-neutral-900/30 to-black relative overflow-hidden">
+        {/* Subtle orange accent glow */}
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-transparent pointer-events-none"></div>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="card p-12 text-center bg-surface/50">
+          <div className="relative card p-12 text-center bg-surface/50 backdrop-blur-sm">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               Start Tracking KOLs Today
             </h2>

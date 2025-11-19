@@ -11,20 +11,18 @@ html, body, #root {
 }
 
 body {
-  /* Global gradient background — orange/dark/grey palette */
+  /* Global gradient background — black to grey with subtle orange accent */
   background:
-    /* subtle orange glow top-right */
-    radial-gradient(90rem 50rem at 85% -10%, rgba(249, 115, 22, 0.12) 0%, rgba(0, 0, 0, 0) 60%),
-    /* soft amber glow bottom-left */
-    radial-gradient(70rem 40rem at 10% 115%, rgba(251, 146, 60, 0.08) 0%, rgba(0, 0, 0, 0) 55%),
-    /* deep dark-to-grey base */
+    /* subtle orange accent glow */
+    radial-gradient(80rem 50rem at 90% 10%, rgba(249, 115, 22, 0.06) 0%, rgba(0, 0, 0, 0) 50%),
+    /* main black-to-grey gradient */
     linear-gradient(180deg,
-      #0b0b0c 0%,
-      #0e0e10 22%,
-      #141416 46%,
-      #1a1b1e 66%,
-      #101114 100%);
-  background-attachment: fixed, fixed, fixed;
+      #000000 0%,
+      #0a0a0a 25%,
+      #141414 50%,
+      #1a1a1a 75%,
+      #0f0f0f 100%);
+  background-attachment: fixed, fixed;
   background-repeat: no-repeat;
   background-size: cover;
   @apply text-neutral-200 antialiased;

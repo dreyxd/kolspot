@@ -49,7 +49,7 @@ async function fetchSwapsByWallet(walletAddress, limit = 5) {
 
 /**
  * GET /api/kol-activity/swaps
- * Get recent swap activity from tracked KOLs
+ * Get recent swap activity from tracked KOLs (last 24 hours)
  */
 router.get('/swaps', async (req, res) => {
   try {
@@ -60,21 +60,29 @@ router.get('/swaps', async (req, res) => {
     }
 
     const allSwaps = [];
+    const now = Date.now();
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
     // Fetch swaps for first 10 KOLs
     for (const kol of KOL_WALLETS.slice(0, 10)) {
       try {
-        const swapData = await fetchSwapsByWallet(kol.wallet, 5);
+        const swapData = await fetchSwapsByWallet(kol.wallet, 10);
         if (swapData?.result) {
-          const enriched = swapData.result.map(swap => ({
-            ...swap,
-            kolName: kol.name,
-            kolWallet: kol.wallet
-          }));
+          const enriched = swapData.result
+            .filter(swap => {
+              // Only include swaps from last 24 hours
+              const swapTime = new Date(swap.blockTimestamp).getTime();
+              return (now - swapTime) <= TWENTY_FOUR_HOURS;
+            })
+            .map(swap => ({
+              ...swap,
+              kolName: kol.name,
+              kolWallet: kol.wallet
+            }));
           allSwaps.push(...enriched);
         }
         // Small delay to respect rate limits
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 50));
       } catch (error) {
         console.error(`[KOL Activity] Error fetching swaps for ${kol.name}:`, error);
       }
@@ -87,8 +95,8 @@ router.get('/swaps', async (req, res) => {
 
     const result = allSwaps.slice(0, 50);
     
-    // Cache for 20 seconds
-    cache.set(cacheKey, result, 20);
+    // Cache for 10 seconds only for real-time updates
+    cache.set(cacheKey, result, 10);
     
     res.json(result);
   } catch (error) {

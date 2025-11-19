@@ -10,7 +10,10 @@ interface EnrichedSwap extends SwapActivity {
 
 const KOLLiveActivity = () => {
   const [swaps, setSwaps] = useState<EnrichedSwap[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [trackedKOLs] = useState([
+    'Cented', 'Walta', 'Gh0stee', 'Daumen', 'Coler', 
+    'Jijo', 'iconXBT', 'AdamJae', 'Art', 'Limfork.eth'
+  ]);
 
   useEffect(() => {
     const fetchSwaps = async () => {
@@ -21,16 +24,14 @@ const KOLLiveActivity = () => {
         }
         const data = await response.json();
         setSwaps(data);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching KOL activity:', error);
-        setLoading(false);
       }
     };
 
     fetchSwaps();
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchSwaps, 30000);
+    // Refresh every 15 seconds silently in background
+    const interval = setInterval(fetchSwaps, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -60,22 +61,14 @@ const KOLLiveActivity = () => {
     return num.toFixed(2);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent mx-auto mb-2"></div>
-          <div className="text-neutral-400 text-sm">Loading KOL activity...</div>
-        </div>
-      </div>
-    );
-  }
-
   if (swaps.length === 0) {
     return (
       <div className="text-center py-12 text-neutral-500">
         <div className="text-4xl mb-2">📊</div>
-        <div>No recent activity</div>
+        <div className="mb-2">No recent activity</div>
+        <div className="text-xs text-neutral-600">
+          Tracking: {trackedKOLs.join(', ')}
+        </div>
       </div>
     );
   }

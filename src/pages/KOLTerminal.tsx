@@ -457,7 +457,12 @@ const KOLTerminal = () => {
           <div className="flex-1 min-w-0">
             <div className="mb-4">
               <h2 className="text-xl font-bold text-white mb-1">KOL Live Activity</h2>
-              <p className="text-sm text-neutral-400">Real-time swap activity from tracked KOLs</p>
+              <p className="text-sm text-neutral-400">
+                Real-time swap activity from 10 tracked KOLs
+              </p>
+              <p className="text-xs text-neutral-600 mt-1">
+                Cented • Walta • Gh0stee • Daumen • Coler • Jijo • iconXBT • AdamJae • Art • Limfork.eth
+              </p>
               <div className="mt-2 h-1 w-20 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500"></div>
             </div>
             

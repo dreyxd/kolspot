@@ -210,11 +210,18 @@ const KOLTerminal = () => {
     return { label: fallbackIsBonded ? 'Bonding' : 'Unknown', className: 'bg-white/10 text-neutral-300 border-white/10' }
   }
 
-  const TokenCard = ({ token }: { token: TerminalToken }) => (
-    <div
-      onClick={() => navigate(`/token/${token.tokenMint}`)}
-      className="p-4 rounded-lg border border-white/10 bg-surface/60 hover:bg-white/5 hover:border-accent/50 transition-all cursor-pointer group"
-    >
+  const TokenCard = ({ token }: { token: TerminalToken }) => {
+    const badge = deriveBondingBadge(token.tokenMint, token.isBonded)
+    const borderClass = badge.label.includes('Bonding')
+      ? 'border-yellow-400/30 hover:border-yellow-400/60'
+      : badge.label === 'Graduated'
+      ? 'border-purple-400/30 hover:border-purple-400/60'
+      : 'border-white/10 hover:border-accent/50'
+    return (
+      <div
+        onClick={() => navigate(`/token/${token.tokenMint}`)}
+        className={`p-4 rounded-lg border ${borderClass} bg-surface/60 hover:bg-white/5 transition-all cursor-pointer group`}
+      >
       {/* Token Header */}
       <div className="flex items-start gap-3 mb-3">
         {token.tokenLogoURI ? (
@@ -241,14 +248,9 @@ const KOLTerminal = () => {
             </div>
             <div className="ml-auto whitespace-nowrap flex items-center gap-2">
               {/* Bonding Status */}
-              {(() => {
-                const badge = deriveBondingBadge(token.tokenMint, token.isBonded)
-                return (
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs ${badge.className}`}>
-                    {badge.label}
-                  </span>
-                )
-              })()}
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-xs ${badge.className}`}>
+                {badge.label}
+              </span>
 
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 border border-white/10 shadow-sm">
                 <span className="text-[10px] uppercase tracking-wide text-neutral-400">MC</span>
@@ -314,8 +316,9 @@ const KOLTerminal = () => {
           <div className="text-[10px] text-neutral-500">{formatTime(token.buyers[0].timestamp)}</div>
         )}
       </div>
-    </div>
-  );
+      </div>
+    )
+  };
 
   const TerminalColumn = ({ 
     title, 

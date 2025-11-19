@@ -158,3 +158,69 @@ export async function getHolderStats(mint: string): Promise<HolderStats | null> 
     return null
   }
 }
+
+// --- Swap Activity ---
+export interface SwapActivity {
+  transactionHash: string
+  transactionType: 'buy' | 'sell' | 'addLiquidity' | 'removeLiquidity'
+  transactionIndex: number
+  subCategory?: string
+  blockTimestamp: string
+  blockNumber: number
+  walletAddress: string
+  pairAddress?: string
+  pairLabel?: string
+  exchangeAddress?: string
+  exchangeName?: string
+  exchangeLogo?: string
+  baseToken?: string
+  quoteToken?: string
+  baseTokenAmount?: string
+  quoteTokenAmount?: string
+  baseTokenPriceUsd?: number
+  quoteTokenPriceUsd?: number
+  baseQuotePrice?: string
+  totalValueUsd?: number
+}
+
+export interface SwapResponse {
+  page: number
+  pageSize: number
+  cursor?: string
+  exchangeName?: string
+  exchangeLogo?: string
+  exchangeAddress?: string
+  pairLabel?: string
+  pairAddress?: string
+  result: SwapActivity[]
+}
+
+export async function getSwapsByWallet(
+  walletAddress: string,
+  limit = 25,
+  transactionTypes = 'buy,sell'
+): Promise<SwapResponse | null> {
+  const apiKey = import.meta.env.VITE_MORALIS_API_KEY as string | undefined
+  if (!apiKey) return null
+  
+  const url = `${SOLANA_GATEWAY}/account/mainnet/${walletAddress}/swaps?limit=${limit}&order=DESC&transactionTypes=${transactionTypes}`
+  
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        'X-API-Key': apiKey,
+      },
+    })
+    if (!res.ok) {
+      console.warn('Moralis swaps error', walletAddress, res.status)
+      return null
+    }
+    const data = await res.json()
+    return data as SwapResponse
+  } catch (e) {
+    console.warn('Moralis swaps failed', walletAddress, e)
+    return null
+  }
+}

@@ -4,6 +4,7 @@ import { formatCurrency, formatUsdPrice } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
 import { getBondingStatus, BondingStatus } from '../services/moralis';
 import { subscribeToTerminalUpdates, TokenUpdate } from '../services/terminalWs';
+import KOLLiveActivity from '../components/KOLLiveActivity';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -435,7 +436,7 @@ const KOLTerminal = () => {
               <span className="text-neutral-400">Live Updates via WebSocket</span>
             </div>
             <div className="text-neutral-500">
-              New: {earlyPlays.length} | About to Graduate: {bonding.length} | Graduated: {graduated.length}
+              About to Graduate: {bonding.length} | Graduated: {graduated.length}
             </div>
             <div className="flex items-center gap-2 ml-auto">
               <label className="text-xs text-neutral-500">Sort by</label>
@@ -452,12 +453,18 @@ const KOLTerminal = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <TerminalColumn
-            title="New Tokens"
-            subtitle="Recently listed on Pump.fun"
-            tokens={earlyPlays}
-            color="from-green-500 to-emerald-500"
-          />
+          {/* KOL Live Activity */}
+          <div className="flex-1 min-w-0">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-white mb-1">KOL Live Activity</h2>
+              <p className="text-sm text-neutral-400">Real-time swap activity from tracked KOLs</p>
+              <div className="mt-2 h-1 w-20 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500"></div>
+            </div>
+            
+            <div className="max-h-[calc(100vh-240px)] overflow-y-auto pr-2 custom-scrollbar">
+              <KOLLiveActivity />
+            </div>
+          </div>
           
           <TerminalColumn
             title="About to Graduate"

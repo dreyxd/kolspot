@@ -8,23 +8,25 @@ export default function Home() {
   return (
     <main className="flex-1">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
+      <section className="relative overflow-hidden py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight mb-6">
-              Track Top Solana KOLs <br />
-              <span className="text-accent">In Real-Time</span>
+            <div className="inline-block mb-4 px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full">
+              <span className="text-sm font-medium text-accent">Professional Solana KOL Tracking</span>
+            </div>
+            <h1 className="text-5xl sm:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
+              Track Top Solana KOLs
             </h1>
-            <p className="text-lg sm:text-xl text-neutral-300 max-w-2xl mx-auto mb-10">
-              Monitor pump.fun trades from leading Key Opinion Leaders on Solana. 
-              See live PNL, trade history, and performance rankings.
+            <p className="text-xl sm:text-2xl text-neutral-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+              Real-time insights into pump.fun trades from leading Key Opinion Leaders. 
+              Monitor PNL, analyze strategies, and stay ahead of the market.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/terminal" className="btn btn-primary px-8 py-3 text-base">
-                Open KOL Terminal
+              <Link to="/terminal" className="btn btn-primary px-10 py-4 text-lg font-semibold">
+                Launch Terminal
               </Link>
-              <Link to="/how-it-works" className="btn btn-outline px-8 py-3 text-base">
-                How It Works
+              <Link to="/how-it-works" className="btn btn-outline px-10 py-4 text-lg">
+                Learn More
               </Link>
             </div>
           </div>
@@ -37,7 +39,7 @@ export default function Home() {
       </div>
 
       {/* 1 SOL Challenge - Explainer & Competition */}
-      <section className="py-16 bg-gray-900/90">
+      <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SolChallengeExplainer />
           <SolChallengeSection />
@@ -45,76 +47,76 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 border-y border-white/5 bg-gray-800/90">
+      <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">117+</div>
-              <div className="text-sm text-neutral-400">Tracked KOLs</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="card p-6 text-center">
+              <div className="text-4xl sm:text-5xl font-bold text-accent mb-2">117+</div>
+              <div className="text-sm font-medium text-neutral-400">Tracked KOLs</div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">Live</div>
-              <div className="text-sm text-neutral-400">Real-Time Data</div>
+            <div className="card p-6 text-center">
+              <div className="text-4xl sm:text-5xl font-bold text-accent mb-2">Live</div>
+              <div className="text-sm font-medium text-neutral-400">Real-Time Data</div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">24/7</div>
-              <div className="text-sm text-neutral-400">Monitoring</div>
+            <div className="card p-6 text-center">
+              <div className="text-4xl sm:text-5xl font-bold text-accent mb-2">24/7</div>
+              <div className="text-sm font-medium text-neutral-400">Monitoring</div>
             </div>
-            <div className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">100%</div>
-              <div className="text-sm text-neutral-400">On-Chain Data</div>
+            <div className="card p-6 text-center">
+              <div className="text-4xl sm:text-5xl font-bold text-accent mb-2">100%</div>
+              <div className="text-sm font-medium text-neutral-400">On-Chain Data</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-900/90">
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Everything You Need</h2>
-            <p className="text-neutral-400 max-w-2xl mx-auto">
-              Professional tools to track and analyze KOL trading activity on Solana
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">Powerful Features</h2>
+            <p className="text-lg text-neutral-400 max-w-2xl mx-auto">
+              Enterprise-grade tools to track and analyze KOL trading activity
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="card p-8">
-              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card p-8 group">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center mb-6 group-hover:shadow-glow transition-all duration-300">
+                <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Live Leaderboard</h3>
-              <p className="text-neutral-400">
-                Real-time rankings showing top performers by PNL, trade volume, and win rate. 
+              <h3 className="text-xl font-bold mb-3 text-white">Live Leaderboard</h3>
+              <p className="text-neutral-400 leading-relaxed">
+                Real-time rankings by PNL, volume, and win rate. 
                 Updated instantly as trades execute on-chain.
               </p>
             </div>
 
-            <div className="card p-8">
-              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card p-8 group">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center mb-6 group-hover:shadow-glow transition-all duration-300">
+                <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Performance Analytics</h3>
-              <p className="text-neutral-400">
-                Detailed PNL charts, trade history, and performance metrics for each KOL. 
+              <h3 className="text-xl font-bold mb-3 text-white">Performance Analytics</h3>
+              <p className="text-neutral-400 leading-relaxed">
+                Detailed PNL charts, trade history, and metrics. 
                 Track patterns and strategies over time.
               </p>
             </div>
 
-            <div className="card p-8">
-              <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card p-8 group">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center mb-6 group-hover:shadow-glow transition-all duration-300">
+                <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">KOL Activity Feed</h3>
-              <p className="text-neutral-400">
-                See every pump.fun token buy across all tracked wallets. 
-                Filter by KOL or token to discover trending opportunities.
+              <h3 className="text-xl font-bold mb-3 text-white">KOL Activity Feed</h3>
+              <p className="text-neutral-400 leading-relaxed">
+                Monitor every pump.fun token buy across tracked wallets. 
+                Discover trending opportunities early.
               </p>
             </div>
           </div>
@@ -122,43 +124,43 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-gray-800/90">
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-neutral-400 max-w-2xl mx-auto">
-              Three simple steps to start tracking top KOLs
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">Simple Process</h2>
+            <p className="text-lg text-neutral-400 max-w-2xl mx-auto">
+              Start tracking top KOLs in three steps
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-accent text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="card p-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent-dark text-white font-bold text-2xl flex items-center justify-center mx-auto mb-6 shadow-glow">
                 1
               </div>
-              <h3 className="text-lg font-semibold mb-2">Open KOL Terminal</h3>
-              <p className="text-sm text-neutral-400">
-                See tokens KOLs are buying right now, grouped by stage (New / About to Graduate / Graduated)
+              <h3 className="text-xl font-bold mb-3 text-white">Launch Terminal</h3>
+              <p className="text-neutral-400 leading-relaxed">
+                View tokens KOLs are buying, organized by stage and activity
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-accent text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="card p-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent-dark text-white font-bold text-2xl flex items-center justify-center mx-auto mb-6 shadow-glow">
                 2
               </div>
-              <h3 className="text-lg font-semibold mb-2">Watch KOL Buys</h3>
-              <p className="text-sm text-neutral-400">
-                Monitor live KOL buys on Pump.fun/Raydium, with buyer names and amounts
+              <h3 className="text-xl font-bold mb-3 text-white">Monitor Activity</h3>
+              <p className="text-neutral-400 leading-relaxed">
+                Track live buys on Pump.fun/Raydium with trader details
               </p>
             </div>
 
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-accent text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">
+            <div className="card p-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent-dark text-white font-bold text-2xl flex items-center justify-center mx-auto mb-6 shadow-glow">
                 3
               </div>
-              <h3 className="text-lg font-semibold mb-2">Analyze Tokens</h3>
-              <p className="text-sm text-neutral-400">
-                Open a token to see price, liquidity, FDV, charts, and recent KOL buyers
+              <h3 className="text-xl font-bold mb-3 text-white">Analyze Data</h3>
+              <p className="text-neutral-400 leading-relaxed">
+                Deep dive into price, liquidity, FDV, charts, and buyer info
               </p>
             </div>
           </div>
@@ -166,18 +168,21 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gray-900/90">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="relative card p-12 text-center bg-surface/90 backdrop-blur-sm">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Start Tracking KOLs Today
-            </h2>
-            <p className="text-neutral-400 max-w-2xl mx-auto mb-8">
-              Join traders who use KOLSpot to stay ahead of pump.fun trends on Solana
-            </p>
-            <Link to="/terminal" className="btn btn-primary px-8 py-3 text-base inline-block">
-              Open KOL Terminal
-            </Link>
+      <section className="py-24">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="relative card-glass p-16 text-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent-dark/5 rounded-2xl"></div>
+            <div className="relative z-10">
+              <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-neutral-200 bg-clip-text text-transparent">
+                Ready to Track KOLs?
+              </h2>
+              <p className="text-lg text-neutral-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Join professional traders using KOLSpot to stay ahead of Solana trends
+              </p>
+              <Link to="/terminal" className="btn btn-primary px-12 py-4 text-lg inline-block">
+                Launch Terminal Now
+              </Link>
+            </div>
           </div>
         </div>
       </section>

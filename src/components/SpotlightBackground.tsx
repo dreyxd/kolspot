@@ -1,5 +1,5 @@
 import { useRef, ReactNode } from 'react'
-import backgroundImage from '../assets/dark_square_grid_background.jpg'
+import backgroundImage from '../assets/allbg.jpg'
 
 interface SpotlightBackgroundProps {
   children: ReactNode

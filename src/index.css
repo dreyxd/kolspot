@@ -11,109 +11,39 @@ html, body, #root {
 }
 
 body {
-  /* Removed global gradient background to allow SpotlightBackground to show */
   @apply text-neutral-200 antialiased;
 }
 
 .btn {
-  @apply inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors;
+  @apply inline-flex items-center justify-center rounded-lg border border-transparent px-6 py-2.5 text-sm font-semibold transition-all duration-300;
 }
 .btn-primary {
-  @apply bg-accent hover:bg-accent-soft text-black;
+  @apply bg-accent hover:bg-accent-soft text-white shadow-glow hover:shadow-glow-lg;
+  transform: translateY(0);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
 }
 .btn-outline {
-  @apply border-accent text-accent hover:bg-accent/10;
+  @apply border-accent/50 text-accent hover:bg-accent/10 hover:border-accent;
 }
 
 .card {
-  @apply bg-surface/90 backdrop-blur rounded-xl shadow-soft border border-white/5;
+  @apply bg-surface/95 backdrop-blur-xl rounded-2xl shadow-3d border border-white/10;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  @apply shadow-3d-hover border-accent/30;
+  transform: translateY(-2px);
+}
+
+.card-glass {
+  @apply bg-gradient-to-br from-surface/80 to-surface/60 backdrop-blur-2xl rounded-2xl shadow-3d border border-white/10;
 }
 
 .table-row-hover:hover {
   @apply bg-white/5;
-}
-
-/* Infinite scroll animations for trending tokens */
-@keyframes scroll-left {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(calc(-100% - 0.75rem));
-  }
-}
-
-@keyframes scroll-right {
-  0% {
-    transform: translateX(calc(-100% - 0.75rem));
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-.animate-scroll-left {
-  animation: scroll-left 30s linear infinite;
-}
-
-.animate-scroll-right {
-  animation: scroll-right 30s linear infinite;
-}
-
-.animate-scroll-left:hover,
-.animate-scroll-right:hover {
-  animation-play-state: paused;
-}
-
-/* Spotlight background effect */
-.spotlight-bg {
-  position: relative;
-  min-height: 100vh;
-  background-size: cover;
-  background-position: center;
-  overflow: hidden;
-}
-
-.spotlight-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.18),
-    rgba(0, 0, 0, 0.96) 260px
-  );
-  opacity: 0;
-  transition: opacity 0.25s ease-out;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.spotlight-bg:hover::before {
-  opacity: 1;
-}
-
-.spotlight-bg > * {
-  position: relative;
-  z-index: 2;
-}
-
-/* Infinite scroll animation for powered by partners */
-@keyframes scroll-partners {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(calc(-33.333%));
-  }
-}
-
-.animate-scroll-partners {
-  animation: scroll-partners 20s linear infinite;
-}
-
-.animate-scroll-partners:hover {
-  animation-play-state: paused;
 }
 
 /* Spotlight background effect */
@@ -132,11 +62,11 @@ body {
   inset: 0;
   background: radial-gradient(
     circle at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.18),
-    rgba(0, 0, 0, 0.96) 260px
+    rgba(139, 92, 246, 0.12),
+    rgba(0, 0, 0, 0.97) 320px
   );
   opacity: 0;
-  transition: opacity 0.25s ease-out;
+  transition: opacity 0.3s ease-out;
   pointer-events: none;
   z-index: 1;
 }
@@ -148,4 +78,22 @@ body {
 .spotlight-bg > * {
   position: relative;
   z-index: 2;
+}
+
+/* Minimal scroll animation for powered by partners */
+@keyframes scroll-partners {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-33.333%));
+  }
+}
+
+.animate-scroll-partners {
+  animation: scroll-partners 25s linear infinite;
+}
+
+.animate-scroll-partners:hover {
+  animation-play-state: paused;
 }

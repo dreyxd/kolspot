@@ -110,16 +110,17 @@ export default function TrendingTokens() {
   const hasAnyEnrichment = useMemo(() => Object.keys(enriched).length > 0, [enriched])
 
   return (
-    <section className="py-12 border-t border-white/5">
+    <section className="py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-accent to-purple-400 bg-clip-text text-transparent">
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-2.5 h-2.5 bg-accent rounded-full animate-pulse shadow-glow"></div>
+            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">
               Trending Tokens
             </h2>
           </div>
+          <p className="text-neutral-400 text-lg">Live market data from Solana's hottest tokens</p>
         </div>
 
         {items === null ? (

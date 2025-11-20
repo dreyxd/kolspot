@@ -1,9 +1,9 @@
 export default function SolChallengeExplainer() {
   return (
-    <div className="bg-gradient-to-br from-orange-900/20 via-black to-orange-800/20 border border-accent/30 rounded-xl p-8 mb-8">
+    <div className="card-glass p-10 mb-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-accent to-orange-400 bg-clip-text text-transparent">
+        <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-accent to-accent-soft bg-clip-text text-transparent">
           Trading Tournaments
         </h2>
         <p className="text-gray-400 text-lg">
@@ -90,7 +90,7 @@ export default function SolChallengeExplainer() {
       </div>
 
       {/* CTA */}
-      <div className="bg-gradient-to-r from-orange-900/30 to-orange-800/30 border border-accent/30 rounded-lg p-6">
+      <div className="bg-gradient-to-r from-accent/10 to-accent-dark/10 border border-accent/30 rounded-xl p-6">
         <div className="text-center">
           <h3 className="text-2xl font-bold text-white mb-3">Ready to Compete?</h3>
           <p className="text-gray-300 mb-6">
@@ -100,7 +100,7 @@ export default function SolChallengeExplainer() {
             href="https://app.kolspot.live"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-accent to-orange-500 hover:from-accent/90 hover:to-orange-500/90 text-white font-bold rounded-lg transition-all"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-accent to-accent-dark hover:shadow-glow-lg text-white font-bold rounded-lg transition-all"
           >
             <span>Launch Tournament App</span>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +114,7 @@ export default function SolChallengeExplainer() {
       </div>
 
       {/* How to Apply Section */}
-      <div className="mt-8 bg-gradient-to-br from-orange-900/20 to-orange-800/20 border border-accent/30 rounded-xl p-6">
+      <div className="mt-8 bg-gradient-to-br from-accent/5 to-accent-dark/5 border border-accent/20 rounded-xl p-6">
         <div className="flex items-start gap-4 mb-6">
           <div className="bg-accent/20 rounded-full p-3 flex-shrink-0">
             <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">

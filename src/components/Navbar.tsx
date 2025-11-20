@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react'
 import logo from '../assets/logo.png'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-    isActive ? 'text-black bg-accent' : 'text-neutral-300 hover:text-white hover:bg-white/5'
+  `px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+    isActive ? 'text-white bg-accent shadow-glow' : 'text-neutral-300 hover:text-white hover:bg-white/5'
   }`
 
 export default function Navbar() {
@@ -16,7 +16,7 @@ export default function Navbar() {
   }, [pathname])
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/5 bg-background/70 backdrop-blur relative">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-background/80 backdrop-blur-xl relative shadow-3d">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="KOLSpot logo" className="h-8 w-8 rounded-md object-cover" />
@@ -47,11 +47,11 @@ export default function Navbar() {
             href="https://app.kolspot.live" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="px-4 py-2 rounded-md border border-accent text-accent font-semibold hover:bg-accent hover:text-black transition"
+            className="px-5 py-2 rounded-lg border border-accent/50 text-accent font-semibold hover:bg-accent/10 hover:border-accent transition-all duration-300"
           >
             Launch App
           </a>
-          <Link to="/terminal" className="px-4 py-2 rounded-md bg-accent text-black font-semibold hover:opacity-90 transition">
+          <Link to="/terminal" className="px-5 py-2 rounded-lg bg-accent text-white font-semibold hover:bg-accent-soft shadow-glow hover:shadow-glow-lg transition-all duration-300">
             KOL Terminal
           </Link>
         </div>

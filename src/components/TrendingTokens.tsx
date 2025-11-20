@@ -110,7 +110,7 @@ export default function TrendingTokens() {
   const hasAnyEnrichment = useMemo(() => Object.keys(enriched).length > 0, [enriched])
 
   return (
-    <section className="py-12 border-t border-white/5 bg-gradient-to-b from-transparent to-black/20">
+    <section className="py-12 border-t border-white/5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-10">

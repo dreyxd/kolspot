@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <main className="flex-1">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-black">
+      <section className="relative overflow-hidden">
         {/* Aurora-like animated background */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 overflow-hidden">
@@ -145,12 +145,12 @@ export default function Home() {
       </section>
 
       {/* Trending Tokens Feed */}
-      <div className="bg-black">
+      <div>
         <TrendingTokens />
       </div>
 
       {/* 1 SOL Challenge - Explainer & Competition */}
-      <section className="bg-black py-16">
+      <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SolChallengeExplainer />
           <SolChallengeSection />
@@ -158,7 +158,7 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="relative py-12 border-y border-white/5 bg-black overflow-hidden">
+      <section className="relative py-12 border-y border-white/5 overflow-hidden">
         {/* Aurora background */}
         <div className="absolute inset-0 z-0">
           <div className="aurora-line aurora-line-1"></div>
@@ -188,7 +188,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="relative py-20 bg-black overflow-hidden">
+      <section className="relative py-20 overflow-hidden">
         {/* Aurora background */}
         <div className="absolute inset-0 z-0">
           <div className="aurora-line aurora-line-2"></div>
@@ -247,7 +247,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="relative py-20 bg-black overflow-hidden">
+      <section className="relative py-20 overflow-hidden">
         {/* Aurora background */}
         <div className="absolute inset-0 z-0">
           <div className="aurora-line aurora-line-1"></div>
@@ -296,7 +296,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-20 bg-black overflow-hidden">
+      <section className="relative py-20 overflow-hidden">
         {/* Aurora background */}
         <div className="absolute inset-0 z-0">
           <div className="aurora-line aurora-line-2"></div>

@@ -10,7 +10,7 @@ export default function PoweredBy() {
   ]
 
   return (
-    <section className="py-16 border-t border-white/5 bg-gradient-to-b from-black/20 to-transparent overflow-hidden">
+    <section className="py-16 border-t border-white/5 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">

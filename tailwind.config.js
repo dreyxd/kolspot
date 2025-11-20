@@ -17,6 +17,8 @@ module.exports = {
           DEFAULT: '#390f56',
           soft: '#4d1570',
           dark: '#2a0b3f',
+          light: '#a78bfa',
+          text: '#c4b5fd',
         },
       },
       boxShadow: {

@@ -315,18 +315,18 @@ const KOLTerminal = () => {
                 )}
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 border border-white/10 shadow-sm">
                   <span className="text-[10px] uppercase tracking-wide text-neutral-400">MC</span>
-                  <span className="text-sm font-extrabold text-accent tracking-tight">
+                  <span className="text-sm font-extrabold text-accent-text tracking-tight">
                     {formatMarketCapShort(token.tokenMarketCap)}
                   </span>
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="text-sm text-accent font-mono">${token.tokenSymbol}</div>
+              <div className="text-sm text-accent-text font-mono">${token.tokenSymbol}</div>
               <button
                 onClick={(e) => { e.stopPropagation(); copyToClipboard(token.tokenMint); }}
                 title="Copy mint address"
-                className="text-xs text-neutral-400 hover:text-accent"
+                className="text-xs text-neutral-400 hover:text-accent-light"
               >
                 Copy
               </button>
@@ -347,7 +347,7 @@ const KOLTerminal = () => {
           </div>
           <div className="bg-black/20 rounded p-2">
             <div className="text-[10px] text-neutral-500">Liquidity</div>
-            <div className="text-sm font-semibold text-accent">
+            <div className="text-sm font-semibold text-accent-text">
               {typeof token.tokenLiquidity === 'number' ? formatCurrency(token.tokenLiquidity) : 'Unknown'}
             </div>
           </div>
@@ -360,7 +360,7 @@ const KOLTerminal = () => {
               <span className="text-neutral-400 font-mono">
                 {nameOrShort(buyer.walletAddress)}
               </span>
-              <span className="text-accent font-semibold">
+              <span className="text-accent-text font-semibold">
                 {Number(buyer.solAmount || 0).toFixed(2)} SOL
               </span>
             </div>

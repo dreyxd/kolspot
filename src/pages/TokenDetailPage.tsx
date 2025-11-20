@@ -265,7 +265,7 @@ const TokenDetailPage = () => {
                   />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-accent">
+                    <span className="text-2xl font-bold text-accent-light">
                       {token.tokenSymbol?.slice(0, 2) || '??'}
                     </span>
                   </div>
@@ -275,7 +275,7 @@ const TokenDetailPage = () => {
                   <h1 className="text-3xl font-bold text-white mb-2">
                     {token.tokenName || token.tokenSymbol}
                   </h1>
-                  <div className="text-xl text-accent font-mono mb-3">${token.tokenSymbol}</div>
+                  <div className="text-xl text-accent-text font-mono mb-3">${token.tokenSymbol}</div>
                   
                   {/* Contract Address */}
                   <div className="flex items-center gap-2">
@@ -284,7 +284,7 @@ const TokenDetailPage = () => {
                     </span>
                     <button
                       onClick={() => copyAddress(token.tokenMint)}
-                      className="text-neutral-400 hover:text-accent transition-colors"
+                      className="text-neutral-400 hover:text-accent-light transition-colors"
                       title="Copy address"
                     >
                       {copied ? (
@@ -299,7 +299,7 @@ const TokenDetailPage = () => {
                       href={`https://pump.fun/coin/${token.tokenMint}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-accent hover:underline text-sm"
+                      className="text-accent-light hover:underline text-sm"
                     >
                       View on Pump.fun →
                     </a>
@@ -311,7 +311,7 @@ const TokenDetailPage = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-black/20 rounded-lg p-4">
                   <div className="text-xs text-neutral-500 mb-1">Market Cap</div>
-                  <div className="text-3xl font-extrabold text-accent tracking-tight">
+                  <div className="text-3xl font-extrabold text-accent-text tracking-tight">
                     {formatUSD(analytics?.totalFullyDilutedValuation ?? token.tokenMarketCap)}
                   </div>
                 </div>
@@ -321,7 +321,7 @@ const TokenDetailPage = () => {
                 </div>
                 <div className="bg-black/20 rounded-lg p-4">
                   <div className="text-xs text-neutral-500 mb-1">Liquidity</div>
-                  <div className="text-xl font-bold text-accent">
+                  <div className="text-xl font-bold text-accent-text">
                     {formatUSD(analytics?.totalLiquidityUsd ?? token.tokenLiquidity)}
                   </div>
                 </div>
@@ -421,7 +421,7 @@ const TokenDetailPage = () => {
                               </span>
                               <button
                                 onClick={() => copyAddress(holder.ownerAddress)}
-                                className="text-neutral-500 hover:text-accent transition-colors"
+                                className="text-neutral-500 hover:text-accent-light transition-colors"
                                 title="Copy address"
                               >
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -436,7 +436,7 @@ const TokenDetailPage = () => {
                             </span>
                           </td>
                           <td className="py-3 px-2 text-right">
-                            <span className="text-accent font-medium">
+                            <span className="text-accent-text font-medium">
                               {holder.percentageRelativeToTotalSupply 
                                 ? `${Number(holder.percentageRelativeToTotalSupply).toFixed(2)}%`
                                 : 'N/A'}
@@ -481,7 +481,7 @@ const TokenDetailPage = () => {
                         <span className="text-xs text-neutral-500">Rank #{idx + 1}</span>
                         <button
                           onClick={() => copyAddress(sniper.walletAddress)}
-                          className="text-neutral-400 hover:text-accent transition-colors"
+                          className="text-neutral-400 hover:text-accent-light transition-colors"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -535,7 +535,7 @@ const TokenDetailPage = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-black/20 rounded-lg p-4">
                     <div className="text-xs text-neutral-500 mb-1">24h Volume</div>
-                    <div className="text-lg font-bold text-accent">
+                    <div className="text-lg font-bold text-accent-text">
                       {formatUSD(pairStats.volume24h)}
                     </div>
                   </div>
@@ -604,7 +604,7 @@ const TokenDetailPage = () => {
                 
                 <div className="mt-4 text-center">
                   <div className="text-sm text-neutral-400">
-                    Latest: <span className="font-bold text-accent">{historicalHolders[0]?.totalHolders.toLocaleString()}</span> holders
+                    Latest: <span className="font-bold text-accent-text">{historicalHolders[0]?.totalHolders.toLocaleString()}</span> holders
                   </div>
                 </div>
               </div>
@@ -630,7 +630,7 @@ const TokenDetailPage = () => {
                       </span>
                       <button
                         onClick={() => copyAddress(buyer.walletAddress)}
-                        className="text-neutral-400 hover:text-accent transition-colors"
+                        className="text-neutral-400 hover:text-accent-light transition-colors"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -640,7 +640,7 @@ const TokenDetailPage = () => {
                     
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-neutral-500">Amount:</span>
-                      <span className="text-sm font-semibold text-accent">
+                      <span className="text-sm font-semibold text-accent-text">
                         {Number(buyer.solAmount || 0).toFixed(2)} SOL
                       </span>
                     </div>
@@ -658,7 +658,7 @@ const TokenDetailPage = () => {
                       href={`https://solscan.io/tx/${buyer.signature}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-accent hover:underline block"
+                      className="text-xs text-accent-light hover:underline block"
                     >
                       View Transaction →
                     </a>

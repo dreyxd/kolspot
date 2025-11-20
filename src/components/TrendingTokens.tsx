@@ -119,7 +119,7 @@ export default function TrendingTokens() {
             <span className="text-sm font-medium text-accent">Live on Solana</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-white via-accent to-purple-400 bg-clip-text text-transparent">
-            🔥 Trending Meme Coins
+            Trending Tokens
           </h2>
           <p className="text-neutral-400 text-sm max-w-2xl mx-auto">
             Real-time trending tokens on Solana network • Updated every minute

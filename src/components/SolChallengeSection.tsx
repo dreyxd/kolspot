@@ -215,13 +215,13 @@ export default function SolChallengeSection() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-white">Live Leaderboard</h3>
           {lastUpdated && (
-              <span className="text-xs text-neutral-500">
-                Last updated: {new Date(lastUpdated).toLocaleTimeString()}
-              </span>
-            )}
-          </div>
+            <span className="text-xs text-neutral-500">
+              Last updated: {new Date(lastUpdated).toLocaleTimeString()}
+            </span>
+          )}
+        </div>
 
-          <div className="overflow-x-auto">
+        <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-black/20">
                 <tr>
@@ -296,6 +296,5 @@ export default function SolChallengeSection() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }

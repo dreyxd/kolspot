@@ -4,8 +4,6 @@ import { formatCurrency, formatUsdPrice } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
 import { getBondingStatus, BondingStatus } from '../services/moralis';
 import { subscribeToTerminalUpdates, TokenUpdate } from '../services/terminalWs';
-import KOLLiveActivity from '../components/KOLLiveActivity';
-import VolumeAnalytics from '../components/VolumeAnalytics';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -137,8 +135,8 @@ const KOLTerminal = () => {
       const bondingStatus = bondingStatusByMint[token.tokenMint];
       const tokenAge = now - new Date(token.latestTrade).getTime();
       
-      // Skip tokens older than 8 hours OR below 15K market cap
-      if (tokenAge > EIGHT_HOURS_MS || mc < 15000) {
+      // Skip tokens older than 8 hours
+      if (tokenAge > EIGHT_HOURS_MS) {
         return;
       }
       
@@ -412,7 +410,7 @@ const KOLTerminal = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-transparent flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-accent mx-auto mb-4"></div>
           <div className="text-neutral-400">Loading KOL Terminal...</div>
@@ -422,7 +420,7 @@ const KOLTerminal = () => {
   }
 
   return (
-    <div className="min-h-screen bg-transparent text-white">
+    <div className="min-h-screen bg-black text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
@@ -437,7 +435,7 @@ const KOLTerminal = () => {
               <span className="text-neutral-400">Live Updates via WebSocket</span>
             </div>
             <div className="text-neutral-500">
-              About to Graduate: {bonding.length} | Graduated: {graduated.length}
+              New Coins: {earlyPlays.length} | About to Graduate: {bonding.length} | Graduated: {graduated.length}
             </div>
             <div className="flex items-center gap-2 ml-auto">
               <label className="text-xs text-neutral-500">Sort by</label>
@@ -453,29 +451,14 @@ const KOLTerminal = () => {
           </div>
         </div>
 
-        {/* Volume Analytics */}
-        <div className="mb-6">
-          <VolumeAnalytics />
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* KOL Live Activity */}
-          <div className="flex-1 min-w-0">
-            <div className="mb-4">
-              <h2 className="text-xl font-bold text-white mb-1">KOL Live Activity</h2>
-              <p className="text-sm text-neutral-400">
-                Real-time swap activity from 10 tracked KOLs
-              </p>
-              <p className="text-xs text-neutral-600 mt-1">
-                Cented • Walta • Gh0stee • Daumen • Coler • Jijo • iconXBT • AdamJae • Art • Limfork.eth
-              </p>
-              <div className="mt-2 h-1 w-20 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500"></div>
-            </div>
-            
-            <div className="max-h-[calc(100vh-240px)] overflow-y-auto pr-2 custom-scrollbar">
-              <KOLLiveActivity />
-            </div>
-          </div>
+          {/* New Coins <10K MarketCap */}
+          <TerminalColumn
+            title="New Coins <10K"
+            subtitle="Fresh tokens under $10K market cap"
+            tokens={earlyPlays}
+            color="from-blue-500 to-cyan-500"
+          />
           
           <TerminalColumn
             title="About to Graduate"

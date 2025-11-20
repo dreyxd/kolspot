@@ -78,6 +78,39 @@ body {
   animation-play-state: paused;
 }
 
+/* Spotlight background effect */
+.spotlight-bg {
+  position: relative;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.spotlight-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.18),
+    rgba(0, 0, 0, 0.96) 260px
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.spotlight-bg:hover::before {
+  opacity: 1;
+}
+
+.spotlight-bg > * {
+  position: relative;
+  z-index: 2;
+}
+
 /* Infinite scroll animation for powered by partners */
 @keyframes scroll-partners {
   0% {
@@ -94,4 +127,38 @@ body {
 
 .animate-scroll-partners:hover {
   animation-play-state: paused;
+}
+
+/* Spotlight background effect */
+.spotlight-bg {
+  position: relative;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  overflow: hidden;
+}
+
+.spotlight-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.18),
+    rgba(0, 0, 0, 0.96) 260px
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.spotlight-bg:hover::before {
+  opacity: 1;
+}
+
+.spotlight-bg > * {
+  position: relative;
+  z-index: 2;
 }

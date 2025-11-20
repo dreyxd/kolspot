@@ -176,92 +176,53 @@ export default function TrendingTokens() {
                   const rankEmoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null
 
                   const content = (
-                    <div className={`relative group h-full rounded-xl border transition-all duration-300 overflow-hidden ${
-                      pctUp 
-                        ? 'bg-gradient-to-br from-green-500/5 via-surface/60 to-surface/60 border-green-500/20 hover:border-green-500/40 hover:shadow-lg hover:shadow-green-500/10' 
-                        : 'bg-gradient-to-br from-red-500/5 via-surface/60 to-surface/60 border-red-500/20 hover:border-red-500/40 hover:shadow-lg hover:shadow-red-500/10'
-                    }`}>
+                    <div className="relative group h-full rounded-lg border border-white/10 bg-surface/60 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 overflow-hidden">
                       {/* Rank badge for top 3 */}
                       {rankEmoji && (
-                        <div className="absolute top-1.5 right-1.5 text-lg z-10 animate-bounce">
+                        <div className="absolute top-1 right-1 text-sm z-10">
                           {rankEmoji}
                         </div>
                       )}
                       
                       {/* Glow effect on hover */}
-                      <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                        pctUp ? 'bg-gradient-to-br from-green-400/5 to-transparent' : 'bg-gradient-to-br from-red-400/5 to-transparent'
-                      }`}></div>
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-accent/5 to-transparent"></div>
                       
-                      <div className="relative p-3">
+                      <div className="relative p-2.5">
                         {/* Token Info */}
-                        <div className="flex items-start gap-2 mb-3">
+                        <div className="flex items-center gap-2 mb-2">
                           <div className="flex-shrink-0 relative">
                             {logo ? (
-                              <div className="relative">
-                                <img 
-                                  src={logo} 
-                                  alt={name} 
-                                  className="w-10 h-10 rounded-full ring-2 ring-white/10 group-hover:ring-accent/50 transition-all duration-300"
-                                />
-                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center text-[8px] font-bold">
-                                  #{idx + 1}
-                                </div>
-                              </div>
+                              <img 
+                                src={logo} 
+                                alt={name} 
+                                className="w-8 h-8 rounded-full ring-1 ring-white/10 group-hover:ring-accent/50 transition-all duration-300"
+                              />
                             ) : (
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-lg font-bold ring-2 ring-white/10">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-sm font-bold ring-1 ring-white/10">
                                 {symbol ? symbol[0] : '?'}
                               </div>
                             )}
                           </div>
                           
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-sm truncate group-hover:text-accent transition-colors">
+                            <div className="font-semibold text-xs truncate group-hover:text-accent transition-colors">
                               {name}
                             </div>
                             {symbol && (
-                              <div className="text-[10px] text-neutral-400 font-mono bg-black/30 rounded px-1.5 py-0.5 inline-block mt-0.5">
+                              <div className="text-[9px] text-neutral-400 font-mono truncate">
                                 ${symbol}
                               </div>
                             )}
                           </div>
                         </div>
 
-                        {/* Price & Stats */}
-                        <div className="space-y-2">
-                          <div>
-                            <div className="text-xs text-neutral-500 mb-0.5">Price</div>
-                            <div className="flex items-baseline gap-1.5 flex-wrap">
-                              <div className="text-white font-bold text-base">{price}</div>
-                              {pct !== undefined && pct !== null && isFinite(pct) && (
-                                <div className={`flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-                                  pctUp ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                                }`}>
-                                  {pctUp ? '↗' : '↘'} {pctStr}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-baseline justify-between">
-                            <div className="text-xs text-neutral-500">Market Cap</div>
-                            <div className="text-neutral-300 font-semibold text-xs">
-                              {mcap ? formatCompactCurrency(mcap) : '-'}
-                            </div>
+                        {/* Market Cap Only */}
+                        <div className="flex items-center justify-between">
+                          <div className="text-[10px] text-neutral-500">Market Cap</div>
+                          <div className="text-neutral-300 font-semibold text-[10px]">
+                            {mcap ? formatCompactCurrency(mcap) : '-'}
                           </div>
                         </div>
-
-                        {/* View Details Button */}
-                        {href && (
-                          <div className="mt-3 pt-3 border-t border-white/5">
-                            <div className="text-accent text-xs font-medium flex items-center justify-center gap-1.5 group-hover:gap-2 transition-all">
-                              <span>View Details</span>
-                              <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                              </svg>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   )

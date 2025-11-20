@@ -27,6 +27,14 @@ function formatCompactCurrency(n?: number) {
 // Check if token is likely a Solana meme coin
 function isSolanaMeme(token: TrendingToken): boolean {
   const chain = token.chain?.toLowerCase() || token.chainId?.toString().toLowerCase() || ''
+  const symbol = token.symbol?.toUpperCase() || ''
+  const name = token.name?.toUpperCase() || ''
+  
+  // Filter out specific tokens
+  const blockedTokens = ['TRUMP', 'ZCASH', 'ZEC', 'OFFICIAL TRUMP']
+  if (blockedTokens.some(blocked => symbol.includes(blocked) || name.includes(blocked))) {
+    return false
+  }
   
   // Accept if explicitly marked as Solana
   if (chain.includes('solana') || chain === 'sol' || token.chainId === 'solana') {
@@ -140,13 +148,25 @@ export default function TrendingTokens() {
                   const name = t.name || t.symbol || 'Unknown'
                   const symbol = t.symbol ? t.symbol.toUpperCase() : ''
                   const dex = t.address ? enriched[t.address] : undefined
+                  
+                  // Get price from DexScreener first, fallback to Moralis
                   const livePrice = (() => {
-                    const p = dex?.priceUsd ? Number(dex.priceUsd) : (t.priceUsd ?? t.price)
-                    return typeof p === 'number' ? p : (p ? Number(p) : undefined)
+                    if (dex?.priceUsd) {
+                      const p = Number(dex.priceUsd)
+                      if (!isNaN(p) && isFinite(p)) return p
+                    }
+                    // Try various price fields from Moralis
+                    const moralPrice = t.priceUsd ?? t.price ?? t.price_usd ?? t.priceNative
+                    if (moralPrice !== undefined && moralPrice !== null) {
+                      const p = typeof moralPrice === 'number' ? moralPrice : Number(moralPrice)
+                      if (!isNaN(p) && isFinite(p)) return p
+                    }
+                    return undefined
                   })()
+                  
                   const price = formatPrice(livePrice)
                   const mcap = dex?.fdv ?? (t.marketCap as number | undefined)
-                  const pct = t.pricePercentChange24h ?? t.priceChange24h
+                  const pct = dex?.priceChange?.h24 ?? t.pricePercentChange24h ?? t.priceChange24h ?? t.price_24h_percent_change
                   const pctStr = formatPct(pct)
                   const pctUp = (pct ?? 0) >= 0
                   const logo = t.logo
@@ -208,26 +228,25 @@ export default function TrendingTokens() {
                         </div>
 
                         {/* Price & Stats */}
-                        <div className="space-y-2">
-                          <div className="flex items-baseline justify-between">
-                            <div className="text-sm text-neutral-500">Price</div>
-                            <div className="text-white font-bold">{price}</div>
+                        <div className="space-y-3">
+                          <div>
+                            <div className="text-sm text-neutral-500 mb-1">Price</div>
+                            <div className="flex items-baseline gap-2">
+                              <div className="text-white font-bold text-xl">{price}</div>
+                              {pct !== undefined && pct !== null && isFinite(pct) && (
+                                <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded ${
+                                  pctUp ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                                }`}>
+                                  {pctUp ? '↗' : '↘'} {pctStr}
+                                </div>
+                              )}
+                            </div>
                           </div>
                           
                           <div className="flex items-baseline justify-between">
                             <div className="text-sm text-neutral-500">Market Cap</div>
                             <div className="text-neutral-300 font-semibold text-sm">
                               {mcap ? formatCompactCurrency(mcap) : '-'}
-                            </div>
-                          </div>
-
-                          {/* 24h Change - Prominent */}
-                          <div className={`mt-3 p-3 rounded-lg ${
-                            pctUp ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'
-                          }`}>
-                            <div className="text-xs text-neutral-400 mb-1">24h Change</div>
-                            <div className={`text-2xl font-bold ${pctUp ? 'text-green-400' : 'text-red-400'}`}>
-                              {pctUp ? '📈' : '📉'} {pctStr}
                             </div>
                           </div>
                         </div>

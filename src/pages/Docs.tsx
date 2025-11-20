@@ -35,7 +35,7 @@ export default function Docs() {
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Contact</h2>
-        <p className="text-sm text-neutral-300">Questions or feedback? Reach us on X: <a href="https://x.com/kolspotonsol" className="text-accent hover:underline" target="_blank" rel="noreferrer">@kolspotonsol</a>.</p>
+        <p className="text-sm text-neutral-300">Questions or feedback? Reach us on X: <a href="https://x.com/kolspotonsol" className="text-white hover:underline" target="_blank" rel="noreferrer">@kolspotonsol</a>.</p>
       </section>
     </main>
   )

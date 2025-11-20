@@ -12,7 +12,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-block mb-4 px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full">
-              <span className="text-sm font-medium text-accent">Professional Solana KOL Tracking</span>
+              <span className="text-sm font-medium text-white">Professional Solana KOL Tracking</span>
             </div>
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
               Track Top Solana KOLs
@@ -25,9 +25,9 @@ export default function Home() {
               <Link to="/terminal" className="btn btn-primary px-10 py-4 text-lg font-semibold">
                 Launch Terminal
               </Link>
-              <Link to="/how-it-works" className="btn btn-outline px-10 py-4 text-lg">
-                Learn More
-              </Link>
+              <a href="https://app.kolspot.live" target="_blank" rel="noopener noreferrer" className="btn btn-outline px-10 py-4 text-lg text-white">
+                Launch App
+              </a>
             </div>
           </div>
         </div>

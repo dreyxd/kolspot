@@ -25,7 +25,7 @@ export default function Privacy() {
 
       <section className="space-y-2">
         <h2 className="text-xl font-semibold">Security</h2>
-        <p className="text-sm text-neutral-300">We follow best practices for API access and data handling. Report issues to our X account: <a href="https://x.com/kolspotonsol" className="text-accent hover:underline" target="_blank" rel="noreferrer">@kolspotonsol</a>.</p>
+        <p className="text-sm text-neutral-300">We follow best practices for API access and data handling. Report issues to our X account: <a href="https://x.com/kolspotonsol" className="text-white hover:underline" target="_blank" rel="noreferrer">@kolspotonsol</a>.</p>
       </section>
     </main>
   )

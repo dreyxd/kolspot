@@ -68,7 +68,7 @@ export default function SolChallengeExplainer() {
             </div>
             <div className="pt-2 border-t border-white/10">
               <p className="text-neutral-400 text-xs text-center">
-                + <strong className="text-accent">KOLBoard</strong> featured status
+                + <strong className="text-white">KOLBoard</strong> featured status
               </p>
             </div>
           </div>
@@ -86,15 +86,15 @@ export default function SolChallengeExplainer() {
           </div>
           <div className="space-y-3 text-sm">
             <div>
-              <div className="text-accent font-semibold mb-1">1. Follow</div>
+              <div className="text-white font-semibold mb-1">1. Follow</div>
               <p className="text-neutral-400 text-xs">Join our X community</p>
             </div>
             <div>
-              <div className="text-accent font-semibold mb-1">2. Apply</div>
+              <div className="text-white font-semibold mb-1">2. Apply</div>
               <p className="text-neutral-400 text-xs">Submit wallet address</p>
             </div>
             <div>
-              <div className="text-accent font-semibold mb-1">3. Trade</div>
+              <div className="text-white font-semibold mb-1">3. Trade</div>
               <p className="text-neutral-400 text-xs">Get approved & start</p>
             </div>
           </div>

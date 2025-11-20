@@ -75,7 +75,7 @@ export default function KOLS() {
                 View on Pump.fun
               </a>
             ) : (
-              <button className="px-4 py-2 rounded-md bg-accent/50 text-black/70 font-semibold cursor-not-allowed">
+              <button className="px-4 py-2 rounded-md bg-accent/50 text-white font-semibold cursor-not-allowed">
                 Pump.fun link coming soon
               </button>
             )}

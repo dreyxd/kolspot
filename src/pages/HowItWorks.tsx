@@ -190,7 +190,7 @@ export default function HowItWorks() {
               <a href="/leaderboard" className="btn btn-primary px-6 py-2.5">
                 View Leaderboard
               </a>
-              <a href="/kolboard" className="btn btn-outline px-6 py-2.5">
+              <a href="/kolboard" className="btn btn-outline px-6 py-2.5 text-white">
                 See Live Trades
               </a>
             </div>

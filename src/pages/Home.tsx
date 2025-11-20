@@ -22,11 +22,13 @@ export default function Home() {
               Monitor PNL, analyze strategies, and stay ahead of the market.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/terminal" className="btn btn-primary px-10 py-4 text-lg font-semibold">
-                Launch Terminal
+              <Link to="/terminal" className="neon-btn">
+                <span className="span"></span>
+                <span className="txt">Launch Terminal</span>
               </Link>
-              <a href="https://app.kolspot.live" target="_blank" rel="noopener noreferrer" className="btn btn-outline px-10 py-4 text-lg text-white">
-                Launch App
+              <a href="https://app.kolspot.live" target="_blank" rel="noopener noreferrer" className="neon-btn">
+                <span className="span"></span>
+                <span className="txt">Launch App</span>
               </a>
             </div>
           </div>

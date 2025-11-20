@@ -28,6 +28,85 @@ body {
   @apply border-accent/50 text-accent hover:bg-accent/10 hover:border-accent;
 }
 
+/* Neon Button Styles */
+.neon-btn {
+  width: 180px;
+  height: 48px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5em 2em;
+  text-align: center;
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  clip-path: polygon(6% 0, 93% 0, 100% 8%, 100% 86%, 90% 89%, 88% 100%, 5% 100%, 0% 85%);
+  text-decoration: none;
+}
+
+.neon-btn .span {
+  display: flex;
+  clip-path: polygon(6% 0, 93% 0, 100% 8%, 100% 86%, 90% 89%, 88% 100%, 5% 100%, 0% 85%);
+  position: absolute;
+  inset: 1px;
+  background-color: #212121;
+  z-index: 1;
+}
+
+.neon-btn .txt {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  color: aliceblue;
+  font-size: 0.9em;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+  text-shadow: 0px 0px 1px #4090b5, 0px 0px 1px #9e30a9, 0 0 1px white;
+}
+
+.neon-btn::before {
+  content: "";
+  position: absolute;
+  height: 300px;
+  aspect-ratio: 1.5/1;
+  box-shadow: -17px -19px 20px #9e30a9;
+  background-image: conic-gradient(#9e30a9, transparent, transparent, transparent, transparent, transparent, transparent, #9e30a9);
+  animation: rotate 4s linear infinite -2s;
+}
+
+.neon-btn::after {
+  content: "";
+  position: absolute;
+  height: 300px;
+  aspect-ratio: 1.5/1;
+  box-shadow: -17px -19px 10px #4090b5;
+  background-image: conic-gradient(#4090b5, transparent, transparent, transparent, transparent, transparent, transparent, transparent, #4090b5);
+  animation: rotate 4s linear infinite;
+}
+
+.neon-btn:hover .span {
+  inset: 2px;
+  background-color: #4090b5;
+  background: repeating-linear-gradient(to bottom, transparent 0%, #4090b5 1px, #4090b5 3px, #4090b5 5px, #4090b5 4px, transparent 0.5%), repeating-linear-gradient(to left, hsl(295, 60%, 12%) 100%, hsl(295, 60%, 12%) 100%);
+  box-shadow: inset 0 40px 20px hsl(296, 59%, 10%);
+}
+
+.neon-btn:hover .txt {
+  text-shadow: 2px 4px 1px #9e30a9, 2px 2px 1px #4090b5, 0 0 20px rgba(255, 255, 255, 0.616);
+  color: rgb(255, 255, 255);
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 .card {
   @apply bg-surface/95 backdrop-blur-xl rounded-2xl shadow-3d border border-white/10;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

@@ -19,7 +19,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-background/80 backdrop-blur-xl relative shadow-3d">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="KOLSpot logo" className="h-10 w-auto object-contain" />
+          <img src={logo} alt="KOLSpot logo" className="h-10 w-auto object-contain rounded-lg" />
         </Link>
         <nav className="hidden md:flex items-center gap-1">
           <NavLink to="/" className={navLinkClass}>
@@ -42,17 +42,19 @@ export default function Navbar() {
           </NavLink>
         </nav>
         <div className="hidden md:flex items-center gap-3">
+          <Link to="/terminal" className="neon-btn">
+            <span className="span"></span>
+            <span className="txt">KOL Terminal</span>
+          </Link>
           <a 
             href="https://app.kolspot.live" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="px-5 py-2 rounded-lg border border-accent/50 text-white font-semibold hover:bg-accent/10 hover:border-accent transition-all duration-300"
+            className="neon-btn"
           >
-            Launch App
+            <span className="span"></span>
+            <span className="txt">Launch App</span>
           </a>
-          <Link to="/terminal" className="px-5 py-2 rounded-lg bg-accent text-white font-semibold hover:bg-accent-soft shadow-glow hover:shadow-glow-lg transition-all duration-300">
-            KOL Terminal
-          </Link>
         </div>
         <div className="flex md:hidden">
           <button

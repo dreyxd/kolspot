@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Logo & Brand */}
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center mb-3">
-              <img src={logo} alt="KOLSpot" className="h-8 w-auto object-contain" />
+              <img src={logo} alt="KOLSpot" className="h-8 w-auto object-contain rounded-lg" />
             </Link>
             <p className="text-xs text-neutral-400 mb-3">
               Track top Solana KOLs and their pump.fun trades in real-time.

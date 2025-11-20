@@ -53,19 +53,19 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="card p-6 text-center">
-              <div className="text-4xl sm:text-5xl font-bold text-accent mb-2">117+</div>
+              <div className="text-4xl sm:text-5xl font-bold text-accent-text mb-2">117+</div>
               <div className="text-sm font-medium text-neutral-400">Tracked KOLs</div>
             </div>
             <div className="card p-6 text-center">
-              <div className="text-4xl sm:text-5xl font-bold text-accent mb-2">Live</div>
+              <div className="text-4xl sm:text-5xl font-bold text-accent-text mb-2">Live</div>
               <div className="text-sm font-medium text-neutral-400">Real-Time Data</div>
             </div>
             <div className="card p-6 text-center">
-              <div className="text-4xl sm:text-5xl font-bold text-accent mb-2">24/7</div>
+              <div className="text-4xl sm:text-5xl font-bold text-accent-text mb-2">24/7</div>
               <div className="text-sm font-medium text-neutral-400">Monitoring</div>
             </div>
             <div className="card p-6 text-center">
-              <div className="text-4xl sm:text-5xl font-bold text-accent mb-2">100%</div>
+              <div className="text-4xl sm:text-5xl font-bold text-accent-text mb-2">100%</div>
               <div className="text-sm font-medium text-neutral-400">On-Chain Data</div>
             </div>
           </div>
@@ -85,7 +85,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="card p-8 group">
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center mb-6 group-hover:shadow-glow transition-all duration-300">
-                <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
@@ -98,7 +98,7 @@ export default function Home() {
 
             <div className="card p-8 group">
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center mb-6 group-hover:shadow-glow transition-all duration-300">
-                <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
@@ -111,7 +111,7 @@ export default function Home() {
 
             <div className="card p-8 group">
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center mb-6 group-hover:shadow-glow transition-all duration-300">
-                <svg className="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>

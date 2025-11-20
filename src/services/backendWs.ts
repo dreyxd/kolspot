@@ -1,5 +1,21 @@
 // WebSocket connection to backend for real-time KOL trades
-const WS_URL = import.meta.env.VITE_BACKEND_WS_URL || 'ws://localhost:3001/api/stream/kol-buys';
+// Auto-detect protocol based on page protocol (ws:// for http://, wss:// for https://)
+const getWebSocketUrl = () => {
+  const envUrl = import.meta.env.VITE_BACKEND_WS_URL;
+  
+  if (envUrl) {
+    // If running on HTTPS, ensure we use WSS
+    if (window.location.protocol === 'https:' && envUrl.startsWith('ws://')) {
+      return envUrl.replace('ws://', 'wss://');
+    }
+    return envUrl;
+  }
+  
+  // Default for local development
+  return 'ws://localhost:3001/api/stream/kol-buys';
+};
+
+const WS_URL = getWebSocketUrl();
 
 let ws: WebSocket | null = null;
 let reconnectAttempts = 0;

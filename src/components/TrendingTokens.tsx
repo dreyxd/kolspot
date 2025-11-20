@@ -28,17 +28,19 @@ function formatCompactCurrency(n?: number) {
 function isSolanaMeme(token: TrendingToken): boolean {
   const chain = token.chain?.toLowerCase() || token.chainId?.toString().toLowerCase() || ''
   
-  // Must be Solana chain
-  if (!chain.includes('solana') && chain !== 'sol' && token.chainId !== 'solana') {
-    return false
+  // Accept if explicitly marked as Solana
+  if (chain.includes('solana') || chain === 'sol' || token.chainId === 'solana') {
+    return true
   }
   
-  // Additional meme coin characteristics (optional filters)
-  const name = token.name?.toLowerCase() || ''
-  const symbol = token.symbol?.toLowerCase() || ''
+  // Accept if no chain info provided (Moralis API sometimes omits this for trending tokens)
+  // and has a valid Solana address format (32-44 chars base58)
+  if (!chain && token.address && token.address.length >= 32 && token.address.length <= 44) {
+    return true
+  }
   
-  // If it has an address on Solana, likely valid
-  if (token.address && token.address.length > 30) {
+  // Accept if chain info missing but symbol looks like a typical Solana meme token
+  if (!chain && token.symbol && token.symbol.length <= 10) {
     return true
   }
   

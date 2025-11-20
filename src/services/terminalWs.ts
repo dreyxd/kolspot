@@ -1,5 +1,22 @@
 // WebSocket connection for real-time terminal token updates
-const WS_URL = import.meta.env.VITE_BACKEND_WS_URL?.replace('/kol-buys', '/terminal') || 'ws://localhost:3001/api/stream/terminal';
+// Auto-detect protocol based on page protocol (ws:// for http://, wss:// for https://)
+const getWebSocketUrl = () => {
+  const envUrl = import.meta.env.VITE_BACKEND_WS_URL;
+  
+  if (envUrl) {
+    let url = envUrl.replace('/kol-buys', '/terminal');
+    // If running on HTTPS, ensure we use WSS
+    if (window.location.protocol === 'https:' && url.startsWith('ws://')) {
+      return url.replace('ws://', 'wss://');
+    }
+    return url;
+  }
+  
+  // Default for local development
+  return 'ws://localhost:3001/api/stream/terminal';
+};
+
+const WS_URL = getWebSocketUrl();
 
 let ws: WebSocket | null = null;
 let reconnectAttempts = 0;

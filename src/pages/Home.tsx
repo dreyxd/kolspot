@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import TrendingTokens from '../components/TrendingTokens'
 import SolChallengeSection from '../components/SolChallengeSection'
 import SolChallengeExplainer from '../components/SolChallengeExplainer'
+import PoweredBy from '../components/PoweredBy'
 
 export default function Home() {
   return (
@@ -316,6 +317,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Powered By Section */}
+      <PoweredBy />
     </main>
   )
 }

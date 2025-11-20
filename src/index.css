@@ -77,3 +77,21 @@ body {
 .animate-scroll-right:hover {
   animation-play-state: paused;
 }
+
+/* Infinite scroll animation for powered by partners */
+@keyframes scroll-partners {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-33.333%));
+  }
+}
+
+.animate-scroll-partners {
+  animation: scroll-partners 20s linear infinite;
+}
+
+.animate-scroll-partners:hover {
+  animation-play-state: paused;
+}

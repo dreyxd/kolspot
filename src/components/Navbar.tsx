@@ -43,6 +43,14 @@ export default function Navbar() {
           </NavLink>
         </nav>
         <div className="hidden md:flex items-center gap-3">
+          <a 
+            href="https://app.kolspot.live" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="px-4 py-2 rounded-md border border-accent text-accent font-semibold hover:bg-accent hover:text-black transition"
+          >
+            Launch App
+          </a>
           <Link to="/terminal" className="px-4 py-2 rounded-md bg-accent text-black font-semibold hover:opacity-90 transition">
             KOL Terminal
           </Link>

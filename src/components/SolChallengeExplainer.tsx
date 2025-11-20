@@ -4,10 +4,10 @@ export default function SolChallengeExplainer() {
       {/* Header */}
       <div className="text-center mb-8">
         <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-          1 SOL Challenge
+          Trading Tournaments
         </h2>
         <p className="text-gray-400 text-lg">
-          Prove your trading skills. Win $KOLS tokens. Become a tracked KOL.
+          Compete in live trading tournaments. Win SOL rewards. Climb the leaderboard.
         </p>
       </div>
 
@@ -25,19 +25,19 @@ export default function SolChallengeExplainer() {
               <ul className="text-gray-300 space-y-2 text-sm">
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 mt-1">•</span>
-                  <span>Each participant receives <strong className="text-white">1 SOL</strong> funded from creator fee rewards</span>
+                  <span>Create your tournament wallet and receive <strong className="text-white">1 SOL</strong> to start</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 mt-1">•</span>
-                  <span>Trade meme coins on Solana to maximize your portfolio value</span>
+                  <span>Trade any Solana tokens on supported DEXs (Jupiter, Raydium, Orca, Pump.fun)</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 mt-1">•</span>
-                  <span>Competition runs for <strong className="text-white">7 days</strong></span>
+                  <span>All trades are automatically tracked in real-time</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 mt-1">•</span>
-                  <span>Top performers win exclusive rewards</span>
+                  <span>Rankings based on total PnL and ROI percentage</span>
                 </li>
               </ul>
             </div>
@@ -52,7 +52,7 @@ export default function SolChallengeExplainer() {
               </svg>
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white mb-2">Rewards</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Prize Pool</h3>
               <div className="space-y-3 text-sm">
                 <div className="bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-1">
@@ -60,7 +60,7 @@ export default function SolChallengeExplainer() {
                     <span className="font-bold text-yellow-400">1st Place</span>
                   </div>
                   <p className="text-gray-300 text-xs">
-                    <strong className="text-white">2.5% $KOLS</strong> supply + Featured KOL status
+                    <strong className="text-white">5 SOL</strong> + Featured on KOLBoard
                   </p>
                 </div>
                 <div className="bg-gradient-to-r from-gray-400/20 to-gray-500/20 border border-gray-400/30 rounded-lg p-3">
@@ -69,7 +69,7 @@ export default function SolChallengeExplainer() {
                     <span className="font-bold text-gray-300">2nd Place</span>
                   </div>
                   <p className="text-gray-300 text-xs">
-                    <strong className="text-white">1.5% $KOLS</strong> supply + Tracked KOL
+                    <strong className="text-white">3 SOL</strong> + KOLBoard ranking
                   </p>
                 </div>
                 <div className="bg-gradient-to-r from-orange-600/20 to-orange-700/20 border border-orange-500/30 rounded-lg p-3">
@@ -78,12 +78,12 @@ export default function SolChallengeExplainer() {
                     <span className="font-bold text-orange-400">3rd Place</span>
                   </div>
                   <p className="text-gray-300 text-xs">
-                    <strong className="text-white">1% $KOLS</strong> supply + Tracked KOL
+                    <strong className="text-white">1.5 SOL</strong> + KOLBoard ranking
                   </p>
                 </div>
                 <div className="text-center pt-2 border-t border-gray-700">
                   <p className="text-gray-400 text-xs">
-                    <strong className="text-purple-400">Top 5 winners</strong> added to KOL Terminal watch list
+                    <strong className="text-purple-400">Top performers</strong> earn lifetime KOL status
                   </p>
                 </div>
               </div>
@@ -92,12 +92,29 @@ export default function SolChallengeExplainer() {
         </div>
       </div>
 
-      {/* How to Apply */}
+      {/* CTA */}
       <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-purple-400/30 rounded-lg p-6">
-        <div className="flex items-start gap-4">
-          <div className="bg-purple-500/30 rounded-full p-3 flex-shrink-0">
-            <svg className="w-6 h-6 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-white mb-3">Ready to Compete?</h3>
+          <p className="text-gray-300 mb-6">
+            Join the tournament, create your wallet, and start trading. All trades are tracked automatically on-chain.
+          </p>
+          <a
+            href="https://app.kolspot.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold rounded-lg transition-all transform hover:scale-105"
+          >
+            <span>Launch Tournament App</span>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+          <p className="text-gray-500 text-sm mt-4">
+            Powered by Helius and Moralis • Built on Solana
+          </p>
+        </div>
+      </div>
             </svg>
           </div>
           <div className="flex-1">

@@ -62,7 +62,7 @@ body {
   inset: 0;
   background: radial-gradient(
     circle at var(--mx, 50%) var(--my, 50%),
-    rgba(139, 92, 246, 0.12),
+    rgba(57, 15, 86, 0.12),
     rgba(0, 0, 0, 0.97) 320px
   );
   opacity: 0;

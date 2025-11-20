@@ -143,7 +143,7 @@ export default function TrendingTokens() {
             <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent pointer-events-none z-10 hidden lg:block"></div>
             
             <div className="overflow-x-auto pb-4 -mx-4 px-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 min-w-[600px] sm:min-w-0">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                 {items.map((t, idx) => {
                   const name = t.name || t.symbol || 'Unknown'
                   const symbol = t.symbol ? t.symbol.toUpperCase() : ''
@@ -183,7 +183,7 @@ export default function TrendingTokens() {
                     }`}>
                       {/* Rank badge for top 3 */}
                       {rankEmoji && (
-                        <div className="absolute top-2 right-2 text-2xl z-10 animate-bounce">
+                        <div className="absolute top-1.5 right-1.5 text-lg z-10 animate-bounce">
                           {rankEmoji}
                         </div>
                       )}
@@ -193,34 +193,34 @@ export default function TrendingTokens() {
                         pctUp ? 'bg-gradient-to-br from-green-400/5 to-transparent' : 'bg-gradient-to-br from-red-400/5 to-transparent'
                       }`}></div>
                       
-                      <div className="relative p-5">
+                      <div className="relative p-3">
                         {/* Token Info */}
-                        <div className="flex items-start gap-4 mb-4">
+                        <div className="flex items-start gap-2 mb-3">
                           <div className="flex-shrink-0 relative">
                             {logo ? (
                               <div className="relative">
                                 <img 
                                   src={logo} 
                                   alt={name} 
-                                  className="w-14 h-14 rounded-full ring-2 ring-white/10 group-hover:ring-accent/50 transition-all duration-300"
+                                  className="w-10 h-10 rounded-full ring-2 ring-white/10 group-hover:ring-accent/50 transition-all duration-300"
                                 />
-                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-accent rounded-full flex items-center justify-center text-[10px] font-bold">
+                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center text-[8px] font-bold">
                                   #{idx + 1}
                                 </div>
                               </div>
                             ) : (
-                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-xl font-bold ring-2 ring-white/10">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-lg font-bold ring-2 ring-white/10">
                                 {symbol ? symbol[0] : '?'}
                               </div>
                             )}
                           </div>
                           
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-lg truncate group-hover:text-accent transition-colors">
+                            <div className="font-semibold text-sm truncate group-hover:text-accent transition-colors">
                               {name}
                             </div>
                             {symbol && (
-                              <div className="text-xs text-neutral-400 font-mono bg-black/30 rounded px-2 py-0.5 inline-block mt-1">
+                              <div className="text-[10px] text-neutral-400 font-mono bg-black/30 rounded px-1.5 py-0.5 inline-block mt-0.5">
                                 ${symbol}
                               </div>
                             )}
@@ -228,13 +228,13 @@ export default function TrendingTokens() {
                         </div>
 
                         {/* Price & Stats */}
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <div>
-                            <div className="text-sm text-neutral-500 mb-1">Price</div>
-                            <div className="flex items-baseline gap-2">
-                              <div className="text-white font-bold text-xl">{price}</div>
+                            <div className="text-xs text-neutral-500 mb-0.5">Price</div>
+                            <div className="flex items-baseline gap-1.5 flex-wrap">
+                              <div className="text-white font-bold text-base">{price}</div>
                               {pct !== undefined && pct !== null && isFinite(pct) && (
-                                <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded ${
+                                <div className={`flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
                                   pctUp ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
                                 }`}>
                                   {pctUp ? '↗' : '↘'} {pctStr}
@@ -244,8 +244,8 @@ export default function TrendingTokens() {
                           </div>
                           
                           <div className="flex items-baseline justify-between">
-                            <div className="text-sm text-neutral-500">Market Cap</div>
-                            <div className="text-neutral-300 font-semibold text-sm">
+                            <div className="text-xs text-neutral-500">Market Cap</div>
+                            <div className="text-neutral-300 font-semibold text-xs">
                               {mcap ? formatCompactCurrency(mcap) : '-'}
                             </div>
                           </div>
@@ -253,10 +253,10 @@ export default function TrendingTokens() {
 
                         {/* View Details Button */}
                         {href && (
-                          <div className="mt-4 pt-4 border-t border-white/5">
-                            <div className="text-accent text-sm font-medium flex items-center justify-center gap-2 group-hover:gap-3 transition-all">
+                          <div className="mt-3 pt-3 border-t border-white/5">
+                            <div className="text-accent text-xs font-medium flex items-center justify-center gap-1.5 group-hover:gap-2 transition-all">
                               <span>View Details</span>
-                              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
                             </div>

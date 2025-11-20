@@ -8,9 +8,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Logo & Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-3">
-              <img src={logo} alt="KOLSpot" className="h-6 w-6 rounded-md object-cover" />
-              <span className="font-semibold">KOLSpot</span>
+            <Link to="/" className="flex items-center gap-3 mb-3">
+              <img src={logo} alt="KOLSpot" className="h-8 w-auto object-contain" />
+              <span className="font-bold text-base">KOLSpot</span>
             </Link>
             <p className="text-xs text-neutral-400 mb-3">
               Track top Solana KOLs and their pump.fun trades in real-time.

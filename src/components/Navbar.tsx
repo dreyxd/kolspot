@@ -18,9 +18,9 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-background/80 backdrop-blur-xl relative shadow-3d">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="KOLSpot logo" className="h-8 w-8 rounded-md object-cover" />
-          <span className="font-semibold">KOLSpot</span>
+        <Link to="/" className="flex items-center gap-3">
+          <img src={logo} alt="KOLSpot logo" className="h-10 w-auto object-contain" />
+          <span className="font-bold text-lg">KOLSpot</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1">
           <NavLink to="/" className={navLinkClass}>

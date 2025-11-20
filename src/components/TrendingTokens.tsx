@@ -138,16 +138,21 @@ export default function TrendingTokens() {
             {error && <div className="text-amber-400 text-sm">{error}</div>}
           </div>
         ) : (
-          <div className="relative">
-            {/* Gradient overlay for scroll indication */}
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent pointer-events-none z-10 hidden lg:block"></div>
-            
-            <div className="overflow-x-auto pb-4 -mx-4 px-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                {items.map((t, idx) => {
-                  const name = t.name || t.symbol || 'Unknown'
-                  const symbol = t.symbol ? t.symbol.toUpperCase() : ''
-                  const dex = t.address ? enriched[t.address] : undefined
+          <div className="relative overflow-hidden">
+            {/* Split tokens into rows of 5 */}
+            {Array.from({ length: Math.ceil(items.length / 5) }).map((_, rowIdx) => {
+              const rowItems = items.slice(rowIdx * 5, (rowIdx + 1) * 5)
+              const isEvenRow = rowIdx % 2 === 0
+              
+              return (
+                <div key={rowIdx} className="mb-3 overflow-hidden">
+                  <div className={`flex gap-3 ${isEvenRow ? 'animate-scroll-left' : 'animate-scroll-right'}`}>
+                    {/* Duplicate items for seamless loop */}
+                    {[...rowItems, ...rowItems].map((t, idx) => {
+                      const originalIdx = rowIdx * 5 + (idx % rowItems.length)
+                      const name = t.name || t.symbol || 'Unknown'
+                      const symbol = t.symbol ? t.symbol.toUpperCase() : ''
+                      const dex = t.address ? enriched[t.address] : undefined
                   
                   // Get price from DexScreener first, fallback to Moralis
                   const livePrice = (() => {
@@ -173,10 +178,10 @@ export default function TrendingTokens() {
                   const href = t.address ? `/terminal/token/${t.address}` : undefined
                   
                   // Rank badge for top 3
-                  const rankEmoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null
+                  const rankEmoji = originalIdx === 0 ? '🥇' : originalIdx === 1 ? '🥈' : originalIdx === 2 ? '🥉' : null
 
                   const content = (
-                    <div className="relative group h-full rounded-lg border border-white/10 bg-surface/60 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 overflow-hidden">
+                    <div className="relative group h-full rounded-lg border border-white/10 bg-surface/60 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 overflow-hidden flex-shrink-0 w-[200px]">
                       {/* Rank badge for top 3 */}
                       {rankEmoji && (
                         <div className="absolute top-1 right-1 text-sm z-10">
@@ -228,7 +233,7 @@ export default function TrendingTokens() {
                   )
 
                   return (
-                    <div key={idx} className="transform hover:scale-[1.02] transition-transform duration-300">
+                    <div key={`${rowIdx}-${idx}`} className="flex-shrink-0">
                       {href ? (
                         <Link to={href} className="block focus:outline-none focus:ring-2 focus:ring-accent rounded-xl">
                           {content}
@@ -241,6 +246,8 @@ export default function TrendingTokens() {
                 })}
               </div>
             </div>
+          )
+        })}
 
             {/* Bottom badge */}
             <div className="mt-8 text-center">

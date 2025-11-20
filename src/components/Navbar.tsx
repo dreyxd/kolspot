@@ -57,33 +57,29 @@ export default function Navbar() {
           </a>
         </div>
         <div className="flex md:hidden">
-          <button
-            type="button"
-            onClick={() => setMobileOpen(v => !v)}
-            aria-controls="mobile-menu"
-            aria-expanded={mobileOpen}
-            className="p-2 rounded-md text-neutral-200 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
+          <input 
+            type="checkbox" 
+            id="navbar-checkbox" 
+            checked={mobileOpen}
+            onChange={() => setMobileOpen(v => !v)}
+            className="hidden"
+          />
+          <label 
+            htmlFor="navbar-checkbox" 
+            className="hamburger-toggle"
             title={mobileOpen ? 'Close menu' : 'Open menu'}
           >
-            {mobileOpen ? (
-              // X icon
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
-                <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-              </svg>
-            ) : (
-              // Hamburger icon
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
-                <path fillRule="evenodd" d="M3.75 6.75A.75.75 0 0 1 4.5 6h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Zm0 5.25a.75.75 0 0 1 .75-.75h15a.75.75 0 0 1 0 1.5h-15a.75.75 0 0 1-.75-.75Zm.75 4.5a.75.75 0 0 0 0 1.5h15a.75.75 0 0 0 0-1.5h-15Z" clipRule="evenodd" />
-              </svg>
-            )}
-          </button>
+            <div className="hamburger-bar" id="bar1"></div>
+            <div className="hamburger-bar" id="bar2"></div>
+            <div className="hamburger-bar" id="bar3"></div>
+          </label>
         </div>
       </div>
 
       {mobileOpen && (
         <div
           id="mobile-menu"
-          className="md:hidden absolute inset-x-0 top-16 border-t border-white/5 bg-background/95 backdrop-blur shadow-xl"
+          className="md:hidden absolute inset-x-0 top-16 border-t border-white/5 bg-background/95 backdrop-blur shadow-xl animate-slide-down"
         >
           <nav className="px-4 py-4 flex flex-col gap-1">
             <NavLink to="/" className={navLinkClass}>

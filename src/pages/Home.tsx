@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import TrendingTokens from '../components/TrendingTokens'
 import SolChallengeSection from '../components/SolChallengeSection'
+import SolChallengeExplainer from '../components/SolChallengeExplainer'
 
 export default function Home() {
   return (
@@ -147,8 +148,13 @@ export default function Home() {
         <TrendingTokens />
       </div>
 
-      {/* 1 SOL Challenge Section */}
-      <SolChallengeSection />
+      {/* 1 SOL Challenge - Explainer & Competition */}
+      <section className="bg-black py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SolChallengeExplainer />
+          <SolChallengeSection />
+        </div>
+      </section>
 
       {/* Stats Section */}
       <section className="relative py-12 border-y border-white/5 bg-black overflow-hidden">

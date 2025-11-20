@@ -169,85 +169,52 @@ export default function SolChallengeSection() {
   }
 
   return (
-    <section className="py-16 border-t border-white/5 bg-gradient-to-b from-transparent to-black/20">
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/20 rounded-full mb-4">
-            <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium text-accent">Trading Competition</span>
-          </div>
-          <h2 className="text-4xl font-bold mb-3 bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
-            1 SOL Challenge
-          </h2>
-          <p className="text-neutral-400 max-w-2xl mx-auto">
-            Compete with other traders for SOL rewards. Top 5 performers win from our prize pool funded by creator-fee rewards.
-          </p>
-        </div>
-
-        {/* Competition Card */}
-        <div className="bg-gradient-to-br from-surface/80 to-surface/40 border border-white/10 rounded-2xl p-6 mb-8">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-2">{competition.name}</h3>
-              <div className="flex items-center gap-3">
-                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-md border text-sm ${getStatusBadge(competition.status)}`}>
-                  {competition.status.toUpperCase()}
-                </span>
-                {competition.status === 'active' && (
-                  <span className="text-sm text-neutral-400">
-                    ⏱️ {getTimeRemaining()}
-                  </span>
-                )}
+    <div className="bg-gradient-to-br from-surface/60 to-surface/30 border border-white/10 rounded-2xl overflow-hidden">
+      {/* Competition Status Header */}
+      <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 border-b border-white/10 p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-2xl font-bold text-white">{competition.name}</h3>
+              <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-md border text-sm ${getStatusBadge(competition.status)}`}>
+                {competition.status.toUpperCase()}
+              </span>
+            </div>
+            {competition.status === 'active' && (
+              <div className="flex items-center gap-2 text-sm text-gray-300">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                </svg>
+                <span>{getTimeRemaining()}</span>
               </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-neutral-500 mb-1">Prize Pool</div>
-              <div className="text-3xl font-bold text-accent">
-                {competition.total_prize_pool_sol} SOL
-              </div>
-            </div>
+            )}
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-black/20 rounded-lg p-4">
-              <div className="text-xs text-neutral-500 mb-1">Start Time</div>
-              <div className="text-sm text-white">{formatTime(competition.start_time)}</div>
+          <div className="text-right">
+            <div className="text-sm text-gray-400 mb-1">Total Prize Pool</div>
+            <div className="text-3xl font-bold text-purple-400">
+              {competition.total_prize_pool_sol} SOL
             </div>
-            <div className="bg-black/20 rounded-lg p-4">
-              <div className="text-xs text-neutral-500 mb-1">End Time</div>
-              <div className="text-sm text-white">{formatTime(competition.end_time)}</div>
-            </div>
+            <div className="text-xs text-gray-500 mt-1">+ $KOLS token rewards</div>
           </div>
-
-          {competition.status !== 'finished' && (
-            <button
-              onClick={handleRegister}
-              disabled={registering || isRegistered}
-              className={`w-full py-3 rounded-lg font-semibold transition-all ${
-                isRegistered
-                  ? 'bg-green-500/20 text-green-300 border border-green-400/30 cursor-not-allowed'
-                  : 'bg-accent hover:opacity-90 text-black'
-              }`}
-            >
-              {registering ? (
-                'Registering...'
-              ) : isRegistered ? (
-                '✓ Registered'
-              ) : connected ? (
-                'Register for Challenge'
-              ) : (
-                'Connect Wallet to Register'
-              )}
-            </button>
-          )}
         </div>
+        
+        <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="bg-black/30 rounded-lg p-3 border border-white/5">
+            <div className="text-xs text-gray-500 mb-1">Competition Start</div>
+            <div className="text-sm text-white">{formatTime(competition.start_time)}</div>
+          </div>
+          <div className="bg-black/30 rounded-lg p-3 border border-white/5">
+            <div className="text-xs text-gray-500 mb-1">Competition End</div>
+            <div className="text-sm text-white">{formatTime(competition.end_time)}</div>
+          </div>
+        </div>
+      </div>
 
-        {/* Leaderboard */}
-        <div className="bg-surface/60 border border-white/10 rounded-2xl overflow-hidden">
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
-            <h3 className="text-xl font-bold text-white">Leaderboard</h3>
-            {lastUpdated && (
+      {/* Leaderboard */}
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-white">Live Leaderboard</h3>
+          {lastUpdated && (
               <span className="text-xs text-neutral-500">
                 Last updated: {new Date(lastUpdated).toLocaleTimeString()}
               </span>
@@ -328,12 +295,7 @@ export default function SolChallengeSection() {
             </table>
           </div>
         </div>
-
-        {/* Info Footer */}
-        <div className="mt-6 text-center text-xs text-neutral-500">
-          Prize pool funded by KOLSpot creator-fee rewards
-        </div>
       </div>
-    </section>
+    </div>
   );
 }

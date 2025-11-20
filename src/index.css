@@ -11,20 +11,7 @@ html, body, #root {
 }
 
 body {
-  /* Global gradient background — black to grey with subtle orange accent */
-  background:
-    /* subtle orange accent glow */
-    radial-gradient(80rem 50rem at 90% 10%, rgba(249, 115, 22, 0.06) 0%, rgba(0, 0, 0, 0) 50%),
-    /* main black-to-grey gradient */
-    linear-gradient(180deg,
-      #000000 0%,
-      #0a0a0a 25%,
-      #141414 50%,
-      #1a1a1a 75%,
-      #0f0f0f 100%);
-  background-attachment: fixed, fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
+  /* Removed global gradient background to allow SpotlightBackground to show */
   @apply text-neutral-200 antialiased;
 }
 

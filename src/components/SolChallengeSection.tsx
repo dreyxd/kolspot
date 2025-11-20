@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getActiveCompetition, getCompetitionLeaderboard, registerForCompetition, Competition, CompetitionEntry } from '../services/competitionApi';
 import { Link } from 'react-router-dom';
+import bg1 from '../assets/bg1.webp';
 
 // Mock wallet connection - replace with actual Solana wallet adapter
 const useWallet = () => {
@@ -155,10 +156,19 @@ export default function SolChallengeSection() {
 
   if (!competition) {
     return (
-      <section className="py-16 border-t border-white/5">
-        <div className="container mx-auto px-4">
+      <section className="py-16 border-t border-white/5 relative overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${bg1})` }}
+          ></div>
+          <div className="absolute inset-0 bg-black/70"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent">
               1 SOL Challenge
             </h2>
             <p className="text-neutral-400">No active challenge at the moment. Check back soon!</p>

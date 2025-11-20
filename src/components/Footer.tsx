@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
-import logo from '../assets/logo.webp'
+import logo from '../assets/logo.jpg'
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-surface/90 backdrop-blur-xl mt-auto shadow-3d">
+    <footer className="border-t border-white/10 bg-background/80 backdrop-blur-xl mt-auto shadow-3d">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Logo & Brand */}

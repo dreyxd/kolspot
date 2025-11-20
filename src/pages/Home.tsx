@@ -17,7 +17,7 @@ export default function Home() {
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
               Track Top Solana KOLs
             </h1>
-            <p className="text-xl sm:text-2xl text-neutral-400 max-w-2xl mx-auto mb-12 leading-relaxed">
+            <p className="text-xl sm:text-2xl text-neutral-300 max-w-2xl mx-auto mb-12 leading-relaxed">
               Real-time insights into pump.fun trades from leading Key Opinion Leaders. 
               Monitor PNL, analyze strategies, and stay ahead of the market.
             </p>

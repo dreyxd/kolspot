@@ -1,6 +1,6 @@
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import logo from '../assets/logo.webp'
+import logo from '../assets/logo.jpg'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${

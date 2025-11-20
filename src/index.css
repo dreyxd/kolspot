@@ -11,7 +11,7 @@ html, body, #root {
 }
 
 body {
-  @apply text-neutral-200 antialiased;
+  @apply text-white antialiased;
 }
 
 .btn {

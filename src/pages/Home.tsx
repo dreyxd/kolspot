@@ -21,7 +21,7 @@ export default function Home() {
               Real-time insights into pump.fun trades from leading Key Opinion Leaders. 
               Monitor PNL, analyze strategies, and stay ahead of the market.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link to="/terminal" className="neon-btn">
                 <span className="span"></span>
                 <span className="txt">Launch Terminal</span>

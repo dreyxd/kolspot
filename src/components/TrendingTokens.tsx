@@ -135,125 +135,130 @@ export default function TrendingTokens() {
             {error && <div className="text-amber-400 text-sm">{error}</div>}
           </div>
         ) : (
-          <div className="relative overflow-hidden">
-            {/* Split tokens into rows of 5 */}
-            {Array.from({ length: Math.ceil(items.length / 5) }).map((_, rowIdx) => {
-              const rowItems = items.slice(rowIdx * 5, (rowIdx + 1) * 5)
-              const isEvenRow = rowIdx % 2 === 0
-              
-              return (
-                <div key={rowIdx} className="mb-3 overflow-hidden">
-                  <div className={`flex gap-3 ${isEvenRow ? 'animate-scroll-left' : 'animate-scroll-right'}`}>
-                    {/* Duplicate items for seamless loop */}
-                    {[...rowItems, ...rowItems].map((t, idx) => {
-                      const originalIdx = rowIdx * 5 + (idx % rowItems.length)
-                      const name = t.name || t.symbol || 'Unknown'
-                      const symbol = t.symbol ? t.symbol.toUpperCase() : ''
-                      const dex = t.address ? enriched[t.address] : undefined
-                  
-                  // Get price from DexScreener first, fallback to Moralis
-                  const livePrice = (() => {
-                    if (dex?.priceUsd) {
-                      const p = Number(dex.priceUsd)
-                      if (!isNaN(p) && isFinite(p)) return p
-                    }
-                    // Try various price fields from Moralis
-                    const moralPrice = t.priceUsd ?? t.price ?? t.price_usd ?? t.priceNative
-                    if (moralPrice !== undefined && moralPrice !== null) {
-                      const p = typeof moralPrice === 'number' ? moralPrice : Number(moralPrice)
-                      if (!isNaN(p) && isFinite(p)) return p
-                    }
-                    return undefined
-                  })()
-                  
-                  const price = formatPrice(livePrice)
-                  const mcap = dex?.fdv ?? (t.marketCap as number | undefined)
-                  const pct = dex?.priceChange?.h24 ?? t.pricePercentChange24h ?? t.priceChange24h ?? t.price_24h_percent_change
-                  const pctStr = formatPct(pct)
-                  const pctUp = (pct ?? 0) >= 0
-                  const logo = t.logo
-                  const href = t.address ? `/terminal/token/${t.address}` : undefined
-                  
-                  // Rank badge for top 3
-                  const rankEmoji = originalIdx === 0 ? '🥇' : originalIdx === 1 ? '🥈' : originalIdx === 2 ? '🥉' : null
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+              {items.slice(0, 8).map((t, idx) => {
+                const name = t.name || t.symbol || 'Unknown'
+                const symbol = t.symbol ? t.symbol.toUpperCase() : ''
+                const dex = t.address ? enriched[t.address] : undefined
+            
+                // Get price from DexScreener first, fallback to Moralis
+                const livePrice = (() => {
+                  if (dex?.priceUsd) {
+                    const p = Number(dex.priceUsd)
+                    if (!isNaN(p) && isFinite(p)) return p
+                  }
+                  const moralPrice = t.priceUsd ?? t.price ?? t.price_usd ?? t.priceNative
+                  if (moralPrice !== undefined && moralPrice !== null) {
+                    const p = typeof moralPrice === 'number' ? moralPrice : Number(moralPrice)
+                    if (!isNaN(p) && isFinite(p)) return p
+                  }
+                  return undefined
+                })()
+                
+                const price = formatPrice(livePrice)
+                const mcap = dex?.fdv ?? (t.marketCap as number | undefined)
+                const pct = dex?.priceChange?.h24 ?? t.pricePercentChange24h ?? t.priceChange24h ?? t.price_24h_percent_change
+                const pctStr = formatPct(pct)
+                const pctUp = (pct ?? 0) >= 0
+                const logo = t.logo
+                const href = t.address ? `/terminal/token/${t.address}` : undefined
+                
+                // Rank badge for top 3
+                const rankEmoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : null
 
-                  const content = (
-                    <div className="relative group h-full rounded-lg border border-white/10 bg-surface/60 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 overflow-hidden flex-shrink-0 w-[200px]">
-                      {/* Rank badge for top 3 */}
-                      {rankEmoji && (
-                        <div className="absolute top-1 right-1 text-sm z-10">
-                          {rankEmoji}
+                const content = (
+                  <div className="card p-4 relative group hover:scale-[1.02] transition-transform duration-300">
+                    {/* Rank badge */}
+                    {rankEmoji && (
+                      <div className="absolute -top-2 -right-2 text-2xl z-10 drop-shadow-lg">
+                        {rankEmoji}
+                      </div>
+                    )}
+                    
+                    {/* Token Header */}
+                    <div className="flex items-center gap-3 mb-3">
+                      {logo ? (
+                        <img 
+                          src={logo} 
+                          alt={name} 
+                          className="w-12 h-12 rounded-full ring-2 ring-white/10 group-hover:ring-accent/50 transition-all"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent/30 to-accent-dark/20 flex items-center justify-center text-lg font-bold ring-2 ring-white/10">
+                          {symbol ? symbol[0] : '?'}
                         </div>
                       )}
                       
-                      {/* Glow effect on hover */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-accent/5 to-transparent"></div>
-                      
-                      <div className="relative p-2.5">
-                        {/* Token Info */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="flex-shrink-0 relative">
-                            {logo ? (
-                              <img 
-                                src={logo} 
-                                alt={name} 
-                                className="w-8 h-8 rounded-full ring-1 ring-white/10 group-hover:ring-accent/50 transition-all duration-300"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent/20 to-purple-500/20 flex items-center justify-center text-sm font-bold ring-1 ring-white/10">
-                                {symbol ? symbol[0] : '?'}
-                              </div>
-                            )}
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-xs truncate group-hover:text-accent transition-colors">
-                              {name}
-                            </div>
-                            {symbol && (
-                              <div className="text-[9px] text-neutral-400 font-mono truncate">
-                                ${symbol}
-                              </div>
-                            )}
-                          </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-sm truncate text-white group-hover:text-accent transition-colors">
+                          {name}
                         </div>
-
-                        {/* Market Cap Only */}
-                        <div className="flex items-center justify-between">
-                          <div className="text-[10px] text-neutral-500">Market Cap</div>
-                          <div className="text-neutral-300 font-semibold text-[10px]">
-                            {mcap ? formatCompactCurrency(mcap) : '-'}
+                        {symbol && (
+                          <div className="text-xs text-neutral-400 font-mono truncate">
+                            ${symbol}
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
-                  )
 
-                  return (
-                    <div key={`${rowIdx}-${idx}`} className="flex-shrink-0">
-                      {href ? (
-                        <Link to={href} className="block focus:outline-none focus:ring-2 focus:ring-accent rounded-xl">
-                          {content}
-                        </Link>
-                      ) : (
-                        content
-                      )}
+                    {/* Stats Grid */}
+                    <div className="space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-neutral-500">Price</span>
+                        <span className="font-semibold text-white">{price}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-neutral-500">24h</span>
+                        <span className={`font-semibold ${pctUp ? 'text-green-400' : 'text-red-400'}`}>
+                          {pctStr}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-neutral-500">MCap</span>
+                        <span className="font-semibold text-white">
+                          {mcap ? formatCompactCurrency(mcap) : '-'}
+                        </span>
+                      </div>
                     </div>
-                  )
-                })}
-              </div>
-            </div>
-          )
-        })}
+                  </div>
+                )
 
-            {/* Bottom badge */}
-            <div className="mt-8 text-center">
+                return (
+                  <div key={idx}>
+                    {href ? (
+                      <Link to={href} className="block">
+                        {content}
+                      </Link>
+                    ) : (
+                      content
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* View More */}
+            <div className="mt-10 text-center">
+              <Link 
+                to="/terminal" 
+                className="inline-flex items-center gap-2 px-6 py-3 bg-accent/10 hover:bg-accent/20 border border-accent/30 hover:border-accent/50 rounded-lg text-accent font-semibold transition-all"
+              >
+                <span>View All Tokens</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </div>
+
+            {/* Data Source Badge */}
+            <div className="mt-6 text-center">
               <div className="inline-flex items-center gap-2 text-xs text-neutral-500">
-                <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
-                <span>Powered by Moralis • Data updates every 60 seconds</span>
+                <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse"></div>
+                <span>Live data powered by Moralis</span>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </section>

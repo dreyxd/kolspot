@@ -3,7 +3,6 @@ import TrendingTokens from '../components/TrendingTokens'
 import SolChallengeSection from '../components/SolChallengeSection'
 import SolChallengeExplainer from '../components/SolChallengeExplainer'
 import PoweredBy from '../components/PoweredBy'
-import bg2 from '../assets/bg2.webp'
 
 export default function Home() {
   return (
@@ -248,16 +247,12 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="relative py-20 overflow-hidden">
-        {/* Background Image with Overlay */}
+      <section className="relative py-20 bg-black overflow-hidden">
+        {/* Aurora background */}
         <div className="absolute inset-0 z-0">
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${bg2})` }}
-          ></div>
-          <div className="absolute inset-0 bg-black/75"></div>
+          <div className="aurora-line aurora-line-1"></div>
+          <div className="aurora-line aurora-line-4"></div>
         </div>
-        
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>

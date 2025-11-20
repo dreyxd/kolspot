@@ -147,8 +147,14 @@ export default function Home() {
       </div>
 
       {/* Stats Section */}
-      <section className="py-12 border-y border-white/5 bg-gradient-to-b from-black via-neutral-900 to-neutral-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="relative py-12 border-y border-white/5 bg-black overflow-hidden">
+        {/* Aurora background */}
+        <div className="absolute inset-0 z-0">
+          <div className="aurora-line aurora-line-1"></div>
+          <div className="aurora-line aurora-line-3"></div>
+          <div className="aurora-line aurora-line-5"></div>
+        </div>
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">117+</div>
@@ -171,8 +177,14 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gradient-to-b from-neutral-800 via-neutral-900 to-black">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 bg-black overflow-hidden">
+        {/* Aurora background */}
+        <div className="absolute inset-0 z-0">
+          <div className="aurora-line aurora-line-2"></div>
+          <div className="aurora-line aurora-line-4"></div>
+          <div className="aurora-line aurora-line-6"></div>
+        </div>
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Everything You Need</h2>
             <p className="text-neutral-400 max-w-2xl mx-auto">
@@ -224,8 +236,13 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-gradient-to-b from-black via-neutral-900/50 to-black">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 bg-black overflow-hidden">
+        {/* Aurora background */}
+        <div className="absolute inset-0 z-0">
+          <div className="aurora-line aurora-line-1"></div>
+          <div className="aurora-line aurora-line-4"></div>
+        </div>
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
             <p className="text-neutral-400 max-w-2xl mx-auto">
@@ -268,10 +285,14 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-b from-black via-neutral-900/30 to-black relative overflow-hidden">
-        {/* Subtle orange accent glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-transparent pointer-events-none"></div>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 bg-black overflow-hidden">
+        {/* Aurora background */}
+        <div className="absolute inset-0 z-0">
+          <div className="aurora-line aurora-line-2"></div>
+          <div className="aurora-line aurora-line-5"></div>
+          <div className="aurora-line aurora-line-6"></div>
+        </div>
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="relative card p-12 text-center bg-surface/50 backdrop-blur-sm">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               Start Tracking KOLs Today

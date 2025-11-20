@@ -8,6 +8,7 @@ import webhookRoutes from './routes/webhook.js';
 import terminalRoutes from './routes/terminal.js';
 import leaderboardRoutes from './routes/leaderboard.js';
 import kolActivityRoutes from './routes/kol-activity.js';
+import competitionRoutes from './routes/competition.js';
 import { initWebSocket } from './websocket/index.js';
 
 dotenv.config();
@@ -56,6 +57,7 @@ app.use('/api/webhook', webhookRoutes);
 app.use('/api/terminal', terminalRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/kol-activity', kolActivityRoutes);
+app.use('/api/competition', competitionRoutes);
 
 // Initialize WebSocket
 initWebSocket(server);

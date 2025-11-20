@@ -4,6 +4,7 @@ import { formatCurrency, formatUsdPrice } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
 import { getBondingStatus, BondingStatus } from '../services/moralis';
 import { subscribeToTerminalUpdates, TokenUpdate } from '../services/terminalWs';
+import SolChallengeWinners from '../components/SolChallengeWinners';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -449,6 +450,11 @@ const KOLTerminal = () => {
               </select>
             </div>
           </div>
+        </div>
+
+        {/* 1 SOL Challenge Winners */}
+        <div className="mb-6">
+          <SolChallengeWinners />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

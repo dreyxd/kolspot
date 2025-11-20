@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import TrendingTokens from '../components/TrendingTokens'
+import SolChallengeSection from '../components/SolChallengeSection'
 
 export default function Home() {
   return (
@@ -145,6 +146,9 @@ export default function Home() {
       <div className="bg-black">
         <TrendingTokens />
       </div>
+
+      {/* 1 SOL Challenge Section */}
+      <SolChallengeSection />
 
       {/* Stats Section */}
       <section className="relative py-12 border-y border-white/5 bg-black overflow-hidden">

@@ -114,16 +114,12 @@ export default function TrendingTokens() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/20 rounded-full mb-4">
-            <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium text-accent">Live on Solana</span>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-accent to-purple-400 bg-clip-text text-transparent">
+              Trending Tokens
+            </h2>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-white via-accent to-purple-400 bg-clip-text text-transparent">
-            Trending Tokens
-          </h2>
-          <p className="text-neutral-400 text-sm max-w-2xl mx-auto">
-            Real-time trending tokens on Solana network • Updated every minute
-          </p>
         </div>
 
         {items === null ? (

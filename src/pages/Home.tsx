@@ -9,20 +9,6 @@ export default function Home() {
     <main className="flex-1">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        {/* Aurora-like animated background */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 overflow-hidden">
-            {/* Animated orange aurora lines */}
-            <div className="aurora-line aurora-line-1"></div>
-            <div className="aurora-line aurora-line-2"></div>
-            <div className="aurora-line aurora-line-3"></div>
-            <div className="aurora-line aurora-line-4"></div>
-            <div className="aurora-line aurora-line-5"></div>
-            <div className="aurora-line aurora-line-6"></div>
-          </div>
-          {/* Subtle radial gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/30 to-black/70"></div>
-        </div>
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-4xl sm:text-6xl font-bold tracking-tight mb-6">
@@ -43,105 +29,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        {/* Aurora animation styles */}
-        <style>{`
-          @keyframes aurora-flow {
-            0% {
-              transform: translateX(-100%) translateY(-50%) rotate(-5deg);
-              opacity: 0;
-            }
-            10% {
-              opacity: 0.6;
-            }
-            90% {
-              opacity: 0.6;
-            }
-            100% {
-              transform: translateX(200%) translateY(50%) rotate(5deg);
-              opacity: 0;
-            }
-          }
-
-          .aurora-line {
-            position: absolute;
-            width: 200%;
-            height: 2px;
-            background: linear-gradient(90deg, 
-              transparent 0%, 
-              rgba(251, 146, 60, 0.3) 20%, 
-              rgba(251, 146, 60, 0.8) 50%, 
-              rgba(251, 146, 60, 0.3) 80%, 
-              transparent 100%
-            );
-            filter: blur(2px);
-            animation: aurora-flow linear infinite;
-          }
-
-          .aurora-line-1 {
-            top: 20%;
-            animation-duration: 15s;
-            animation-delay: 0s;
-          }
-
-          .aurora-line-2 {
-            top: 40%;
-            animation-duration: 18s;
-            animation-delay: 3s;
-            background: linear-gradient(90deg, 
-              transparent 0%, 
-              rgba(251, 146, 60, 0.2) 20%, 
-              rgba(251, 146, 60, 0.6) 50%, 
-              rgba(251, 146, 60, 0.2) 80%, 
-              transparent 100%
-            );
-          }
-
-          .aurora-line-3 {
-            top: 60%;
-            animation-duration: 20s;
-            animation-delay: 6s;
-            filter: blur(3px);
-          }
-
-          .aurora-line-4 {
-            top: 30%;
-            animation-duration: 22s;
-            animation-delay: 9s;
-            background: linear-gradient(90deg, 
-              transparent 0%, 
-              rgba(251, 146, 60, 0.25) 20%, 
-              rgba(251, 146, 60, 0.7) 50%, 
-              rgba(251, 146, 60, 0.25) 80%, 
-              transparent 100%
-            );
-          }
-
-          .aurora-line-5 {
-            top: 70%;
-            animation-duration: 17s;
-            animation-delay: 12s;
-            filter: blur(2.5px);
-          }
-
-          .aurora-line-6 {
-            top: 50%;
-            animation-duration: 19s;
-            animation-delay: 15s;
-            background: linear-gradient(90deg, 
-              transparent 0%, 
-              rgba(251, 146, 60, 0.35) 20%, 
-              rgba(251, 146, 60, 0.75) 50%, 
-              rgba(251, 146, 60, 0.35) 80%, 
-              transparent 100%
-            );
-            filter: blur(2px);
-          }
-
-          .bg-gradient-radial {
-            background: radial-gradient(circle at center, var(--tw-gradient-stops));
-          }
-        `}</style>
       </section>
 
       {/* Trending Tokens Feed */}
@@ -150,7 +37,7 @@ export default function Home() {
       </div>
 
       {/* 1 SOL Challenge - Explainer & Competition */}
-      <section className="py-16">
+      <section className="py-16 bg-gray-900/90">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SolChallengeExplainer />
           <SolChallengeSection />
@@ -158,14 +45,8 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="relative py-12 border-y border-white/5 overflow-hidden">
-        {/* Aurora background */}
-        <div className="absolute inset-0 z-0">
-          <div className="aurora-line aurora-line-1"></div>
-          <div className="aurora-line aurora-line-3"></div>
-          <div className="aurora-line aurora-line-5"></div>
-        </div>
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="py-12 border-y border-white/5 bg-gray-800/90">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-3xl sm:text-4xl font-bold text-accent mb-2">117+</div>
@@ -188,14 +69,8 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="relative py-20 overflow-hidden">
-        {/* Aurora background */}
-        <div className="absolute inset-0 z-0">
-          <div className="aurora-line aurora-line-2"></div>
-          <div className="aurora-line aurora-line-4"></div>
-          <div className="aurora-line aurora-line-6"></div>
-        </div>
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gray-900/90">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Everything You Need</h2>
             <p className="text-neutral-400 max-w-2xl mx-auto">
@@ -247,13 +122,8 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="relative py-20 overflow-hidden">
-        {/* Aurora background */}
-        <div className="absolute inset-0 z-0">
-          <div className="aurora-line aurora-line-1"></div>
-          <div className="aurora-line aurora-line-4"></div>
-        </div>
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gray-800/90">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">How It Works</h2>
             <p className="text-neutral-400 max-w-2xl mx-auto">
@@ -296,15 +166,9 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-20 overflow-hidden">
-        {/* Aurora background */}
-        <div className="absolute inset-0 z-0">
-          <div className="aurora-line aurora-line-2"></div>
-          <div className="aurora-line aurora-line-5"></div>
-          <div className="aurora-line aurora-line-6"></div>
-        </div>
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="relative card p-12 text-center bg-surface/50 backdrop-blur-sm">
+      <section className="py-20 bg-gray-900/90">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="relative card p-12 text-center bg-surface/90 backdrop-blur-sm">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               Start Tracking KOLs Today
             </h2>

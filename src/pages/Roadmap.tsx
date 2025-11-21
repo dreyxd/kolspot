@@ -1,3 +1,5 @@
+import SpotlightBackground from '../components/SpotlightBackground';
+
 export default function Roadmap() {
   const roadmapPhases = [
     {
@@ -139,8 +141,9 @@ export default function Roadmap() {
   };
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-16">
+    <SpotlightBackground>
+      <main className="min-h-screen">
+        <div className="container mx-auto px-4 py-16">
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-accent-light via-accent to-accent-soft bg-clip-text text-transparent">
@@ -221,8 +224,9 @@ export default function Roadmap() {
               <span className="txt relative z-10 text-white">Launch App</span>
             </a>
           </div>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </SpotlightBackground>
   );
 }

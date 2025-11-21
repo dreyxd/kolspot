@@ -57,11 +57,7 @@ export default function KOLS() {
             </li>
             <li className="flex items-center justify-between">
               <span className="text-neutral-400">Taxes</span>
-              <span className="text-green-400 font-semibold">0% Buy/Sell</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span className="text-neutral-400">Initial Liquidity</span>
-              <span className="text-neutral-300">TBA</span>
+              <span className="text-green-400 font-semibold">0</span>
             </li>
           </ul>
           <div className="mt-6 flex flex-wrap gap-3">

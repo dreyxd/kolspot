@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 
-const pumpUrl = import.meta.env.VITE_KOLS_PUMP_URL as string | undefined
-const mint = import.meta.env.VITE_KOLS_MINT as string | undefined
+const pumpUrl = import.meta.env.VITE_KOLS_PUMP_URL as string | undefined || 'https://pump.fun/3wrHU4a15WLceBopoaiDxePwUxUernJCTtar2UWKpump'
+const mint = import.meta.env.VITE_KOLS_MINT as string | undefined || '3wrHU4a15WLceBopoaiDxePwUxUernJCTtar2UWKpump'
 const twitter = import.meta.env.VITE_KOLS_TWITTER as string | undefined
 
 export default function KOLS() {
@@ -30,7 +30,7 @@ export default function KOLS() {
           <ul className="space-y-3 text-sm">
             <li className="flex items-center justify-between">
               <span className="text-neutral-400">Status</span>
-              <span className="text-yellow-400 font-semibold">Coming soon</span>
+              <span className="text-green-400 font-semibold">Live on Pump.fun</span>
             </li>
             <li className="flex items-center justify-between">
               <span className="text-neutral-400">Network</span>

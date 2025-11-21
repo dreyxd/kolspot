@@ -18,9 +18,9 @@ import SpotlightBackground from './components/SpotlightBackground'
 
 function App() {
   return (
-    <SpotlightBackground>
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <SpotlightBackground>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/terminal" element={<KOLTerminal />} />
@@ -40,8 +40,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Footer />
-      </div>
-    </SpotlightBackground>
+      </SpotlightBackground>
+    </div>
   )
 }
 

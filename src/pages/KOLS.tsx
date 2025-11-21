@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-const pumpUrl = import.meta.env.VITE_KOLS_PUMP_URL as string | undefined || 'https://pump.fun/3wrHU4a15WLceBopoaiDxePwUxUernJCTtar2UWKpump'
+const pumpUrl = import.meta.env.VITE_KOLS_PUMP_URL as string | undefined || 'https://pump.fun/coin/3wrHU4a15WLceBopoaiDxePwUxUernJCTtar2UWKpump'
 const mint = import.meta.env.VITE_KOLS_MINT as string | undefined || '3wrHU4a15WLceBopoaiDxePwUxUernJCTtar2UWKpump'
 const twitter = import.meta.env.VITE_KOLS_TWITTER as string | undefined
 
@@ -57,7 +57,7 @@ export default function KOLS() {
             </li>
             <li className="flex items-center justify-between">
               <span className="text-neutral-400">Taxes</span>
-              <span className="text-neutral-300">TBA</span>
+              <span className="text-green-400 font-semibold">0% Buy/Sell</span>
             </li>
             <li className="flex items-center justify-between">
               <span className="text-neutral-400">Initial Liquidity</span>
@@ -82,7 +82,7 @@ export default function KOLS() {
             {ca && (
               <a
                 className="px-4 py-2 rounded-md bg-white/10 text-neutral-200 hover:bg-white/20 transition"
-                href={`https://dexscreener.com/solana/${ca}`}
+                href="https://dexscreener.com/solana/5ulbnsyxvfsjbuy3rypg2jv2lpmqjkhy5ck32yhp44vy"
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -182,16 +182,18 @@ export default function HowItWorks() {
 
           {/* Call to Action */}
           <section className="text-center py-8">
-            <h2 className="text-2xl font-semibold mb-4">Ready to Track the Best?</h2>
+            <h2 className="text-2xl font-semibold mb-4">Ready to Start Your Journey?</h2>
             <p className="text-neutral-400 mb-6">
-              Start exploring KOL trades and discover winning strategies today
+              Track elite traders or compete in tournaments to prove your skills
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="/leaderboard" className="btn btn-primary px-6 py-2.5">
-                View Leaderboard
+              <a href="/kol-terminal" className="neon-btn relative overflow-hidden px-8 py-3 rounded-full font-semibold transition-all duration-300">
+                <span className="span absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-100"></span>
+                <span className="txt relative z-10 text-white">KOL Terminal</span>
               </a>
-              <a href="/kolboard" className="btn btn-outline px-6 py-2.5 text-white">
-                See Live Trades
+              <a href="https://app.kolspot.live" target="_blank" rel="noopener noreferrer" className="neon-btn relative overflow-hidden px-8 py-3 rounded-full font-semibold transition-all duration-300">
+                <span className="span absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-100"></span>
+                <span className="txt relative z-10 text-white">Launch App</span>
               </a>
             </div>
           </section>

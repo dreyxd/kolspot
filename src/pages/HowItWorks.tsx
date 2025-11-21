@@ -5,7 +5,7 @@ export default function HowItWorks() {
         <header className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">How KOLSpot Works</h1>
           <p className="text-lg text-neutral-400">
-            Track, analyze, and learn from the best crypto traders on Solana
+            Track elite traders, compete in tournaments, and become a recognized KOL
           </p>
         </header>
 
@@ -63,16 +63,16 @@ export default function HowItWorks() {
                 3
               </div>
               <div className="flex-1">
-                <h2 className="text-2xl font-semibold mb-3">Leaderboard Rankings</h2>
+                <h2 className="text-2xl font-semibold mb-3">Leaderboard & Tournaments</h2>
                 <p className="text-neutral-300 mb-4">
-                  Compare KOLs side-by-side on our dynamic leaderboard. See who's performing 
-                  best, who's most active, and discover emerging traders worth following.
+                  Compare traders on our dynamic leaderboard and compete in SOL-funded tournaments. 
+                  Top performers win rewards from creator fees and earn recognition.
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-neutral-400">
                   <li>Rankings by total PNL, win rate, and trade volume</li>
-                  <li>Filter by timeframe: 24h, 7d, 30d, or all-time</li>
-                  <li>Most active traders by transaction count</li>
-                  <li>Updated in real-time as new trades occur</li>
+                  <li>Compete in tournaments for SOL prizes</li>
+                  <li>Win consistently to become an officially tracked KOL</li>
+                  <li>Rewards funded by platform creator fees</li>
                 </ul>
               </div>
             </div>

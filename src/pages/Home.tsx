@@ -12,14 +12,13 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-block mb-4 px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full">
-              <span className="text-sm font-medium text-white">Professional Solana KOL Tracking</span>
+              <span className="text-sm font-medium text-white">Track, Compete & Earn on Solana</span>
             </div>
             <h1 className="text-5xl sm:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
-              Track Top Solana KOLs
+              Your Gateway to Elite Trading
             </h1>
             <p className="text-xl sm:text-2xl text-neutral-300 max-w-2xl mx-auto mb-12 leading-relaxed">
-              Real-time insights into pump.fun trades from leading Key Opinion Leaders. 
-              Monitor PNL, analyze strategies, and stay ahead of the market.
+              Track top KOL wallets, compete in tournaments for SOL rewards, and showcase your skills to become a tracked KOL yourself. All powered by creator fee rewards.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link to="/terminal" className="neon-btn">
@@ -58,7 +57,7 @@ export default function Home() {
             </div>
             <div className="card p-6 text-center">
               <div className="text-4xl sm:text-5xl font-bold text-accent-text mb-2">Live</div>
-              <div className="text-sm font-medium text-neutral-400">Real-Time Data</div>
+              <div className="text-sm font-medium text-neutral-400">Tournaments</div>
             </div>
             <div className="card p-6 text-center">
               <div className="text-4xl sm:text-5xl font-bold text-accent-text mb-2">24/7</div>
@@ -76,9 +75,9 @@ export default function Home() {
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">Powerful Features</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">Complete Trading Ecosystem</h2>
             <p className="text-lg text-neutral-400 max-w-2xl mx-auto">
-              Enterprise-grade tools to track and analyze KOL trading activity
+              Everything you need to track, learn, compete, and earn in the Solana ecosystem
             </p>
           </div>
 
@@ -89,10 +88,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white">Live Leaderboard</h3>
+              <h3 className="text-xl font-bold mb-3 text-white">KOL Wallet Tracking</h3>
               <p className="text-neutral-400 leading-relaxed">
-                Real-time rankings by PNL, volume, and win rate. 
-                Updated instantly as trades execute on-chain.
+                Follow 117+ elite traders in real-time. Monitor their pump.fun trades, PNL, and winning strategies.
               </p>
             </div>
 
@@ -102,10 +100,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white">Performance Analytics</h3>
+              <h3 className="text-xl font-bold mb-3 text-white">Trading Tournaments</h3>
               <p className="text-neutral-400 leading-relaxed">
-                Detailed PNL charts, trade history, and metrics. 
-                Track patterns and strategies over time.
+                Compete in SOL-funded challenges. Top performers win rewards from creator fees and earn recognition.
               </p>
             </div>
 
@@ -115,10 +112,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white">KOL Activity Feed</h3>
+              <h3 className="text-xl font-bold mb-3 text-white">Become a Tracked KOL</h3>
               <p className="text-neutral-400 leading-relaxed">
-                Monitor every pump.fun token buy across tracked wallets. 
-                Discover trending opportunities early.
+                Prove your trading skills in tournaments and get featured on KOLSpot. Build your reputation as an elite trader.
               </p>
             </div>
           </div>
@@ -129,9 +125,9 @@ export default function Home() {
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">Simple Process</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">Three Ways to Engage</h2>
             <p className="text-lg text-neutral-400 max-w-2xl mx-auto">
-              Start tracking top KOLs in three steps
+              Track, compete, or become the next tracked KOL
             </p>
           </div>
 
@@ -140,9 +136,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent-dark text-white font-bold text-2xl flex items-center justify-center mx-auto mb-6 shadow-glow">
                 1
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white">Launch Terminal</h3>
+              <h3 className="text-xl font-bold mb-3 text-white">Track Elite Traders</h3>
               <p className="text-neutral-400 leading-relaxed">
-                View tokens KOLs are buying, organized by stage and activity
+                Monitor real-time trades from 117+ top KOLs. Analyze their strategies and discover trending tokens early.
               </p>
             </div>
 
@@ -150,9 +146,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent-dark text-white font-bold text-2xl flex items-center justify-center mx-auto mb-6 shadow-glow">
                 2
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white">Monitor Activity</h3>
+              <h3 className="text-xl font-bold mb-3 text-white">Join Tournaments</h3>
               <p className="text-neutral-400 leading-relaxed">
-                Track live buys on Pump.fun/Raydium with trader details
+                Compete for SOL prizes funded by creator fees. Prove your trading skills and climb the leaderboard.
               </p>
             </div>
 
@@ -160,9 +156,9 @@ export default function Home() {
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent-dark text-white font-bold text-2xl flex items-center justify-center mx-auto mb-6 shadow-glow">
                 3
               </div>
-              <h3 className="text-xl font-bold mb-3 text-white">Analyze Data</h3>
+              <h3 className="text-xl font-bold mb-3 text-white">Get Tracked</h3>
               <p className="text-neutral-400 leading-relaxed">
-                Deep dive into price, liquidity, FDV, charts, and buyer info
+                Win tournaments and showcase consistent performance to become an officially tracked KOL on the platform.
               </p>
             </div>
           </div>

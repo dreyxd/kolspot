@@ -4,13 +4,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   getTopHolders, 
   getHolderStats, 
-  getBondingStatus, 
   getSnipersByPair,
   getPairStats,
   getHistoricalHolders,
   type TokenHolder, 
   type HolderStats, 
-  type BondingStatus,
   type TokenSniper,
   type PairStats,
   type HistoricalHolderData
@@ -62,7 +60,6 @@ const TokenDetailPage = () => {
   const [holders, setHolders] = useState<TokenHolder[]>([]);
   const [holderStats, setHolderStats] = useState<HolderStats | null>(null);
   const [holdersLoading, setHoldersLoading] = useState(false);
-  const [bondingStatus, setBondingStatus] = useState<BondingStatus | null>(null);
   const [snipers, setSnipers] = useState<TokenSniper[]>([]);
   const [pairStats, setPairStats] = useState<PairStats | null>(null);
   const [historicalHolders, setHistoricalHolders] = useState<HistoricalHolderData[]>([]);
@@ -114,20 +111,18 @@ const TokenDetailPage = () => {
     };
   }, [mint, refreshMs]);
 
-  // Fetch holder data and bonding status
+  // Fetch holder data
   useEffect(() => {
     const fetchHolders = async () => {
       if (!mint) return;
       setHoldersLoading(true);
       try {
-        const [holdersData, statsData, bondingData] = await Promise.all([
+        const [holdersData, statsData] = await Promise.all([
           getTopHolders(mint, 10),
-          getHolderStats(mint),
-          getBondingStatus(mint)
+          getHolderStats(mint)
         ]);
         setHolders(holdersData?.result || []);
         setHolderStats(statsData);
-        setBondingStatus(bondingData);
       } catch (error) {
         console.error('Error fetching holders:', error);
       } finally {
@@ -325,31 +320,7 @@ const TokenDetailPage = () => {
                     {formatUSD(analytics?.totalLiquidityUsd ?? token.tokenLiquidity)}
                   </div>
                 </div>
-                <div className="bg-black/20 rounded-lg p-4">
-                  <div className="text-xs text-neutral-500 mb-1">Status</div>
-                  <div className={`text-sm font-bold ${bondingStatus?.complete ? 'text-purple-400' : 'text-yellow-400'}`}>
-                    {bondingStatus?.complete ? '✓ Migrated' : '⏳ Bonding'}
-                  </div>
-                </div>
               </div>
-
-              {/* Bonding Progress Bar - Only show if not complete */}
-              {bondingStatus && !bondingStatus.complete && (
-                <div className="mt-4 bg-black/20 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-neutral-400">Bonding Progress</span>
-                    <span className="text-xs font-semibold text-yellow-400">
-                      {bondingStatus.percentage ? `${bondingStatus.percentage.toFixed(1)}%` : '0%'}
-                    </span>
-                  </div>
-                  <div className="w-full bg-black/40 rounded-full h-2 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-yellow-500 to-yellow-400 transition-all duration-500"
-                      style={{ width: `${bondingStatus.percentage || 0}%` }}
-                    />
-                  </div>
-                </div>
-              )}
 
               {/* Quick Analytics (24h) */}
               {analytics && (

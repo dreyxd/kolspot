@@ -4,7 +4,7 @@ import { formatCurrency, formatUsdPrice } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
 import { getBondingStatus, BondingStatus } from '../services/moralis';
 import { subscribeToTerminalUpdates, TokenUpdate } from '../services/terminalWs';
-import SolChallengeWinners from '../components/SolChallengeWinners';
+import SpotlightBackground from '../components/SpotlightBackground';
 
 const backendBaseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001';
 
@@ -421,8 +421,9 @@ const KOLTerminal = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="container mx-auto px-4 py-8">
+    <SpotlightBackground>
+      <div className="min-h-screen text-white">
+        <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-accent-light to-accent-text bg-clip-text text-transparent">
             KOL Terminal
@@ -452,11 +453,6 @@ const KOLTerminal = () => {
           </div>
         </div>
 
-        {/* 1 SOL Challenge Winners */}
-        <div className="mb-6">
-          <SolChallengeWinners />
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* New Coins <10K MarketCap */}
           <TerminalColumn
@@ -480,25 +476,26 @@ const KOLTerminal = () => {
             color="from-purple-500 to-pink-500"
           />
         </div>
-      </div>
 
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.3);
-        }
-      `}</style>
-    </div>
+        <style>{`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+          }
+        `}</style>
+        </div>
+      </div>
+    </SpotlightBackground>
   );
 };
 

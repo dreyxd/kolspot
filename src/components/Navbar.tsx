@@ -31,6 +31,9 @@ export default function Navbar() {
           <NavLink to="/kols" className={navLinkClass}>
             $KOLS
           </NavLink>
+          <NavLink to="/roadmap" className={navLinkClass}>
+            Roadmap
+          </NavLink>
           <NavLink to="/docs" className={navLinkClass}>
             Docs
           </NavLink>
@@ -90,6 +93,9 @@ export default function Navbar() {
             </NavLink>
             <NavLink to="/kols" className={navLinkClass}>
               $KOLS
+            </NavLink>
+            <NavLink to="/roadmap" className={navLinkClass}>
+              Roadmap
             </NavLink>
             <NavLink to="/docs" className={navLinkClass}>
               Docs

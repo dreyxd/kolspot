@@ -11,6 +11,7 @@ import About from './pages/About'
 import FAQs from './pages/FAQs'
 import Disclaimer from './pages/Disclaimer'
 import KOLS from './pages/KOLS'
+import Roadmap from './pages/Roadmap'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import SpotlightBackground from './components/SpotlightBackground'
@@ -33,6 +34,7 @@ function App() {
           <Route path="/faqs" element={<FAQs />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/kols" element={<KOLS />} />
+          <Route path="/roadmap" element={<Roadmap />} />
           {/* Redirect old KOLBoard route to Terminal */}
           <Route path="/kolboard" element={<Navigate to="/terminal" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />

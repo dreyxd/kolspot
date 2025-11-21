@@ -16,7 +16,7 @@ export default function Navbar() {
   }, [pathname])
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-background/80 backdrop-blur-xl relative shadow-3d">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-background/95 backdrop-blur-xl relative shadow-3d">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center">
           <img src={logo} alt="KOLSpot logo" className="h-10 w-auto object-contain rounded-lg" />

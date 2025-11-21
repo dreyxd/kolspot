@@ -205,8 +205,22 @@ body {
   min-height: 100vh;
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
+  background-repeat: no-repeat;
   overflow: hidden;
+}
+
+/* Desktop: use fixed attachment */
+@media (min-width: 768px) {
+  .spotlight-bg {
+    background-attachment: fixed;
+  }
+}
+
+/* Mobile: use scroll attachment for better compatibility */
+@media (max-width: 767px) {
+  .spotlight-bg {
+    background-attachment: scroll;
+  }
 }
 
 .spotlight-bg::before {

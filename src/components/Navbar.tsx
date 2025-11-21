@@ -106,12 +106,22 @@ export default function Navbar() {
             <NavLink to="/about" className={navLinkClass}>
               About
             </NavLink>
-            <Link
-              to="/terminal"
-              className="mt-2 px-4 py-2 rounded-md bg-accent text-black font-semibold text-center"
-            >
-              KOL Terminal
-            </Link>
+            <div className="mt-2 flex flex-col gap-2">
+              <Link
+                to="/terminal"
+                className="px-4 py-2 rounded-md bg-accent text-black font-semibold text-center"
+              >
+                KOL Terminal
+              </Link>
+              <a
+                href="https://app.kolspot.live"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 rounded-md bg-accent-light text-black font-semibold text-center"
+              >
+                Launch App
+              </a>
+            </div>
           </nav>
         </div>
       )}

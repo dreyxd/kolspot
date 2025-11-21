@@ -176,14 +176,21 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent-dark/5 rounded-2xl"></div>
             <div className="relative z-10">
               <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-neutral-200 bg-clip-text text-transparent">
-                Ready to Track KOLs?
+                Ready to Elevate Your Trading?
               </h2>
               <p className="text-lg text-neutral-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-                Join professional traders using KOLSpot to stay ahead of Solana trends
+                Track elite traders in real-time or compete in tournaments to showcase your skills
               </p>
-              <Link to="/terminal" className="btn btn-primary px-12 py-4 text-lg inline-block">
-                Launch Terminal Now
-              </Link>
+              <div className="flex flex-wrap justify-center gap-4">
+                <a href="/terminal" className="neon-btn relative overflow-hidden px-8 py-3 rounded-full font-semibold transition-all duration-300">
+                  <span className="span absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-100"></span>
+                  <span className="txt relative z-10 text-white">KOL Terminal</span>
+                </a>
+                <a href="https://app.kolspot.live" target="_blank" rel="noopener noreferrer" className="neon-btn relative overflow-hidden px-8 py-3 rounded-full font-semibold transition-all duration-300">
+                  <span className="span absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-100"></span>
+                  <span className="txt relative z-10 text-white">Launch App</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>

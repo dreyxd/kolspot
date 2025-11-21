@@ -75,7 +75,7 @@ export default function Home() {
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">Complete Trading Ecosystem</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent" style={{paddingBottom: '0.1em', lineHeight: '1.3'}}>Complete Trading Ecosystem</h2>
             <p className="text-lg text-neutral-400 max-w-2xl mx-auto">
               Everything you need to track, learn, compete, and earn in the Solana ecosystem
             </p>
@@ -125,7 +125,7 @@ export default function Home() {
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">Three Ways to Engage</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent" style={{paddingBottom: '0.1em', lineHeight: '1.3'}}>Three Ways to Engage</h2>
             <p className="text-lg text-neutral-400 max-w-2xl mx-auto">
               Track, compete, or become the next tracked KOL
             </p>
@@ -171,7 +171,7 @@ export default function Home() {
           <div className="relative card-glass p-16 text-center">
             <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-accent-dark/5 rounded-2xl"></div>
             <div className="relative z-10">
-              <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-neutral-200 bg-clip-text text-transparent">
+              <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-neutral-200 bg-clip-text text-transparent" style={{paddingBottom: '0.1em', lineHeight: '1.3'}}>
                 Ready to Elevate Your Trading?
               </h2>
               <p className="text-lg text-neutral-300 max-w-2xl mx-auto mb-10 leading-relaxed">

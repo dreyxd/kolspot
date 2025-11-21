@@ -3,7 +3,7 @@ export default function SolChallengeExplainer() {
     <div className="card-glass p-8 mb-8">
       {/* Header */}
       <div className="text-center mb-10">
-        <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-accent-light to-accent-text bg-clip-text text-transparent">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-accent-light to-accent-text bg-clip-text text-transparent" style={{paddingBottom: '0.1em', lineHeight: '1.3'}}>
           Trading Tournaments
         </h2>
         <p className="text-neutral-400 text-base max-w-2xl mx-auto">

@@ -116,7 +116,7 @@ export default function TrendingTokens() {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="w-2.5 h-2.5 bg-accent rounded-full animate-pulse shadow-glow"></div>
-            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent">
+            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white to-neutral-300 bg-clip-text text-transparent" style={{paddingBottom: '0.1em', lineHeight: '1.3'}}>
               Trending Tokens
             </h2>
           </div>
